@@ -13,4 +13,14 @@
     <string name="menu_tools">Tools</string>
     <string name="menu_share">Share</string>
     <string name="menu_send">Send</string>
+    <string name="listview_item">这个是listview_item中的文字、</string>
+    <string name="nav_self">我的日记</string>
+    <string name="nav_friend">好友日记</string>
+    <string name="nav_noname">树洞</string>
+    <string name="nav_friend_list">好友列表</string>
+    <string name="communicate">Communicate</string>
+    <string name="share">分享</string>
+    <string name="send">发送</string>
+    <string name="not_login">未登录</string>
+    <string name="signature">来自计科C534作品、</string>
 </resources>

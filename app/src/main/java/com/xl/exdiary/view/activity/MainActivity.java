@@ -1,25 +1,71 @@
-package com.xl.exdiary;
+package com.xl.exdiary.view.activity;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.view.View;
-import android.support.v4.view.GravityCompat;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.view.MenuItem;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import com.xl.exdiary.R;
+import com.xl.exdiary.presenter.impl.MainAPresenterImpl;
+import com.xl.exdiary.presenter.inter.IMainAPresenter;
+import com.xl.exdiary.view.inter.IMainAView;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, IMainAView {
+    int data_list_count = 25;
+    BaseAdapter text_adapter = new BaseAdapter() {
+        @Override
+        public int getCount() {   //getCount-------用来指定到底有多少个条目
+            return MainActivity.this.data_list_count;
+        }
+
+        @SuppressLint("SetTextI18n")
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) { //GetView------- 用来 显示 具体的条目的内容
+
+            View view;
+            if (convertView == null)
+                view = View.inflate(MainActivity.this, R.layout.listview_item, null);
+            else
+                view = convertView;
+            TextView tv = view.findViewById(R.id.TextItem);
+            String str = "卢本伟牛逼、";
+            tv.setText("\n        " + str + "\n");
+            return view;
+        }
+
+        @Override
+        public Object getItem(int position) {
+
+            return null;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return 0;
+        }
+
+    };
+    private IMainAPresenter mIMainAPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mIMainAPresenter = new MainAPresenterImpl(this);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -29,7 +75,7 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
-                
+
             }
         });
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -39,6 +85,9 @@ public class MainActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
+
+        ListView lv = findViewById(R.id.Listview);
+        lv.setAdapter(this.text_adapter);
     }
 
     @Override
@@ -75,7 +124,7 @@ public class MainActivity extends AppCompatActivity
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
@@ -96,5 +145,15 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    public <T> T request(int requestFlag) {
+        return null;
+    }
+
+    @Override
+    public <T> void response(T response, int responseFlag) {
+
     }
 }
