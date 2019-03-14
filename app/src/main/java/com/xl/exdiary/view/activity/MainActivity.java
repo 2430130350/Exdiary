@@ -1,6 +1,7 @@
 package com.xl.exdiary.view.activity;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -16,7 +17,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+
+import android.widget.FrameLayout;
 import android.widget.ListView;
+
 import android.widget.TextView;
 
 import com.xl.exdiary.R;
@@ -42,7 +46,7 @@ public class MainActivity extends AppCompatActivity
                 view = View.inflate(MainActivity.this, R.layout.listview_item, null);
             else
                 view = convertView;
-            TextView tv = view.findViewById(R.id.TextItem);
+            TextView tv = view.findViewById(R.id.TextItem_data);
             String str = "卢本伟牛逼、";
             tv.setText("\n        " + str + "\n");
             return view;
@@ -60,6 +64,7 @@ public class MainActivity extends AppCompatActivity
         }
 
     };
+
     private IMainAPresenter mIMainAPresenter;
 
     @Override
@@ -85,6 +90,8 @@ public class MainActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
+
+
 
         ListView lv = findViewById(R.id.Listview);
         lv.setAdapter(this.text_adapter);
@@ -128,17 +135,20 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_home) {
+        if (id == R.id.nav_self) {//用户信息、
             // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+            //MainActivity.this.finish();
 
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.nav_friend) {//好友日记、
 
-        } else if (id == R.id.nav_tools) {
 
-        } else if (id == R.id.nav_share) {
+        } else if (id == R.id.nav_mine) {//我的日记、
 
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.nav_noname) {//树洞、
+
+        } else if (id == R.id.nav_setting) {//设置、
+
+        } else if (id == R.id.nav_about) {//关于、
 
         }
 

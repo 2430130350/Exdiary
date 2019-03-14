@@ -9,6 +9,7 @@
     tools:showIn="@layout/app_bar_main"
     android:background="@drawable/index">
 
+
     <ListView
         android:divider="@null"
         android:id="@+id/Listview"
@@ -17,5 +18,11 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent" >
+
+    </ListView>
+
+
+
+
 </android.support.constraint.ConstraintLayout>
