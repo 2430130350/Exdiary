@@ -7,9 +7,14 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".view.activity.MainActivity"
     tools:showIn="@layout/app_bar_main"
-    android:background="@drawable/index">
+    android:background="@drawable/index"
+    android:animateLayoutChanges="true">
+
+
+
 
     <ListView
+
         android:divider="@null"
         android:id="@+id/Listview"
         android:layout_width="0dp"
@@ -17,5 +22,63 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        >
+
+    </ListView>
+
+    <ImageView
+        android:visibility="invisible"
+        android:id="@+id/blur"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:srcCompat="@null" />
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/redit"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/redit"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHeight_percent="0.85"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent="0.8"
+
+        app:cardCornerRadius="7dp"
+        app:cardElevation="50dp"
+        >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <com.xl.exdiary.view.specialView.LinedEditView
+                android:id="@+id/TextItem_time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#80FCFFC8"
+                android:text="@string/test_time" />
+
+            <com.xl.exdiary.view.specialView.LinedEditView
+                android:id="@+id/TextItem_data"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:background="#FCFFC8"
+                android:text="@string/listview_item"
+                android:textSize="18sp"
+
+                android:padding="20dp"
+                android:gravity="top|left"
+                />
+
+        </LinearLayout>
+
+    </android.support.v7.widget.CardView>
+
+
 </android.support.constraint.ConstraintLayout>
