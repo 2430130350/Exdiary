@@ -7,11 +7,9 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.widget.EditText;
 
 
-@SuppressLint("AppCompatCustomView")
-public class LinedEditView extends EditText {
+public class LinedEditView extends android.support.v7.widget.AppCompatEditText {
     public LinedEditView(Context context) {
         super(context);
     }

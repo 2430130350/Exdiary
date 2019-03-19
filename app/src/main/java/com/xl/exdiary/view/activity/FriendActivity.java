@@ -2,7 +2,6 @@ package com.xl.exdiary.view.activity;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -16,6 +15,8 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -23,43 +24,28 @@ import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
-
 import android.view.View;
 import android.view.ViewGroup;
-
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.ScaleAnimation;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-
 import android.widget.ImageView;
 import android.widget.ListView;
-
 import android.widget.TextView;
-import android.widget.Toast;
-
 
 import com.xl.exdiary.R;
-import com.xl.exdiary.presenter.impl.MainAPresenterImpl;
-import com.xl.exdiary.presenter.inter.IMainAPresenter;
-import com.xl.exdiary.view.inter.IMainAView;
+import com.xl.exdiary.presenter.impl.FriendAPresenterImpl;
+import com.xl.exdiary.presenter.inter.IFriendAPresenter;
+import com.xl.exdiary.view.inter.IFriendAView;
 
-import java.lang.annotation.Target;
-
-
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, IMainAView {
-
-    AlphaAnimation appearAnimation;
-
+public class FriendActivity extends AppCompatActivity
+        implements NavigationView.OnNavigationItemSelectedListener, IFriendAView {
 
     int data_list_count = 25;
     BaseAdapter text_adapter = new BaseAdapter() {
         @Override
         public int getCount() {   //getCount-------用来指定到底有多少个条目
-            return MainActivity.this.data_list_count;
+            return FriendActivity.this.data_list_count;
         }
 
         @SuppressLint("SetTextI18n")
@@ -68,7 +54,7 @@ public class MainActivity extends AppCompatActivity
 
             View view;
             if (convertView == null)
-                view = View.inflate(MainActivity.this, R.layout.listview_item, null);
+                view = View.inflate(FriendActivity.this, R.layout.listview_item, null);
             else
                 view = convertView;
             TextView tv = view.findViewById(R.id.TextItem_data);
@@ -90,14 +76,39 @@ public class MainActivity extends AppCompatActivity
 
     };
 
+    PagerAdapter read_card_adapter = new PagerAdapter() {
+        @Override
+        public int getCount() {
+            return FriendActivity.this.data_list_count;
+        }
+
+        @Override
+        public boolean isViewFromObject(@NonNull View view, @NonNull Object o) {
+            return view == o;
+        }
+        @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+            View view = View.inflate(FriendActivity.this, R.layout.read_card_view,null);
+
+            container.addView(view);
+            return view;
+        }
+        @Override
+        public void destroyItem(ViewGroup container, int position, Object object) {
+            // super.destroyItem(container,position,object); 这一句要删除，否则报错
+            container.removeView((View)object);
+        }
+    };
+
     //以上为自定义属性、
-    private IMainAPresenter mIMainAPresenter;
+
+    private IFriendAPresenter mIFriendAPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mIMainAPresenter = new MainAPresenterImpl(this);
-        setContentView(R.layout.activity_main);
+        mIFriendAPresenter = new FriendAPresenterImpl(this);
+        setContentView(R.layout.activity_friend);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         FloatingActionButton fab = findViewById(R.id.fab);
@@ -106,7 +117,6 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
-
             }
         });
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -117,34 +127,28 @@ public class MainActivity extends AppCompatActivity
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
 
-        //以下为自定义方法、
 
+
+        //以下为自定义代码、
         ListView lv = findViewById(R.id.Listview);
         lv.setAdapter(this.text_adapter);
+
+        ViewPager viewPager = findViewById(R.id.read_viewpager);
+        viewPager.setAdapter(this.read_card_adapter);
 
         //设置对item的点击事件、
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 //Toast.makeText(MainActivity.this, "" + id +"  " + position, Toast.LENGTH_SHORT).show();
-
-                MainActivity.this.findViewById(R.id.redit).invalidate();
-
                 //截图、去除状态栏和标题栏、
-                Bitmap bitmap = MainActivity.this.getbmp();
+                Bitmap bitmap = FriendActivity.this.getbmp();
                 //高斯模糊计算、
                 //展示图片、
-                ImageView imageView = MainActivity.this.findViewById(R.id.blur);
-
-                View redit = MainActivity.this.findViewById(R.id.redit);
-                redit.startAnimation(appearAnimation);
-                redit.setVisibility(View.VISIBLE);
-
-
-                MainActivity.this.blurV2(bitmap, imageView);
+                ImageView imageView = FriendActivity.this.findViewById(R.id.blur);
+                FriendActivity.this.blurV2(bitmap, imageView);
                 imageView.setVisibility(View.VISIBLE);
-
-
+                FriendActivity.this.findViewById(R.id.read_viewpager).setVisibility(View.VISIBLE);
             }
         });
 
@@ -152,89 +156,13 @@ public class MainActivity extends AppCompatActivity
         findViewById(R.id.blur).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MainActivity.this.findViewById(R.id.redit).setVisibility(View.INVISIBLE);
-                MainActivity.this.findViewById(R.id.blur).setVisibility(View.INVISIBLE);
-                MainActivity.this.findViewById(R.id.edit).setVisibility(View.INVISIBLE);
+                FriendActivity.this.findViewById(R.id.blur).setVisibility(View.INVISIBLE);
+                FriendActivity.this.findViewById(R.id.read_viewpager).setVisibility(View.INVISIBLE);
 
-                //清除掉动画、否贼下一次打开edit会出现透明布局、
-                MainActivity.this.findViewById(R.id.redit).clearAnimation();
-                MainActivity.this.findViewById(R.id.redit).invalidate();
-
-                View view = MainActivity.this.getCurrentFocus();
-                if (view != null) {
-                    InputMethodManager inputMethodManager = (InputMethodManager) MainActivity.this.getSystemService(Activity.INPUT_METHOD_SERVICE);
-                    inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-                }
-
-            }
-        });
-
-
-        //设置edit卡片出现的动画、
-        View redit = this.findViewById(R.id.redit);
-        appearAnimation = new AlphaAnimation(0, 1);
-        appearAnimation.setDuration(500);
-
-
-        //设置edit卡片中  内容部分控件  的点击事件、使布局放大进入编辑模式、
-        findViewById(R.id.TextItem_data).setOnFocusChangeListener(new android.view.View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    // 获得焦点
-                    Toast.makeText(MainActivity.this, "编辑模式、", Toast.LENGTH_SHORT).show();
-                    /** 设置缩放动画 */
-                    final ScaleAnimation animation = new ScaleAnimation(1f, 1.2f, 1f, 1.12f,
-                            Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);// 从相对于自身0.5倍的位置开始缩放，也就是从控件的位置缩放
-                    animation.setDuration(500);//设置动画持续时间
-
-                    // 常用方法
-                    //animation.setRepeatCount(int repeatCount);//设置重复次数
-                    animation.setFillAfter(false);//动画执行完后是否停留在执行完的状态
-                    animation.setFillBefore(true);
-                    //animation.setStartOffset(long startOffset);//执行前的等待时间
-
-                    View view = MainActivity.this.findViewById(R.id.redit);
-                    view.startAnimation(animation);
-                    // 开始动画
-                    //animation.startNow();
-
-                    animation.setAnimationListener(new Animation.AnimationListener() {
-                        @Override
-                        public void onAnimationStart(Animation animation) {
-
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animation animation) {
-
-                            MainActivity.this.findViewById(R.id.redit).clearAnimation();
-                            MainActivity.this.findViewById(R.id.redit).invalidate();
-
-                            MainActivity.this.findViewById(R.id.edit).setVisibility(View.VISIBLE);
-                            MainActivity.this.findViewById(R.id.redit).setVisibility(View.GONE);
-
-                            /** 设置缩放动画 */
-                            final ScaleAnimation anime = new ScaleAnimation(1f, 1f, 1f, 1f,
-                                    Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);// 从相对于自身0.5倍的位置开始缩放，也就是从控件的位置缩放
-                            anime.setDuration(1);//设置动画持续时间
-                            MainActivity.this.findViewById(R.id.redit).startAnimation(anime);
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animation animation) {
-
-                        }
-                    });
-
-
-                } else {
-                    // 失去焦点
-
-                }
             }
         });
     }
+
 
     public void blurV2(Bitmap bitmap, View view){
 
@@ -307,20 +235,13 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        if(MainActivity.this.findViewById(R.id.redit).getVisibility() == View.VISIBLE || MainActivity.this.findViewById(R.id.edit).getVisibility() == View.VISIBLE){//退出编辑查看模式、
-            //该处所有代码其实与  点击高斯模糊图片    的代码完全相同、但是那个地方是内部类、    暂使用复制方式实现调用、
-            MainActivity.this.findViewById(R.id.redit).setVisibility(View.INVISIBLE);
-            MainActivity.this.findViewById(R.id.blur).setVisibility(View.INVISIBLE);
-            MainActivity.this.findViewById(R.id.edit).setVisibility(View.INVISIBLE);
-
-            //清除掉动画、否贼下一次打开edit会出现透明布局、
-            MainActivity.this.findViewById(R.id.redit).clearAnimation();
-            MainActivity.this.findViewById(R.id.redit).invalidate();
-
+        if(FriendActivity.this.findViewById(R.id.blur).getVisibility() == View.VISIBLE){
+            FriendActivity.this.findViewById(R.id.blur).setVisibility(View.INVISIBLE);
+            FriendActivity.this.findViewById(R.id.read_viewpager).setVisibility(View.INVISIBLE);
             return;
         }
 
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
@@ -331,7 +252,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
+        getMenuInflater().inflate(R.menu.friend, menu);
         return true;
     }
 
@@ -352,23 +273,24 @@ public class MainActivity extends AppCompatActivity
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+    public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
         if (id == R.id.nav_self) {//用户信息、
             // Handle the camera action
 
+
         } else if (id == R.id.nav_friend) {//好友日记、
-            Intent intent = new Intent(MainActivity.this, FriendActivity.class);
+
+        } else if (id == R.id.nav_mine) {//我的日记、
+            Intent intent = new Intent(FriendActivity.this, MainActivity.class);
             startActivity(intent);
             this.finish();
-        } else if (id == R.id.nav_mine) {//我的日记、
-
         } else if (id == R.id.nav_noname) {//树洞、
 
         } else if (id == R.id.nav_setting) {//设置、
-            Intent intent = new Intent(MainActivity.this, SettingActivity.class);
+            Intent intent = new Intent(FriendActivity.this, SettingActivity.class);
             startActivity(intent);
             this.finish();
 

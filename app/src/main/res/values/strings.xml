@@ -17,7 +17,7 @@
     <string name="setting">设置</string>
     <string name="about">关于</string>
     <string name="not_login">未登录</string>
-    <string name="signature">来自计科C534作品、</string>
+    <string name="signature">来自计科C534作品、</string>F
 
     <string name="test_time">今天 8:00</string>
     <string name="title_activity_redit">REditActivity</string>
@@ -28,4 +28,6 @@
     <string name="menu_tools">Tools</string>
     <string name="menu_share">Share</string>
     <string name="menu_send">Send</string>
+    <string name="title_activity_setting">设置</string>
+    <string name="title_activity_friend">好友日记</string>
 </resources>
