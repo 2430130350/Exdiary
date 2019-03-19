@@ -62,6 +62,7 @@ public class MainActivity extends AppCompatActivity
             return MainActivity.this.data_list_count;
         }
 
+
         @SuppressLint("SetTextI18n")
         @Override
         public View getView(int position, View convertView, ViewGroup parent) { //GetView------- 用来 显示 具体的条目的内容
