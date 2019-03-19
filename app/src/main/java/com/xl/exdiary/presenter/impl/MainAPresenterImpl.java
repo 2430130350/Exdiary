@@ -1,31 +1,30 @@
 package com.xl.exdiary.presenter.impl;
+import com.xl.exdiary.model.impl.DiaryModel;
+import com.xl.exdiary.model.inter.IDiaryModel;
 import com.xl.exdiary.presenter.inter.IMainAPresenter;
 import com.xl.exdiary.view.inter.IMainAView;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-
 public class MainAPresenterImpl implements IMainAPresenter {
     private IMainAView mIMainAView;
-    private IDairyModel mIDiaryModel;
+    private IDiaryModel mIDiaryModel;
 
     public MainAPresenterImpl(IMainAView aIMainAView) {
-        mIMainAView = aIMainAView;
-       // mIMainAModel = new MainAModelImpl();
-        mIDiaryModel = new DiaryModel();
+        mIMainAView = aIMainAView;//实例化主界面
+        mIDiaryModel = new DiaryModel();//实例化日记类
     }
 
     @Override
     public JSONArray getAllDiaryList() {//返回所有的日记 jsonarray 格式
         JSONArray jsa = mIDiaryModel.getAllDiaryList();
         if(jsa.length() == 0)
-        {//传入一个 长度为0 的 jsonarray 的对象
+        {//传入一个 长度为0 的 json array 的对象
             return null;
         }
         else {
             return jsa;
         }
-        return null;
     }
 
     @Override
@@ -34,16 +33,14 @@ public class MainAPresenterImpl implements IMainAPresenter {
         {//传入一个参数为空的 json 对象
             return false;
         }
-        else
-        {
-            if(tmDiaryModel == null )
+        else {
+            if (mIDiaryModel == null)
                 return false;
-           else  if ( mIDiaryModel.saveDiary(diary) )
+            else if (mIDiaryModel.saveDiary(diary))
                 return true;
-           else
+            else
                 return false;
         }
-        return false;
     }
 
     @Override
@@ -52,10 +49,9 @@ public class MainAPresenterImpl implements IMainAPresenter {
         {//删除为空的日记对象
             return false;
         }
-        else if (mIDiaryModel.delDiary(diary))
+        else if (mIDiaryModel.deleteDiary(diary))
             return true;
         else
             return false;
-        return false;
     }
 }
