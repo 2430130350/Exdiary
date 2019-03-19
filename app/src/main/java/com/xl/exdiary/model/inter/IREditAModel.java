@@ -1,4 +1,4 @@
 package com.xl.exdiary.model.inter;
 
-public interface IMainAModel {
+public interface IREditAModel {
 }
