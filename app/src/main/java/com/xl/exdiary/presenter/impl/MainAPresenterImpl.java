@@ -5,6 +5,7 @@ import com.xl.exdiary.model.inter.IDiaryModel;
 import com.xl.exdiary.presenter.inter.IMainAPresenter;
 import com.xl.exdiary.view.inter.IMainAView;
 import com.xl.exdiary.model.inter.IUserModel;
+import com.xl.exdiary.model.impl.Diary;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,10 +22,10 @@ public class MainAPresenterImpl implements IMainAPresenter {
     }
 
     @Override
-    public DiaryModel[] getAllDiaryList() throws JSONException {//返回所有的日记 jsonarray 格式
+    public Diary[] getAllDiaryList() throws JSONException {//返回所有的日记 jsonarray 格式
         JSONObject jso;
         JSONArray jsa = mIDiaryModel.getAllDiaryList();
-        DiaryModel[] objl = new DiaryModel[jsa.length()];
+        Diary[] diaries = new Diary[jsa.length()];
         if(jsa.length() == 0)
         {//传入一个 长度为0 的 json array 的对象
             return null;
@@ -32,9 +33,9 @@ public class MainAPresenterImpl implements IMainAPresenter {
         else {
             for(int i = 0; i< jsa.length(); i++){
                 jso = jsa.getJSONObject(i);
-                objl[i] = DiaryModel(jso.getString("title"),jso.getString("body"),jso.getString("startTime"));
+                diaries[i] = new Diary(jso.getString("title"),jso.getString("body"),jso.getString("startTime"));
             }
-            return objl;
+            return diaries;
         }
     }
 

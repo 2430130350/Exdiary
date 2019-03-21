@@ -35,8 +35,8 @@ public class REditAPresenterImpl implements IREditAPresenter {
             return false;
         }
         else {
-            diary.put("name",user.getString("nickName"));
-            diary.put("device",user.getString("device"));
+            diary.put("name",user.getString("name"));
+            diary.put("deviceNumber",user.getString("deviceNumber"));
             diary.put("date",simpleDateFormat.format(date));
             diary.put("title",title);
             diary.put("body",body);
