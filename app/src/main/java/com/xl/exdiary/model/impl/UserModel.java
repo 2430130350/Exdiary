@@ -1,22 +1,23 @@
 package com.xl.exdiary.model.impl;
 
 
+import android.os.Environment;
+
 import com.xl.exdiary.model.inter.IUserModel;
 
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.FileInputStream;
+import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 
 public class UserModel implements IUserModel {
     @Override
     public boolean saveUserInfo(JSONObject userInfo) {
         try {
-            BufferedWriter bw=new BufferedWriter(new FileWriter("userInfo.json"));
+            BufferedWriter bw=new BufferedWriter(new FileWriter(new File(Environment.getExternalStorageDirectory(),"ExDiary/userInfo.json")));
             bw.write(userInfo.toString());
             bw.flush();
             bw.close();
@@ -31,8 +32,8 @@ public class UserModel implements IUserModel {
     public JSONObject getUserInfo() {
         try {
             StringBuilder result = new StringBuilder();
-            BufferedReader br = new BufferedReader(new InputStreamReader(
-                    new FileInputStream("userInfo.json"), StandardCharsets.UTF_8));
+            BufferedReader br = new BufferedReader(new FileReader(
+                    new File(Environment.getExternalStorageDirectory(),"ExDiary/userInfo.json")));
             String s = null;
             while ((s = br.readLine()) != null)
                 result.append(System.lineSeparator() + s);

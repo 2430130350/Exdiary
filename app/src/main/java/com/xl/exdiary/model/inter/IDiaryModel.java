@@ -6,5 +6,5 @@ import org.json.JSONObject;
 public interface IDiaryModel {
     public JSONArray getAllDiaryList();
     public boolean saveDiary(JSONObject diary);
-    public Boolean deleteDiary(JSONObject diary);
+    public boolean deleteDiary(JSONObject diary);
 }
