@@ -39,7 +39,7 @@ public class DiaryModel implements IDiaryModel {
         int flag=0;
         try{
             for(int i=0;i<diaries.length();i++)
-                if(diaries.getJSONObject(i).get("startTime")==diary.get("startTime")) {
+                if(diaries.getJSONObject(i).get("date")==diary.get("date")) {
                     diaries.remove(i);
                     diaries.put(diary);
                     flag=1;
@@ -62,7 +62,7 @@ public class DiaryModel implements IDiaryModel {
         JSONArray diaries=getAllDiaryList();
         try{
             for(int i=0;i<diaries.length();i++)
-                if(diaries.getJSONObject(i).get("startTime")==diary.get("startTime")) {
+                if(diaries.getJSONObject(i).get("date")==diary.get("date")) {
                     diaries.remove(i);
                     return true;
                 }

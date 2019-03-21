@@ -33,7 +33,7 @@ public class MainAPresenterImpl implements IMainAPresenter {
         else {
             for(int i = 0; i< jsa.length(); i++){
                 jso = jsa.getJSONObject(i);
-                diaries[i] = new Diary(jso.getString("title"),jso.getString("body"),jso.getString("startTime"));
+                diaries[i] = new Diary(jso.getString("title"),jso.getString("body"),jso.getString("date"));
             }
             return diaries;
         }
@@ -47,10 +47,10 @@ public class MainAPresenterImpl implements IMainAPresenter {
             return false;
         }
         else {
-            JSONObject ddiary = new JSONObject();
-            ddiary.put("user",jso.getString("user"));
-            ddiary.put("date",date);
-            return mIDiaryModel.deleteDiary(ddiary);
+            JSONObject diary = new JSONObject();
+            diary.put("user",jso.getString("name"));
+            diary.put("date",date);
+            return mIDiaryModel.deleteDiary(diary);
         }
     }
 }
