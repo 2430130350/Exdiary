@@ -2,11 +2,18 @@ package com.xl.exdiary.view.activity;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
+import android.provider.MediaStore;
 import android.renderscript.Allocation;
 import android.renderscript.Element;
 import android.renderscript.RenderScript;
@@ -45,18 +52,21 @@ import com.xl.exdiary.R;
 import com.xl.exdiary.presenter.impl.MainAPresenterImpl;
 import com.xl.exdiary.presenter.inter.IMainAPresenter;
 import com.xl.exdiary.view.inter.IMainAView;
+import com.xl.exdiary.view.specialView.LocalSetting;
+import com.xl.exdiary.view.specialView.LocalSettingFileHandler;
 
+import java.io.FileDescriptor;
 import java.lang.annotation.Target;
 
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, IMainAView {
 
-    AlphaAnimation appearAnimation;
+    private AlphaAnimation appearAnimation;
 
-
-    int data_list_count = 25;
-    BaseAdapter text_adapter = new BaseAdapter() {
+    private LocalSetting localSetting = null;
+    private int data_list_count = 25;
+    private BaseAdapter text_adapter = new BaseAdapter() {
         @Override
         public int getCount() {   //getCount-------用来指定到底有多少个条目
             return MainActivity.this.data_list_count;
@@ -187,7 +197,7 @@ public class MainActivity extends AppCompatActivity
                     /** 设置缩放动画 */
                     final ScaleAnimation animation = new ScaleAnimation(1f, 1.2f, 1f, 1.12f,
                             Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);// 从相对于自身0.5倍的位置开始缩放，也就是从控件的位置缩放
-                    animation.setDuration(500);//设置动画持续时间
+                    animation.setDuration(400);//设置动画持续时间
 
                     // 常用方法
                     //animation.setRepeatCount(int repeatCount);//设置重复次数
@@ -235,7 +245,48 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
+
+        this.initOther();
     }
+
+    private void initOther(){
+        LocalSettingFileHandler localSettingFileHandler = new LocalSettingFileHandler(this, null);
+        this.localSetting = localSettingFileHandler.getLocalSetting();
+        if(localSetting == null){
+            Toast.makeText(this, "首次进入App、已应用默认设置、", Toast.LENGTH_SHORT).show();
+            localSetting = new LocalSetting(false);
+            this.setLocalSetting();
+        }
+        else{
+            //初始化背景、
+            if(localSetting.isNoBackground){
+                findViewById(R.id.mainContent).setBackgroundColor(Color.WHITE);
+
+            }
+            else if(localSetting.settingBackground != null){
+                //设置自定义的图片为背景、
+                setDiyBackground();
+            }
+        }
+
+    }
+
+    private void setDiyBackground(){
+        Bitmap bitmap = BitmapFactory.decodeFile(this.localSetting.mainBackground);
+        findViewById(R.id.mainContent).setBackground(new BitmapDrawable(getResources(), bitmap));//把bitmap转为drawable,layout为xml文件里的主layout
+        findViewById(R.id.mainContent).invalidate();
+    }
+
+    private void setLocalSetting(){
+        LocalSettingFileHandler localSettingFileHandler = new LocalSettingFileHandler(//设置保存到本地文件、
+                this,
+                this.localSetting);
+        localSettingFileHandler.setLocalSetting();
+
+    }
+
+
+
 
     public void blurV2(Bitmap bitmap, View view){
 
@@ -344,7 +395,10 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_settings) {//右上角菜单中设置、
+            startActivity(new Intent(MainActivity.this, SettingActivity.class));
+
+
             return true;
         }
 
@@ -371,7 +425,6 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_setting) {//设置、
             Intent intent = new Intent(MainActivity.this, SettingActivity.class);
             startActivity(intent);
-            this.finish();
 
         } else if (id == R.id.nav_about) {//关于、
 

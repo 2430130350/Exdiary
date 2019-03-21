@@ -20,7 +20,9 @@
             android:layout_height="wrap_content"
             android:background="#80FCFFC8"
             android:focusable="false"
-            android:text="@string/test_time" />
+            android:text="@string/test_time"
+
+            android:enabled="false"/>
 
         <com.xl.exdiary.view.specialView.LinedEditView
             android:id="@+id/TextItem_data"
@@ -31,7 +33,8 @@
             android:text="@string/listview_item"
             android:textSize="18sp"
 
-
+            android:textColor="#000000"
+            android:enabled="false"
             android:padding="20dp"
             android:gravity="top|left"
             />

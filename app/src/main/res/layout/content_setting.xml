@@ -7,7 +7,8 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".view.activity.SettingActivity"
     tools:showIn="@layout/app_bar_setting"
-    android:background="@drawable/setting">
+    android:background="@drawable/setting"
+    android:id="@+id/settingContent">
 
     <View
         android:id="@+id/view7"
@@ -36,6 +37,13 @@
         android:layout_height="1dp"
         android:background="#000000"
         app:layout_constraintBottom_toBottomOf="@+id/textView8" />
+
+    <View
+        android:id="@+id/view"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#000000"
+        app:layout_constraintBottom_toTopOf="@+id/guideline6" />
 
     <TextView
         android:id="@+id/textView12"
@@ -160,11 +168,11 @@
         app:layout_constraintTop_toTopOf="@+id/guideline15" />
 
     <TextView
-        android:id="@+id/textView5"
+        android:id="@+id/diyBackground"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:gravity="center_vertical"
-        android:text="切换主题"
+        android:text="自定义背景"
         android:textSize="40px"
         app:layout_constraintBottom_toTopOf="@+id/guideline6"
         app:layout_constraintEnd_toStartOf="@+id/guideline2"
@@ -196,7 +204,7 @@
         app:layout_constraintTop_toTopOf="@+id/guideline11" />
 
     <Switch
-        android:id="@+id/switch1"
+        android:id="@+id/isNoBackground"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toTopOf="@+id/guideline"

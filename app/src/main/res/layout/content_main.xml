@@ -8,7 +8,8 @@
     tools:context=".view.activity.MainActivity"
     tools:showIn="@layout/app_bar_main"
     android:background="@drawable/index"
-    android:animateLayoutChanges="false">
+    android:animateLayoutChanges="false"
+    android:id="@+id/mainContent">
 
 
 

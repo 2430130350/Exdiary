@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.renderscript.Allocation;
@@ -32,15 +34,20 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.xl.exdiary.R;
 import com.xl.exdiary.presenter.impl.FriendAPresenterImpl;
 import com.xl.exdiary.presenter.inter.IFriendAPresenter;
 import com.xl.exdiary.view.inter.IFriendAView;
+import com.xl.exdiary.view.specialView.LocalSetting;
+import com.xl.exdiary.view.specialView.LocalSettingFileHandler;
 
 public class FriendActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, IFriendAView {
 
+    private LocalSetting localSetting = null;
+    //以上为自定义、
     int data_list_count = 25;
     BaseAdapter text_adapter = new BaseAdapter() {
         @Override
@@ -161,8 +168,34 @@ public class FriendActivity extends AppCompatActivity
 
             }
         });
+
+        this.initOther();
     }
 
+    private void initOther(){
+        LocalSettingFileHandler localSettingFileHandler = new LocalSettingFileHandler(this, null);
+        this.localSetting = localSettingFileHandler.getLocalSetting();
+        if(localSetting == null){
+            localSettingFileHandler.setLocalSetting();
+        }
+        else{
+            //初始化背景、
+            if(localSetting.isNoBackground){
+                findViewById(R.id.friendContent).setBackgroundColor(Color.WHITE);
+            }
+            else if(localSetting.settingBackground != null){
+                //设置自定义的图片为背景、
+                setDiyBackground();
+            }
+        }
+
+    }
+
+    private void setDiyBackground(){
+        Bitmap bitmap = BitmapFactory.decodeFile(this.localSetting.friendBackground);
+        findViewById(R.id.friendContent).setBackground(new BitmapDrawable(getResources(), bitmap));//把bitmap转为drawable,layout为xml文件里的主layout
+        findViewById(R.id.friendContent).invalidate();
+    }
 
     public void blurV2(Bitmap bitmap, View view){
 
@@ -264,7 +297,8 @@ public class FriendActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_settings) {//右上角菜单中设置、
+            startActivity(new Intent(FriendActivity.this, SettingActivity.class));
             return true;
         }
 
@@ -292,7 +326,6 @@ public class FriendActivity extends AppCompatActivity
         } else if (id == R.id.nav_setting) {//设置、
             Intent intent = new Intent(FriendActivity.this, SettingActivity.class);
             startActivity(intent);
-            this.finish();
 
         } else if (id == R.id.nav_about) {//关于、
 

@@ -8,7 +8,8 @@
     tools:context=".view.activity.FriendActivity"
     tools:showIn="@layout/app_bar_friend"
     android:background="@drawable/redit"
-    android:animateLayoutChanges="true">
+    android:animateLayoutChanges="true"
+    android:id="@+id/friendContent">
 
 
 
