@@ -1,13 +1,11 @@
 package com.xl.exdiary.model.impl;
 
-import java.sql.Timestamp;
-
 public class Diary {
     private String title;
     private String body;
-    private Timestamp startTime;
+    private String startTime;
 
-    public Diary(String title,String body,Timestamp startTime){
+    public Diary(String title,String body,String startTime){
         this.title=title;
         this.body=body;
         this.startTime=startTime;
@@ -28,11 +26,11 @@ public class Diary {
         this.body = body;
     }
 
-    public Timestamp getStartTime() {
+    public String getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(Timestamp startTime) {
+    public void setStartTime(String startTime) {
         this.startTime = startTime;
     }
 }
