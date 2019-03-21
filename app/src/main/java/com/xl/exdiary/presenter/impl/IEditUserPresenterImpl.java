@@ -1,5 +1,14 @@
 package com.xl.exdiary.presenter.impl;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import android.os.Environment;
+import android.provider.Settings;
+import android.telephony.TelephonyManager;
+import android.text.TextUtils;
+
 import com.xl.exdiary.model.impl.UserModel;
 import com.xl.exdiary.presenter.inter.IEditUserPresenter;
 import com.xl.exdiary.model.inter.IUserModel;
@@ -8,7 +17,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class IEditUserPresenterImpl implements IEditUserPresenter {
-
     private IUserModel mIUserModel;
     public IEditUserPresenterImpl() {
         mIUserModel = new UserModel();
@@ -16,7 +24,8 @@ public class IEditUserPresenterImpl implements IEditUserPresenter {
 
     //返回保存的用户信息 true 表示正确保存 false 表示错误保存
     @Override
-    public boolean saveUserInfor(String nickName, String device, String mail, String signature) throws JSONException {
+    public boolean saveUserInfor(String nickName, String mail, String signature) throws JSONException {
+        String device = DeviceUuidFactory.getInstance(mEditUserActivity).getDeviceUuid();
         JSONObject jso = mIUserModel.getUserInfo();
         if(jso.length() != 0
                 || !jso.getString("name").equals(nickName) || !jso.getString("deviceNumber").equals(device)
@@ -48,3 +57,5 @@ public class IEditUserPresenterImpl implements IEditUserPresenter {
             return null;
     }
 }
+
+
