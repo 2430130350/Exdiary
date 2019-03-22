@@ -1,46 +1,50 @@
 package com.xl.exdiary.presenter.impl;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.os.Build;
-import android.os.Environment;
-import android.provider.Settings;
-import android.telephony.TelephonyManager;
-import android.text.TextUtils;
-
 import com.xl.exdiary.model.impl.UserModel;
 import com.xl.exdiary.presenter.inter.IEditUserPresenter;
 import com.xl.exdiary.model.inter.IUserModel;
 import com.xl.exdiary.model.impl.User;
+import com.xl.exdiary.view.inter.IMainAView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class IEditUserPresenterImpl implements IEditUserPresenter {
     private IUserModel mIUserModel;
-    public IEditUserPresenterImpl() {
+    private IMainAView maIMainAview;
+
+    public IEditUserPresenterImpl(IMainAView aIMainAView) {
         mIUserModel = new UserModel();
+        maIMainAview = aIMainAView;
     }
 
     //返回保存的用户信息 true 表示正确保存 false 表示错误保存
     @Override
     public boolean saveUserInfor(String nickName, String mail, String signature) throws JSONException {
-        String device = DeviceUuidFactory.getInstance(mEditUserActivity).getDeviceUuid();
+        Context context = null;
+        String device = DeviceUuidFactory.getInstance(context).getDeviceUuid().toString();
         JSONObject jso = mIUserModel.getUserInfo();
-        if(jso.length() != 0
-                || !jso.getString("name").equals(nickName) || !jso.getString("deviceNumber").equals(device)
-                || !jso.getString("mail").equals(mail) || !jso.getString("signature").equals(signature) )
-        {//用户信息改变
-            JSONObject jsoUser = new JSONObject();
-            jsoUser.put("name",nickName);
-            jsoUser.put("deviceNumber",device);
-            jsoUser.put("mail",mail);
-            jsoUser.put("signature",signature);
+        JSONObject jsoUser = new JSONObject();
+        jsoUser.put("name",nickName);
+        jsoUser.put("deviceNumber",device);
+        jsoUser.put("signature",signature);
+        jsoUser.put("mail",mail);
+        if(jso.length() == 0)
+        {//当前无用户
             return mIUserModel.saveUserInfo(jsoUser);
         }
-        else {//用户信息未改变
-            return false;
+        else
+        {
+            if( !jso.getString("name").equals(nickName) || !jso.getString("deviceNumber").equals(device)
+                    || !jso.getString("mail").equals(mail) || !jso.getString("signature").equals(signature) )
+            {//用户信息改变
+                return mIUserModel.saveUserInfo(jsoUser);
+            }
+            else {//用户信息未改变
+                return true;
+            }
         }
+
     }
 
     @Override

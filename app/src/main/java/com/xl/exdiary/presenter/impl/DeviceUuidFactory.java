@@ -33,7 +33,7 @@ public class DeviceUuidFactory {
             deviceUuidFactory = new DeviceUuidFactory(context);
         }
         return deviceUuidFactory;
-    }
+}
 
     private DeviceUuidFactory(Context context) {
 
@@ -176,6 +176,5 @@ public class DeviceUuidFactory {
         READ_PHONE_STATE,
         WRITE_EXTERNAL_STORAGE
     }
-
 
 }

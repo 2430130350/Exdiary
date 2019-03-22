@@ -30,7 +30,7 @@ public class REditAPresenterImpl implements IREditAPresenter {
         JSONObject user = mIUserModel.getUserInfo();
         Date date = new Date(System.currentTimeMillis());
         SimpleDateFormat simpleDateFormat = new  SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss");
-        if(title.isEmpty() || body.isEmpty() )
+        if(title.isEmpty() || body.isEmpty())
         {//传入一个参数为空的 json 对象
             return false;
         }
