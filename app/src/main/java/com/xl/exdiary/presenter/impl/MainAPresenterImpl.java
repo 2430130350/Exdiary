@@ -22,8 +22,8 @@ public class MainAPresenterImpl implements IMainAPresenter {
     }
 
     @Override
-    public Diary[] getAllDiaryList() throws JSONException {//返回所有的日记 jsonarray 格式
-        JSONObject jso;
+    public Diary[] getAllDiaryList()  {//返回所有的日记 jsonarray 格式
+        JSONObject jso = null;
         JSONArray jsa = mIDiaryModel.getAllDiaryList();
         Diary[] diaries = new Diary[jsa.length()];
         if(jsa.length() == 0)
@@ -32,15 +32,21 @@ public class MainAPresenterImpl implements IMainAPresenter {
         }
         else {
             for(int i = 0; i< jsa.length(); i++){
-                jso = jsa.getJSONObject(i);
-                diaries[i] = new Diary(jso.getString("title"),jso.getString("body"),jso.getString("date"));
+                try {
+                    jso = jsa.getJSONObject(i);
+                    diaries[i] = new Diary(jso.getString("title"), jso.getString("body"), jso.getString("date"));
+                } catch (JSONException e) {
+                    mIMainAView.exception();
+                    return null;
+                    //异常处理
+                }
             }
             return diaries;
         }
     }
 
     @Override
-    public boolean delDiary(String date) throws JSONException {//删除一个日记 包含 账户/id date
+    public boolean delDiary(String date)  {//删除一个日记 包含 账户/id date
         JSONObject jso = mIUserModel.getUserInfo();
         if(date.isEmpty())
         {//删除为空的日记对象
@@ -48,8 +54,13 @@ public class MainAPresenterImpl implements IMainAPresenter {
         }
         else {
             JSONObject diary = new JSONObject();
-            diary.put("user",jso.getString("name"));
-            diary.put("date",date);
+            try {
+                diary.put("user",jso.getString("name"));
+                diary.put("date",date);
+            } catch (JSONException e) {
+                mIMainAView.exception();
+                return false;
+            }
             return mIDiaryModel.deleteDiary(diary);
         }
     }

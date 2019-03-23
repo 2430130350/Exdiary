@@ -1,5 +1,7 @@
 package com.xl.exdiary.presenter.impl;
 
+import android.annotation.SuppressLint;
+
 import com.xl.exdiary.model.impl.DiaryModel;
 import com.xl.exdiary.model.impl.REditAModelImpl;
 import com.xl.exdiary.model.impl.UserModel;
@@ -19,28 +21,36 @@ import java.util.Date;
 public class REditAPresenterImpl implements IREditAPresenter {
     private IUserModel mIUserModel;
     private IDiaryModel mIDiaryModel;
+    private IMainAView mIMainAview;
 
-    public REditAPresenterImpl(IMainAView aIREditAView) {
+    public REditAPresenterImpl(IMainAView tIMainAview) {
         mIUserModel = new UserModel();
         mIDiaryModel = new DiaryModel();
+        mIMainAview = tIMainAview;
     }
 
     @Override
-    public boolean saveDiary(String title, String body) throws JSONException {//添加一个日记 JSONObject 包含 账户姓名/id 日记 title body
+    public boolean saveDiary(String title, String body){//添加一个日记 JSONObject 包含 账户姓名/id 日记 title body
         JSONObject diary = new JSONObject();
         JSONObject user = mIUserModel.getUserInfo();
         Date date = new Date(System.currentTimeMillis());
-        SimpleDateFormat simpleDateFormat = new  SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss");
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat simpleDateFormat = new  SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss");
         if(title.isEmpty() || body.isEmpty())
         {//传入一个参数为空的 json 对象
             return false;
         }
         else {
-            diary.put("name",user.getString("name"));
-            diary.put("deviceNumber",user.getString("deviceNumber"));
-            diary.put("date",simpleDateFormat.format(date));
-            diary.put("title",title);
-            diary.put("body",body);
+            try {
+                diary.put("name",user.getString("name"));
+                diary.put("deviceNumber",user.getString("deviceNumber"));
+                diary.put("date",simpleDateFormat.format(date));
+                diary.put("title",title);
+                diary.put("body",body);
+            } catch (JSONException e) {
+               mIMainAview.exception();
+               return false;
+            }
+
             return mIDiaryModel.saveDiary(diary);
         }
     }
