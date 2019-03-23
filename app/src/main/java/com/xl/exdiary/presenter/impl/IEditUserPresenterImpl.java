@@ -33,7 +33,7 @@ public class IEditUserPresenterImpl implements IEditUserPresenter {
             maIMainAview.exception();
             return false;
         }
-        if(jso.length() == 0)
+        if(jso == null)
         {//当前无用户
             return mIUserModel.saveUserInfo(jsoUser);
         }

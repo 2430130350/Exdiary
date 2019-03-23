@@ -43,6 +43,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 
@@ -51,6 +52,7 @@ import android.widget.Toast;
 
 
 import com.xl.exdiary.R;
+import com.xl.exdiary.model.impl.Diary;
 import com.xl.exdiary.presenter.impl.IEditUserPresenterImpl;
 import com.xl.exdiary.presenter.impl.MainAPresenterImpl;
 import com.xl.exdiary.presenter.impl.REditAPresenterImpl;
@@ -58,6 +60,7 @@ import com.xl.exdiary.presenter.inter.IEditUserPresenter;
 import com.xl.exdiary.presenter.inter.IMainAPresenter;
 import com.xl.exdiary.presenter.inter.IREditAPresenter;
 import com.xl.exdiary.view.inter.IMainAView;
+import com.xl.exdiary.view.specialView.LinedEditView;
 import com.xl.exdiary.view.specialView.LocalSetting;
 import com.xl.exdiary.view.specialView.LocalSettingFileHandler;
 
@@ -72,11 +75,15 @@ public class MainActivity extends AppCompatActivity
 
 
     private LocalSetting localSetting = null;
-    private int data_list_count = 25;
+    private Diary[] diaries = null;
+    private int nowPosition = 0;
     private BaseAdapter text_adapter = new BaseAdapter() {
         @Override
         public int getCount() {   //getCount-------用来指定到底有多少个条目
-            return MainActivity.this.data_list_count;
+            if(MainActivity.this.diaries == null){
+                return 0;
+            }
+            return MainActivity.this.diaries.length;
         }
 
 
@@ -89,9 +96,13 @@ public class MainActivity extends AppCompatActivity
                 view = View.inflate(MainActivity.this, R.layout.listview_item, null);
             else
                 view = convertView;
-            TextView tv = view.findViewById(R.id.TextItem_data);
-            String str = "卢本伟牛逼、";
-            tv.setText("\n        " + str + "\n");
+            TextView time = view.findViewById(R.id.TextItem_time);
+            TextView data = view.findViewById(R.id.TextItem_data);
+            String timeStr = diaries[position].getStartTime();
+            String bodyStr = diaries[position].getBody();
+
+            time.setText(timeStr);
+            data.setText(bodyStr);
             return view;
         }
 
@@ -118,7 +129,7 @@ public class MainActivity extends AppCompatActivity
                     MainActivity.this.handleException();
                     break;
                 case 1://更新数据、
-                    MainActivity.this.updateListView();
+                    findViewById(R.id.Listview).invalidate();
                     break;
                 default:
                     break;
@@ -132,7 +143,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void updateListView(){
-        findViewById(R.id.Listview).invalidate();
+        this.mHandler.sendEmptyMessage(1);
     }
 
     //以上为自定义属性、
@@ -146,15 +157,69 @@ public class MainActivity extends AppCompatActivity
         mIMainAPresenter = new MainAPresenterImpl(this);
         mIEditUserPresenter = new IEditUserPresenterImpl(this);
         mIREditAPresenter = new REditAPresenterImpl(this);
+
+        //假装有这么一个用户、
+        mIEditUserPresenter.saveUserInfor("", "", "");
+
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("RestrictedApi")
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+
+                FloatingActionButton fab = findViewById(R.id.fab);
+                fab.setVisibility(View.GONE);
+
+                /**
+                 * 新建日记、
+                 * */
+                View edit = MainActivity.this.findViewById(R.id.edit);
+                LinedEditView editBody = edit.findViewById(R.id.editItem_data);
+                EditText editTitle = edit.findViewById(R.id.editItem_time);
+
+                editTitle.setText("");
+                editBody.setText("");
+
+                //截图、去除状态栏和标题栏、
+                Bitmap bitmap = MainActivity.this.getbmp();
+                //高斯模糊计算、
+                //展示图片、
+                ImageView imageView = MainActivity.this.findViewById(R.id.blur);
+                MainActivity.this.blurV2(bitmap, imageView);
+                AlphaAnimation animationBlur = new AlphaAnimation(0, 1);
+                animationBlur.setDuration(300);
+                imageView.startAnimation(animationBlur);
+                imageView.setVisibility(View.VISIBLE);
+
+                edit.startAnimation(appearAnimation);
+                edit.setVisibility(View.VISIBLE);
+
+                imageView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        FloatingActionButton fab = findViewById(R.id.fab);
+                        fab.setVisibility(View.VISIBLE);
+                        //新建日记、
+                        View edit = MainActivity.this.findViewById(R.id.edit);
+                        LinedEditView editBody = edit.findViewById(R.id.editItem_data);
+                        EditText editTitle = edit.findViewById(R.id.editItem_time);
+
+                        ImageView imageView = MainActivity.this.findViewById(R.id.blur);
+                        imageView.setVisibility(View.GONE);
+                        edit.startAnimation(deleteAnimation);
+                        edit.setVisibility(View.GONE);
+
+                        MainActivity.this.mIREditAPresenter.saveDiary(editTitle.getText().toString(), editBody.getText().toString());
+                        MainActivity.this.setListener();//重置监听、
+                    }
+                });
+
+
+
 
             }
         });
@@ -171,8 +236,37 @@ public class MainActivity extends AppCompatActivity
         /**
          * 从客户端获取数据、
          * */
+        this.getAllDiaryList();
+        this.setListener();
 
 
+
+
+        //设置卡片逐渐出现和消失的动画、
+        appearAnimation.setDuration(500);
+        deleteAnimation.setDuration(500);
+
+
+
+        this.initOther();
+
+    }
+
+    private void getAllDiaryList(){//获得数据、
+        new Thread(){
+          @Override
+          public void run(){
+              Diary[] tmp = mIMainAPresenter.getAllDiaryList();
+              if(tmp != null){
+                  MainActivity.this.diaries = tmp;
+                  MainActivity.this.updateListView();
+              }
+
+          }
+        }.start();
+    }
+
+    private void setListener(){
         ListView lv = findViewById(R.id.Listview);
         lv.setAdapter(this.text_adapter);
 
@@ -181,7 +275,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 //Toast.makeText(MainActivity.this, "" + id +"  " + position, Toast.LENGTH_SHORT).show();
-
+                MainActivity.this.nowPosition = position;
                 MainActivity.this.findViewById(R.id.redit).invalidate();
 
                 //截图、去除状态栏和标题栏、
@@ -191,7 +285,15 @@ public class MainActivity extends AppCompatActivity
                 ImageView imageView = MainActivity.this.findViewById(R.id.blur);
 
                 View redit = MainActivity.this.findViewById(R.id.redit);
-                redit.startAnimation(appearAnimation);
+                LinedEditView title = redit.findViewById(R.id.TextItem_time),
+                        body = redit.findViewById(R.id.TextItem_data);
+                String titleStr = MainActivity.this.diaries[position].getTitle(),
+                        bodyStr = MainActivity.this.diaries[position].getBody();
+                //阅读卡片文字装填、
+                title.setText(titleStr);
+                body.setText(bodyStr);
+
+                redit.startAnimation(appearAnimation);//阅读卡片渐现、
                 redit.setVisibility(View.VISIBLE);
 
 
@@ -228,14 +330,14 @@ public class MainActivity extends AppCompatActivity
                     inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
                 }
 
+                //保存当前修改的日记、暂无修改函数、
+                View edit = MainActivity.this.findViewById(R.id.edit);
+                LinedEditView editBody = edit.findViewById(R.id.editItem_data);
+                EditText editTitle = edit.findViewById(R.id.editItem_time);
+                MainActivity.this.mIREditAPresenter.modifyDiary(diaries[nowPosition].getStartTime(), editTitle.getText().toString(), editBody.getText().toString());
+
             }
         });
-
-
-        //设置卡片逐渐出现和消失的动画、
-        appearAnimation.setDuration(500);
-        deleteAnimation.setDuration(500);
-
 
         //设置edit卡片中  内容部分控件  的点击事件、使布局放大进入编辑模式、
         findViewById(R.id.TextItem_data).setOnFocusChangeListener(new android.view.View.OnFocusChangeListener() {
@@ -249,23 +351,29 @@ public class MainActivity extends AppCompatActivity
                             Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);// 从相对于自身0.5倍的位置开始缩放，也就是从控件的位置缩放
                     animation.setDuration(400);//设置动画持续时间
 
-                    // 常用方法
-                    //animation.setRepeatCount(int repeatCount);//设置重复次数
+
                     animation.setFillAfter(false);//动画执行完后是否停留在执行完的状态
                     animation.setFillBefore(true);
-                    //animation.setStartOffset(long startOffset);//执行前的等待时间
 
-                    View view = MainActivity.this.findViewById(R.id.redit);
+
+                    View view = MainActivity.this.findViewById(R.id.redit),
+                            edit = MainActivity.this.findViewById(R.id.edit);
+                    //阅读卡片数据写入编辑卡片、
+                    LinedEditView readTitle = view.findViewById(R.id.TextItem_time),
+                            readBody = view.findViewById(R.id.TextItem_data);
+                    LinedEditView editBody = edit.findViewById(R.id.editItem_data);
+                    EditText editTitle = edit.findViewById(R.id.editItem_time);
+
+                    editTitle.setText(readTitle.getText());
+                    editBody.setText(readBody.getText());
+
+                    //阅读卡片放大、
                     view.startAnimation(animation);
-                    // 开始动画
-                    //animation.startNow();
 
                     animation.setAnimationListener(new Animation.AnimationListener() {
                         @Override
                         public void onAnimationStart(Animation animation) {
-
                         }
-
                         @Override
                         public void onAnimationEnd(Animation animation) {
 
@@ -288,24 +396,12 @@ public class MainActivity extends AppCompatActivity
                         }
                     });
 
-
                 } else {
                     // 失去焦点
 
                 }
             }
         });
-
-        this.initOther();
-    }
-
-    private void getAllDiaryList(){//获得数据、
-        new Thread(){
-          @Override
-          public void run(){
-
-          }
-        };
     }
 
     private void initOther(){
