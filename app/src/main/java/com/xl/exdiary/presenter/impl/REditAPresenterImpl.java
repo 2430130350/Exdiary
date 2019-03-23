@@ -50,7 +50,29 @@ public class REditAPresenterImpl implements IREditAPresenter {
                mIMainAview.exception();
                return false;
             }
+            return mIDiaryModel.saveDiary(diary);
+        }
+    }
 
+    @Override
+    public boolean modifyDiary(String date, String title, String body) {//修改日记
+        JSONObject diary = new JSONObject();
+        JSONObject user = mIUserModel.getUserInfo();
+        if(title.isEmpty() || body.isEmpty())
+        {//传入一个参数为空的 json 对象
+            return false;
+        }
+        else {
+            try {
+                diary.put("name",user.getString("name"));
+                diary.put("deviceNumber",user.getString("deviceNumber"));
+                diary.put("date",date);
+                diary.put("title",title);
+                diary.put("body",body);
+            } catch (JSONException e) {
+                mIMainAview.exception();
+                return false;
+            }
             return mIDiaryModel.saveDiary(diary);
         }
     }

@@ -13,4 +13,14 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
         mIFriendAView = aIFriendAView;
         mIFriendAModel = new FriendAModelImpl();
     }
+
+    @Override
+    public boolean addFriends(String name, String uuid) {
+        return false;
+    }
+
+    @Override
+    public boolean delFriends(String name) {
+        return false;
+    }
 }
