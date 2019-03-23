@@ -62,25 +62,26 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:gravity="center_vertical"
-        android:text="作者"
+        android:text="\t\t\t\t作者"
         android:textSize="40px"
         app:layout_constraintBottom_toTopOf="@+id/guideline16"
         app:layout_constraintEnd_toStartOf="@+id/guideline4"
-        app:layout_constraintStart_toStartOf="@+id/guideline3"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/guideline15" />
 
     <TextView
         android:id="@+id/textView13"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginEnd="8dp"
         android:gravity="center_vertical"
-        android:text="支持我们"
+        android:text="\t\t\t\t支持我们"
         android:textSize="40px"
         app:layout_constraintBottom_toTopOf="@+id/guideline18"
-        app:layout_constraintEnd_toStartOf="@+id/guideline2"
-        app:layout_constraintStart_toStartOf="@+id/guideline3"
-        app:layout_constraintTop_toTopOf="@+id/guideline17" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/guideline17"
+        android:clickable="true"
+        android:background="?android:attr/selectableItemBackground"/>
 
     <TextView
         android:id="@+id/title"
@@ -136,11 +137,11 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:gravity="center_vertical"
-        android:text="无背景"
+        android:text="\t\t\t\t无背景"
         android:textSize="40px"
         app:layout_constraintBottom_toTopOf="@+id/guideline"
         app:layout_constraintEnd_toStartOf="@+id/guideline4"
-        app:layout_constraintStart_toStartOf="@+id/guideline3"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/guideline5" />
 
     <TextView
@@ -148,11 +149,11 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:gravity="center_vertical"
-        android:text="版本"
+        android:text="\t\t\t\t版本"
         android:textSize="40px"
         app:layout_constraintBottom_toTopOf="@+id/guideline14"
         app:layout_constraintEnd_toStartOf="@+id/guideline4"
-        app:layout_constraintStart_toStartOf="@+id/guideline3"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/guideline13" />
 
     <TextView
@@ -171,12 +172,14 @@
         android:id="@+id/diyBackground"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true"
         android:gravity="center_vertical"
-        android:text="自定义背景"
+        android:text="\t\t\t\t自定义背景"
         android:textSize="40px"
         app:layout_constraintBottom_toTopOf="@+id/guideline6"
-        app:layout_constraintEnd_toStartOf="@+id/guideline2"
-        app:layout_constraintStart_toStartOf="@+id/guideline3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/guideline" />
 
     <TextView
@@ -184,24 +187,28 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:gravity="center_vertical"
-        android:text="日记云备份"
+        android:text="\t\t\t\t日记云备份"
         android:textSize="40px"
         app:layout_constraintBottom_toTopOf="@+id/guideline10"
-        app:layout_constraintEnd_toStartOf="@+id/guideline2"
-        app:layout_constraintStart_toStartOf="@+id/guideline3"
-        app:layout_constraintTop_toTopOf="@+id/guideline9" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/guideline9"
+        android:clickable="true"
+        android:background="?android:attr/selectableItemBackground"/>
 
     <TextView
         android:id="@+id/textView9"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:gravity="center_vertical"
-        android:text="同步到手机"
+        android:text="\t\t\t\t同步到手机"
         android:textSize="40px"
         app:layout_constraintBottom_toTopOf="@+id/guideline12"
-        app:layout_constraintEnd_toStartOf="@+id/guideline2"
-        app:layout_constraintStart_toStartOf="@+id/guideline3"
-        app:layout_constraintTop_toTopOf="@+id/guideline11" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/guideline11"
+        android:clickable="true"
+        android:background="?android:attr/selectableItemBackground"/>
 
     <Switch
         android:id="@+id/isNoBackground"
@@ -322,12 +329,6 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.66" />
 
-    <View
-        android:id="@+id/view2"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="#000000"
-        app:layout_constraintBottom_toBottomOf="@+id/textView5" />
 
     <View
         android:id="@+id/view8"

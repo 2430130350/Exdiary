@@ -15,7 +15,6 @@
 
 
     <ListView
-
         android:divider="@null"
         android:id="@+id/Listview"
         android:layout_width="0dp"
@@ -131,6 +130,20 @@
         </LinearLayout>
 
     </android.support.v7.widget.CardView>
+
+    <include
+        android:visibility="gone"
+        android:id="@+id/userinfoCardview"
+        layout="@layout/userinfo_card"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintWidth_percent="0.65"
+        app:layout_constraintHeight_percent="0.65"
+        app:layout_constraintBottom_toBottomOf="parent"
+
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 
 </android.support.constraint.ConstraintLayout>

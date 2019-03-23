@@ -1,5 +1,6 @@
 package com.xl.exdiary.view.activity;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -10,6 +11,8 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.os.ParcelFileDescriptor;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -41,6 +44,34 @@ public class SettingActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, ISettingAView {
 
     private LocalSetting localSetting = null;
+
+    @SuppressLint("HandlerLeak")
+    public Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case -1://异常处理、
+                    SettingActivity.this.handleException();
+                    break;
+                case 1://正常完成、
+                    SettingActivity.this.success();
+                    break;
+                default:
+                    break;
+            }
+        }
+
+    };
+
+    private void handleException(){
+        Toast.makeText(this, "程序出错了、您可以尝试重启App、", Toast.LENGTH_SHORT).show();
+    }
+
+    private void success(){
+        Toast.makeText(this, "操作完成、", Toast.LENGTH_SHORT).show();
+    }
+
     //以上是自定义、
     private ISettingAPresenter mISettingAPresenter;
 
@@ -244,6 +275,11 @@ public class SettingActivity extends AppCompatActivity
 
 
         return true;
+    }
+
+    @Override
+    public void exception() {
+
     }
 
     @Override

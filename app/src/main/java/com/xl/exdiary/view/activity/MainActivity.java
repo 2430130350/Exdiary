@@ -12,6 +12,8 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.renderscript.Allocation;
@@ -49,8 +51,12 @@ import android.widget.Toast;
 
 
 import com.xl.exdiary.R;
+import com.xl.exdiary.presenter.impl.IEditUserPresenterImpl;
 import com.xl.exdiary.presenter.impl.MainAPresenterImpl;
+import com.xl.exdiary.presenter.impl.REditAPresenterImpl;
+import com.xl.exdiary.presenter.inter.IEditUserPresenter;
 import com.xl.exdiary.presenter.inter.IMainAPresenter;
+import com.xl.exdiary.presenter.inter.IREditAPresenter;
 import com.xl.exdiary.view.inter.IMainAView;
 import com.xl.exdiary.view.specialView.LocalSetting;
 import com.xl.exdiary.view.specialView.LocalSettingFileHandler;
@@ -61,8 +67,9 @@ import java.lang.annotation.Target;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, IMainAView {
+    private AlphaAnimation appearAnimation = new AlphaAnimation(0, 1);
+    private AlphaAnimation deleteAnimation = new AlphaAnimation(1, 0);
 
-    private AlphaAnimation appearAnimation;
 
     private LocalSetting localSetting = null;
     private int data_list_count = 25;
@@ -101,13 +108,44 @@ public class MainActivity extends AppCompatActivity
 
     };
 
+    @SuppressLint("HandlerLeak")
+    public Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case -1://异常处理、
+                    MainActivity.this.handleException();
+                    break;
+                case 1://更新数据、
+                    MainActivity.this.updateListView();
+                    break;
+                default:
+                    break;
+            }
+        }
+
+    };
+
+    private void handleException(){
+        Toast.makeText(this, "程序出错了、您可以尝试重启App、", Toast.LENGTH_SHORT).show();
+    }
+
+    private void updateListView(){
+        findViewById(R.id.Listview).invalidate();
+    }
+
     //以上为自定义属性、
+    private IREditAPresenter mIREditAPresenter;
+    private IEditUserPresenter mIEditUserPresenter;
     private IMainAPresenter mIMainAPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mIMainAPresenter = new MainAPresenterImpl(this);
+        mIEditUserPresenter = new IEditUserPresenterImpl(this);
+        mIREditAPresenter = new REditAPresenterImpl(this);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -129,6 +167,11 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         //以下为自定义方法、
+
+        /**
+         * 从客户端获取数据、
+         * */
+
 
         ListView lv = findViewById(R.id.Listview);
         lv.setAdapter(this.text_adapter);
@@ -163,6 +206,14 @@ public class MainActivity extends AppCompatActivity
         findViewById(R.id.blur).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(findViewById(R.id.userinfoCardview).getVisibility() == View.VISIBLE) {
+                    View view = findViewById(R.id.userinfoCardview);
+                    view.startAnimation(deleteAnimation);
+                    view.setVisibility(View.GONE);
+                    MainActivity.this.findViewById(R.id.blur).setVisibility(View.GONE);
+                    return;
+                }
+
                 MainActivity.this.findViewById(R.id.redit).setVisibility(View.INVISIBLE);
                 MainActivity.this.findViewById(R.id.blur).setVisibility(View.INVISIBLE);
                 MainActivity.this.findViewById(R.id.edit).setVisibility(View.INVISIBLE);
@@ -181,10 +232,9 @@ public class MainActivity extends AppCompatActivity
         });
 
 
-        //设置edit卡片出现的动画、
-        View redit = this.findViewById(R.id.redit);
-        appearAnimation = new AlphaAnimation(0, 1);
+        //设置卡片逐渐出现和消失的动画、
         appearAnimation.setDuration(500);
+        deleteAnimation.setDuration(500);
 
 
         //设置edit卡片中  内容部分控件  的点击事件、使布局放大进入编辑模式、
@@ -249,6 +299,15 @@ public class MainActivity extends AppCompatActivity
         this.initOther();
     }
 
+    private void getAllDiaryList(){//获得数据、
+        new Thread(){
+          @Override
+          public void run(){
+
+          }
+        };
+    }
+
     private void initOther(){
         LocalSettingFileHandler localSettingFileHandler = new LocalSettingFileHandler(this, null);
         this.localSetting = localSettingFileHandler.getLocalSetting();
@@ -270,6 +329,8 @@ public class MainActivity extends AppCompatActivity
         }
 
     }
+
+
 
     private void setDiyBackground(){
         Bitmap bitmap = BitmapFactory.decodeFile(this.localSetting.mainBackground);
@@ -371,6 +432,12 @@ public class MainActivity extends AppCompatActivity
             MainActivity.this.findViewById(R.id.redit).invalidate();
 
             return;
+        }else if(findViewById(R.id.userinfoCardview).getVisibility() == View.VISIBLE){
+            View view = findViewById(R.id.userinfoCardview);
+            view.startAnimation(deleteAnimation);
+            view.setVisibility(View.GONE);
+            MainActivity.this.findViewById(R.id.blur).setVisibility(View.GONE);
+            return;
         }
 
         if (drawer.isDrawerOpen(GravityCompat.START)) {
@@ -412,7 +479,36 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_self) {//用户信息、
-            // Handle the camera action
+            AlphaAnimation animation = new AlphaAnimation(0, 1);
+            animation.setDuration(300);
+            animation.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+
+                }
+
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    //截图、去除状态栏和标题栏、
+                    Bitmap bitmap = MainActivity.this.getbmp();
+                    //高斯模糊计算、
+                    //展示图片、
+                    ImageView imageView = MainActivity.this.findViewById(R.id.blur);
+                    MainActivity.this.blurV2(bitmap, imageView);
+                    AlphaAnimation animationBlur = new AlphaAnimation(0, 1);
+                    animationBlur.setDuration(300);
+                    imageView.startAnimation(animationBlur);
+                    imageView.setVisibility(View.VISIBLE);
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+
+                }
+            });
+            View view = findViewById(R.id.userinfoCardview);
+            view.startAnimation(animation);
+            view.setVisibility(View.VISIBLE);
 
         } else if (id == R.id.nav_friend) {//好友日记、
             Intent intent = new Intent(MainActivity.this, FriendActivity.class);
@@ -434,6 +530,12 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+    @Override
+    public void exception() {
+        this.mHandler.sendEmptyMessage(-1);//子线程通知主线程  出现了异常、
+    }
+
 
     @Override
     public <T> T request(int requestFlag) {

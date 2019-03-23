@@ -7,6 +7,7 @@ import com.xl.exdiary.model.inter.IDiaryModel;
 import com.xl.exdiary.model.inter.IREditAModel;
 import com.xl.exdiary.model.inter.IUserModel;
 import com.xl.exdiary.presenter.inter.IREditAPresenter;
+import com.xl.exdiary.view.inter.IMainAView;
 import com.xl.exdiary.view.inter.IREditAView;
 
 import org.json.JSONException;
@@ -19,7 +20,7 @@ public class REditAPresenterImpl implements IREditAPresenter {
     private IUserModel mIUserModel;
     private IDiaryModel mIDiaryModel;
 
-    public REditAPresenterImpl(IREditAView aIREditAView) {
+    public REditAPresenterImpl(IMainAView aIREditAView) {
         mIUserModel = new UserModel();
         mIDiaryModel = new DiaryModel();
     }

@@ -8,6 +8,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.renderscript.Allocation;
 import android.renderscript.Element;
 import android.renderscript.RenderScript;
@@ -106,6 +108,33 @@ public class FriendActivity extends AppCompatActivity
             container.removeView((View)object);
         }
     };
+
+    @SuppressLint("HandlerLeak")
+    public Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case -1://异常处理、
+                    FriendActivity.this.handleException();
+                    break;
+                case 1://更新数据、
+                    FriendActivity.this.updateListView();
+                    break;
+                default:
+                    break;
+            }
+        }
+
+    };
+
+    private void handleException(){
+        Toast.makeText(this, "程序出错了、您可以尝试重启App、", Toast.LENGTH_SHORT).show();
+    }
+
+    private void updateListView(){
+        findViewById(R.id.Listview).invalidate();
+    }
 
     //以上为自定义属性、
 
@@ -334,6 +363,11 @@ public class FriendActivity extends AppCompatActivity
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    public void exception() {
+
     }
 
     @Override

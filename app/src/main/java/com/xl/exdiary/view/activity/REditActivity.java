@@ -29,7 +29,7 @@ public class REditActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mIREditAPresenter = new REditAPresenterImpl(this);
+        //mIREditAPresenter = new REditAPresenterImpl(this);
         setContentView(R.layout.activity_redit);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
