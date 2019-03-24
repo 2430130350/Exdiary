@@ -1,4 +1,6 @@
 package com.xl.exdiary.presenter.impl;
+import android.location.Location;
+
 import com.xl.exdiary.model.impl.DiaryModel;
 import com.xl.exdiary.model.impl.UserModel;
 import com.xl.exdiary.model.inter.IDiaryModel;
@@ -43,6 +45,12 @@ public class MainAPresenterImpl implements IMainAPresenter {
             }
             return diaries;
         }
+    }
+
+    @Override
+    public JSONObject getWeather() {
+       // Location location = new Location();
+        return null;
     }
 
     @Override
