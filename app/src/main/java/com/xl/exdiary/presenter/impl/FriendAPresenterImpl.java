@@ -91,6 +91,31 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
     }
 
     @Override
+    public User[] getAllFriend() {
+        //获得所以好友信息
+        JSONArray jsa = mIFriendAModel.getAllFriend();
+        JSONObject jso = null;
+        User user[] = new User[jsa.length()];
+        if(jsa.length() != 0)
+        {
+            for(int i = 0; i < jsa.length(); i++)
+            {
+                try {
+                    jso = jsa.getJSONObject(i);
+                     user[i] = new User(jso.getString("name"), jso.getString("uuid"),
+                                jso.getString("signature"), jso.getString("mail"));
+                    } catch (JSONException e) {
+                    e.printStackTrace();
+                    //异常处理
+                }
+            }
+            return user;
+        }
+        else
+            return null;
+    }
+
+    @Override
     public boolean modifyFriend(String name, String uuid, String mail, String signature) {
         //修改用户信息
         JSONArray jsa = mIFriendAModel.getAllFriend();
