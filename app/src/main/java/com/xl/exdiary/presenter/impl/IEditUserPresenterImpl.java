@@ -33,7 +33,7 @@ public class IEditUserPresenterImpl implements IEditUserPresenter {
             maIMainAview.exception();
             return false;
         }
-        if(jso.length() == 0)
+        if(jso == null)
         {//当前无用户
             return mIUserModel.saveUserInfo(jsoUser);
         }
@@ -59,7 +59,7 @@ public class IEditUserPresenterImpl implements IEditUserPresenter {
     public User getUserInfor() {
         //返回用户信息的 json 对象 无用户信息则为 null
         JSONObject jsa = mIUserModel.getUserInfo();
-        if( jsa.length() != 0)
+        if( jsa == null)
         {
             User user = null;
             try {
@@ -77,7 +77,6 @@ public class IEditUserPresenterImpl implements IEditUserPresenter {
 
     @Override
     public boolean delUserInfor() {//删除用户信息
-
         return false;
     }
 }
