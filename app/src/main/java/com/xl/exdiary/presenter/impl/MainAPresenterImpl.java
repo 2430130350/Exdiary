@@ -26,7 +26,7 @@ public class MainAPresenterImpl implements IMainAPresenter {
         JSONObject jso = null;
         JSONArray jsa = mIDiaryModel.getAllDiaryList();
         Diary[] diaries = new Diary[jsa.length()];
-        if(jsa.length() == 0)
+        if( jsa.length() == 0)
         {//传入一个 长度为0 的 json array 的对象
             return null;
         }
