@@ -42,7 +42,7 @@ public class DiaryModel implements IDiaryModel {
         int flag=0;
         try{
             for(int i=0;i<diaries.length();i++)
-                if(diaries.getJSONObject(i).get("date")==diary.get("date")) {
+                if(diaries.getJSONObject(i).get("date").equals(diary.get("date"))) {
                     diaries.remove(i);
                     diaries.put(diary);
                     flag=1;
