@@ -59,7 +59,7 @@ public class IEditUserPresenterImpl implements IEditUserPresenter {
     public User getUserInfor() {
         //返回用户信息的 json 对象 无用户信息则为 null
         JSONObject jsa = mIUserModel.getUserInfo();
-        if( jsa == null)
+        if( jsa != null)
         {
             User user = null;
             try {
