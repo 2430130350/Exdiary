@@ -2,6 +2,8 @@ package com.xl.exdiary.view.activity;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -53,6 +55,7 @@ import android.widget.Toast;
 
 import com.xl.exdiary.R;
 import com.xl.exdiary.model.impl.Diary;
+import com.xl.exdiary.model.impl.User;
 import com.xl.exdiary.presenter.impl.IEditUserPresenterImpl;
 import com.xl.exdiary.presenter.impl.MainAPresenterImpl;
 import com.xl.exdiary.presenter.impl.REditAPresenterImpl;
@@ -215,6 +218,11 @@ public class MainActivity extends AppCompatActivity
 
                         MainActivity.this.mIREditAPresenter.saveDiary(editTitle.getText().toString(), editBody.getText().toString());
                         MainActivity.this.setListener();//重置监听、
+
+                        //刷新列表、
+                        ListView listView = MainActivity.this.findViewById(R.id.Listview);
+                        MainActivity.this.getAllDiaryList();
+                        listView.invalidate();
                     }
                 });
 
@@ -575,6 +583,7 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_self) {//用户信息、
+            this.onBackPressed();
             AlphaAnimation animation = new AlphaAnimation(0, 1);
             animation.setDuration(300);
             animation.setAnimationListener(new Animation.AnimationListener() {
@@ -603,6 +612,30 @@ public class MainActivity extends AppCompatActivity
                 }
             });
             View view = findViewById(R.id.userinfoCardview);
+            TextView userinfoName = view.findViewById(R.id.userinfoName),
+                    userinfoSign = view.findViewById(R.id.userSign),
+                    userinfoUUID = view.findViewById(R.id.userinfoUUID);
+            User user =  mIEditUserPresenter.getUserInfor();
+            userinfoName.setText(user.getName());
+            userinfoSign.setText(user.getSignature());
+            userinfoUUID.setText(user.getDeviceNumber());
+
+            userinfoUUID.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    //获取剪贴板管理器：
+                    ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                    // 创建普通字符型ClipData
+
+                    ClipData mClipData = ClipData.newPlainText("UUID", ((TextView) v).getText().toString());
+                    // 将ClipData内容放到系统剪贴板里。
+                    cm.setPrimaryClip(mClipData);
+
+                    Toast.makeText(MainActivity.this, "设备号已复制到剪切板、", Toast.LENGTH_SHORT).show();
+                    return false;
+                }
+            });
+
             view.startAnimation(animation);
             view.setVisibility(View.VISIBLE);
 
