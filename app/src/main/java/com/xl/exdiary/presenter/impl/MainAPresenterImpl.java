@@ -48,7 +48,7 @@ public class MainAPresenterImpl implements IMainAPresenter {
     @Override
     public boolean delDiary(String date)  {//删除一个日记 包含 账户/id date
         JSONObject jso = mIUserModel.getUserInfo();
-        if(date == null)
+        if(date.length() == 0)
         {//删除为空的日记对象
             return false;
         }

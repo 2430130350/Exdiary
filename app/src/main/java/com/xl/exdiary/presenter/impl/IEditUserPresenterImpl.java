@@ -24,35 +24,41 @@ public class IEditUserPresenterImpl implements IEditUserPresenter {
         String device = DeviceUuidFactory.getInstance((Context)maIMainAview).getDeviceUuid().toString();
         JSONObject jso = mIUserModel.getUserInfo();
         JSONObject jsoUser = new JSONObject();
-        try {
-            jsoUser.put("name",nickName);
-            jsoUser.put("deviceNumber",device);
-            jsoUser.put("signature",signature);
-            jsoUser.put("mail",mail);
-        } catch (JSONException e) {
-            maIMainAview.exception();
-            return false;
-        }
-        if(jso == null)
-        {//当前无用户
-            return mIUserModel.saveUserInfo(jsoUser);
-        }
-        else
+        if(nickName.length() != 0 )
         {
-            try {
-                if( !jso.getString("name").equals(nickName) || !jso.getString("deviceNumber").equals(device)
-                        || !jso.getString("mail").equals(mail) || !jso.getString("signature").equals(signature) )
-                {//用户信息改变
+                try {
+                    jsoUser.put("name",nickName);
+                    jsoUser.put("deviceNumber",device);
+                    jsoUser.put("signature",signature);
+                    jsoUser.put("mail",mail);
+                } catch (JSONException e) {
+                    maIMainAview.exception();
+                    return false;
+                }
+                if(jso == null)
+                {//当前无用户
                     return mIUserModel.saveUserInfo(jsoUser);
                 }
-                else {//用户信息未改变
-                    return true;
+                else
+                {
+                    try {
+                        if( !jso.getString("name").equals(nickName) || !jso.getString("deviceNumber").equals(device)
+                                || !jso.getString("mail").equals(mail) || !jso.getString("signature").equals(signature) )
+                        {//用户信息改变
+                            return mIUserModel.saveUserInfo(jsoUser);
+                        }
+                        else {//用户信息未改变
+                            return true;
+                        }
+                    } catch (JSONException e) {
+                        maIMainAview.exception();
+                        return false;
+                    }
                 }
-            } catch (JSONException e) {
-                maIMainAview.exception();
-                return false;
-            }
         }
+        else
+            return false;
+
     }
 
     @Override
