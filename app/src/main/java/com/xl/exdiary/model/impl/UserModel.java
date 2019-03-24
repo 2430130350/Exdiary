@@ -34,6 +34,9 @@ public class UserModel implements IUserModel {
     @Override
     public JSONObject getUserInfo() {
         try {
+            File file=new File(Environment.getExternalStorageDirectory(),"ExDiary/");
+            if(!file.exists())
+                file.mkdir();
             StringBuilder result = new StringBuilder();
             BufferedReader br = new BufferedReader(new FileReader(
                     new File(Environment.getExternalStorageDirectory(),"ExDiary/userInfo.json")));

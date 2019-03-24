@@ -19,6 +19,9 @@ public class DiaryModel implements IDiaryModel {
     @Override
     public JSONArray getAllDiaryList() {
         try {
+            File file=new File(Environment.getExternalStorageDirectory(),"ExDiary/");
+            if(!file.exists())
+                file.mkdir();
             StringBuilder result = new StringBuilder();
             BufferedReader br = new BufferedReader(new FileReader(
                     new File(Environment.getExternalStorageDirectory(),"ExDiary/diaries.json")));
@@ -26,7 +29,7 @@ public class DiaryModel implements IDiaryModel {
             while ((s = br.readLine()) != null)
                 result.append(System.lineSeparator() + s);
             br.close();
-            return new JSONArray(result);
+            return new JSONArray(result.toString());
         }catch (Exception e){
             e.printStackTrace();
         }
