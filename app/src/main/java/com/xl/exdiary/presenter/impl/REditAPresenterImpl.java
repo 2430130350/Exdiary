@@ -39,7 +39,7 @@ public class REditAPresenterImpl implements IREditAPresenter {
         {//传入一个参数为空的 json 对象
             return false;
         }
-        else {
+        else if (user != null){
             try {
                 diary.put("name",user.getString("name"));
                 diary.put("deviceNumber",user.getString("deviceNumber"));
@@ -52,6 +52,8 @@ public class REditAPresenterImpl implements IREditAPresenter {
             }
             return mIDiaryModel.saveDiary(diary);
         }
+        else
+            return false;
     }
 
     @Override
@@ -62,7 +64,7 @@ public class REditAPresenterImpl implements IREditAPresenter {
         {//传入一个参数为空的 json 对象
             return false;
         }
-        else {
+        else if(user != null) {
             try {
                 diary.put("name",user.getString("name"));
                 diary.put("deviceNumber",user.getString("deviceNumber"));
@@ -75,5 +77,7 @@ public class REditAPresenterImpl implements IREditAPresenter {
             }
             return mIDiaryModel.saveDiary(diary);
         }
+        else
+            return false;
     }
 }

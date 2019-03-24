@@ -48,11 +48,11 @@ public class MainAPresenterImpl implements IMainAPresenter {
     @Override
     public boolean delDiary(String date)  {//删除一个日记 包含 账户/id date
         JSONObject jso = mIUserModel.getUserInfo();
-        if(date.isEmpty())
+        if(date == null)
         {//删除为空的日记对象
             return false;
         }
-        else {
+        else if(jso != null) {
             JSONObject diary = new JSONObject();
             try {
                 diary.put("user",jso.getString("name"));
@@ -63,5 +63,7 @@ public class MainAPresenterImpl implements IMainAPresenter {
             }
             return mIDiaryModel.deleteDiary(diary);
         }
+        else
+            return false;
     }
 }
