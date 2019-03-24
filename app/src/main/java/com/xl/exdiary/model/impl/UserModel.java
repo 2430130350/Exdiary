@@ -17,15 +17,10 @@ public class UserModel implements IUserModel {
     @Override
     public boolean saveUserInfo(JSONObject userInfo) {
         try {
-            /**
-             * 下面这一行在执行时直接异常、被catch、待修复、
-             * */
+            File file=new File(Environment.getExternalStorageDirectory(),"ExDiary/");
+            if(!file.exists())
+                file.mkdir();
             BufferedWriter bw=new BufferedWriter(new FileWriter(new File(Environment.getExternalStorageDirectory(),"ExDiary/userInfo.json")));
-            /**
-             *
-             * */
-
-
             bw.write(userInfo.toString());
             bw.flush();
             bw.close();
