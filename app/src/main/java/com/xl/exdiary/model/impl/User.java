@@ -5,6 +5,7 @@ public class User {
     private String deviceNumber;
     private String signature;
     private String mail;
+
     public User(String name, String deviceNumber, String signature, String mail) {
         this.name = name;
         this.deviceNumber=deviceNumber;
@@ -32,9 +33,7 @@ public class User {
         return deviceNumber;
     }
 
-    public void setDeviceNumber(String deviceNumber) {
-        this.deviceNumber = deviceNumber;
-    }
+    public void setDeviceNumber(String deviceNumber) { this.deviceNumber = deviceNumber; }
 
     public String getMail() {
         return mail;

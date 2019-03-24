@@ -30,7 +30,7 @@ public class DiaryModel implements IDiaryModel {
         }catch (Exception e){
             e.printStackTrace();
         }
-        return null;
+        return new JSONArray();
     }
 
     @Override
@@ -46,6 +46,9 @@ public class DiaryModel implements IDiaryModel {
                 }
             if(flag==0)
                 diaries.put(diary);
+            File file=new File(Environment.getExternalStorageDirectory(),"ExDiary/");
+            if(!file.exists())
+                file.mkdir();
             BufferedWriter bw=new BufferedWriter(new FileWriter(new File(Environment.getExternalStorageDirectory(),"ExDiary/diaries.json")));
             bw.write(diaries.toString());
             bw.flush();
