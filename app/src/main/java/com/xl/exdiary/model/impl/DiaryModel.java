@@ -68,7 +68,7 @@ public class DiaryModel implements IDiaryModel {
         JSONArray diaries=getAllDiaryList();
         try{
             for(int i=0;i<diaries.length();i++)
-                if(diaries.getJSONObject(i).get("date")==diary.get("date")) {
+                if(diaries.getJSONObject(i).get("date").equals(diary.get("date"))) {
                     diaries.remove(i);
                     return true;
                 }

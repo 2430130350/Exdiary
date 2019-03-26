@@ -5,6 +5,7 @@ import android.os.Environment;
 
 import com.xl.exdiary.model.inter.IUserModel;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -48,6 +49,21 @@ public class UserModel implements IUserModel {
         }catch (Exception e){
             e.printStackTrace();
         }
+        return null;
+    }
+
+    @Override
+    public boolean saveFriend(JSONObject friend) {
+        return false;
+    }
+
+    @Override
+    public boolean delFriend(JSONObject friend) {
+        return false;
+    }
+
+    @Override
+    public JSONArray getAllFriend() {
         return null;
     }
 }

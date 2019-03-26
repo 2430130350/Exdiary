@@ -62,6 +62,7 @@
                 android:layout_height="wrap_content"
                 android:background="#80FCFFC8"
                 android:focusable="false"
+                android:gravity="center"
                 android:text="@string/test_time" />
 
             <com.xl.exdiary.view.specialView.LinedEditView

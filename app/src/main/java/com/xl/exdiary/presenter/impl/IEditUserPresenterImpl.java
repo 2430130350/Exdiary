@@ -5,6 +5,7 @@ import com.xl.exdiary.model.impl.UserModel;
 import com.xl.exdiary.presenter.inter.IEditUserPresenter;
 import com.xl.exdiary.model.inter.IUserModel;
 import com.xl.exdiary.model.impl.User;
+import com.xl.exdiary.view.inter.IFriendAView;
 import com.xl.exdiary.view.inter.IMainAView;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,6 +18,16 @@ public class IEditUserPresenterImpl implements IEditUserPresenter {
         mIUserModel = new UserModel();
         maIMainAview = aIMainAView;
     }
+
+    /**
+     * 仅为上层编译添加、未修改任何逻辑、请及时填补相关逻辑、-----------------
+     * */
+    public IEditUserPresenterImpl(IFriendAView aIMainAView) {
+
+    }
+    /**
+     * --------------------------------------------------------------
+     * */
 
     //返回保存的用户信息 true 表示正确保存 false 表示错误保存
     @Override

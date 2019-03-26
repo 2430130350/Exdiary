@@ -2,6 +2,9 @@ package com.xl.exdiary.view.activity;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -30,6 +33,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
@@ -39,7 +44,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.xl.exdiary.R;
+import com.xl.exdiary.model.impl.User;
 import com.xl.exdiary.presenter.impl.FriendAPresenterImpl;
+import com.xl.exdiary.presenter.impl.IEditUserPresenterImpl;
+import com.xl.exdiary.presenter.inter.IEditUserPresenter;
 import com.xl.exdiary.presenter.inter.IFriendAPresenter;
 import com.xl.exdiary.view.inter.IFriendAView;
 import com.xl.exdiary.view.specialView.LocalSetting;
@@ -49,7 +57,7 @@ public class FriendActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, IFriendAView {
 
     private LocalSetting localSetting = null;
-    //以上为自定义、
+
     int data_list_count = 25;
     BaseAdapter text_adapter = new BaseAdapter() {
         @Override
@@ -119,7 +127,39 @@ public class FriendActivity extends AppCompatActivity
                     FriendActivity.this.handleException();
                     break;
                 case 1://更新数据、
-                    FriendActivity.this.updateListView();
+                    final ListView listView = FriendActivity.this.findViewById(R.id.Listview);
+                    FriendActivity.this.getFriendDiaryList();
+
+                    FriendActivity.this.text_adapter.notifyDataSetChanged();
+                    listView.setVisibility(View.GONE);
+
+                    /**
+                     * 防止listview界面不刷新、
+                     * */
+                    AlphaAnimation animation = new AlphaAnimation(0, 1);
+                    animation.setDuration(1);
+                    animation.setAnimationListener(new Animation.AnimationListener() {
+                        @Override
+                        public void onAnimationStart(Animation animation) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animation animation) {
+                            listView.setVisibility(View.VISIBLE);
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animation animation) {
+
+                        }
+                    });
+                    listView.startAnimation(animation);
+                    listView.invalidate();
+
+                    /**
+                     *
+                     * */
                     break;
                 default:
                     break;
@@ -128,22 +168,31 @@ public class FriendActivity extends AppCompatActivity
 
     };
 
+
     private void handleException(){
         Toast.makeText(this, "程序出错了、您可以尝试重启App、", Toast.LENGTH_SHORT).show();
     }
 
     private void updateListView(){
-        findViewById(R.id.Listview).invalidate();
+        this.mHandler.sendEmptyMessage(1);
     }
 
+    private void getFriendDiaryList(){
+
+    }
     //以上为自定义属性、
 
     private IFriendAPresenter mIFriendAPresenter;
+    private IEditUserPresenter mIEditUserPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         mIFriendAPresenter = new FriendAPresenterImpl(this);
+        mIEditUserPresenter = new IEditUserPresenterImpl(this);
+
+
         setContentView(R.layout.activity_friend);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -166,6 +215,12 @@ public class FriendActivity extends AppCompatActivity
 
 
         //以下为自定义代码、
+        this.setListener();
+
+        this.initOther();
+    }
+
+    private void setListener(){
         ListView lv = findViewById(R.id.Listview);
         lv.setAdapter(this.text_adapter);
 
@@ -197,8 +252,6 @@ public class FriendActivity extends AppCompatActivity
 
             }
         });
-
-        this.initOther();
     }
 
     private void initOther(){
@@ -342,7 +395,63 @@ public class FriendActivity extends AppCompatActivity
 
         if (id == R.id.nav_self) {//用户信息、
             // Handle the camera action
+            if(findViewById(R.id.blur).getVisibility() == View.VISIBLE){
+                this.onBackPressed();
+            }
+            AlphaAnimation animation = new AlphaAnimation(0, 1);
+            animation.setDuration(300);
+            animation.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
 
+                }
+
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    //截图、去除状态栏和标题栏、
+                    Bitmap bitmap = FriendActivity.this.getbmp();
+                    //高斯模糊计算、
+                    //展示图片、
+                    ImageView imageView = FriendActivity.this.findViewById(R.id.blur);
+                    FriendActivity.this.blurV2(bitmap, imageView);
+                    AlphaAnimation animationBlur = new AlphaAnimation(0, 1);
+                    animationBlur.setDuration(300);
+                    imageView.startAnimation(animationBlur);
+                    imageView.setVisibility(View.VISIBLE);
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+
+                }
+            });
+            View view = findViewById(R.id.userinfoCardview);
+            TextView userinfoName = view.findViewById(R.id.userinfoName),
+                    userinfoSign = view.findViewById(R.id.userSign),
+                    userinfoUUID = view.findViewById(R.id.userinfoUUID);
+            User user =  mIEditUserPresenter.getUserInfor();
+            userinfoName.setText(user.getName());
+            userinfoSign.setText(user.getSignature());
+            userinfoUUID.setText(user.getDeviceNumber());
+
+            userinfoUUID.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    //获取剪贴板管理器：
+                    ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                    // 创建普通字符型ClipData
+
+                    ClipData mClipData = ClipData.newPlainText("UUID", ((TextView) v).getText().toString());
+                    // 将ClipData内容放到系统剪贴板里。
+                    cm.setPrimaryClip(mClipData);
+
+                    Toast.makeText(FriendActivity.this, "设备号已复制到剪切板、", Toast.LENGTH_SHORT).show();
+                    return false;
+                }
+            });
+
+            view.startAnimation(animation);
+            view.setVisibility(View.VISIBLE);
 
         } else if (id == R.id.nav_friend) {//好友日记、
 

@@ -1,18 +1,22 @@
 package com.xl.exdiary.view.activity;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -26,9 +30,11 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
@@ -76,17 +82,27 @@ public class MainActivity extends AppCompatActivity
     private AlphaAnimation appearAnimation = new AlphaAnimation(0, 1);
     private AlphaAnimation deleteAnimation = new AlphaAnimation(1, 0);
 
+    //6.0以上sd卡读写权限动态申请、
+    //读写权限
+    private static String[] PERMISSIONS_STORAGE = {
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE};
+    //请求状态码
+    private static int REQUEST_PERMISSION_CODE = 5;
+
 
     private LocalSetting localSetting = null;
     private Diary[] diaries = null;
     private int nowPosition = 0;
     private BaseAdapter text_adapter = new BaseAdapter() {
+
+
         @Override
         public int getCount() {   //getCount-------用来指定到底有多少个条目
-            if(MainActivity.this.diaries == null){
+            if(diaries == null){
                 return 0;
             }
-            return MainActivity.this.diaries.length;
+            return diaries.length;
         }
 
 
@@ -100,12 +116,12 @@ public class MainActivity extends AppCompatActivity
             else
                 view = convertView;
             TextView time = view.findViewById(R.id.TextItem_time);
-            TextView data = view.findViewById(R.id.TextItem_data);
-            String timeStr = diaries[position].getStartTime();
-            String bodyStr = diaries[position].getBody();
+            TextView title = view.findViewById(R.id.TextItem_data);
+            String timeStr = diaries[diaries.length - 1 - position].getStartTime();
+            String titleStr = diaries[diaries.length - 1 - position].getTitle();
 
             time.setText(timeStr);
-            data.setText(bodyStr);
+            title.setText(titleStr);
             return view;
         }
 
@@ -132,7 +148,39 @@ public class MainActivity extends AppCompatActivity
                     MainActivity.this.handleException();
                     break;
                 case 1://更新数据、
-                    findViewById(R.id.Listview).invalidate();
+                    final ListView listView = MainActivity.this.findViewById(R.id.Listview);
+                    MainActivity.this.getAllDiaryList();
+
+                    MainActivity.this.text_adapter.notifyDataSetChanged();
+                    listView.setVisibility(View.GONE);
+
+                    /**
+                     * 防止listview界面不刷新、
+                     * */
+                    AlphaAnimation animation = new AlphaAnimation(0, 1);
+                    animation.setDuration(1);
+                    animation.setAnimationListener(new Animation.AnimationListener() {
+                        @Override
+                        public void onAnimationStart(Animation animation) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animation animation) {
+                            listView.setVisibility(View.VISIBLE);
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animation animation) {
+
+                        }
+                    });
+                    listView.startAnimation(animation);
+                    updateItem(nowPosition);
+
+                    /**
+                     *
+                     * */
                     break;
                 default:
                     break;
@@ -140,6 +188,23 @@ public class MainActivity extends AppCompatActivity
         }
 
     };
+
+    private void updateItem(int position) {
+        ListView listView = findViewById(R.id.Listview);
+        /**第一个可见的位置**/
+        int firstVisiblePosition = listView.getFirstVisiblePosition();
+        /**最后一个可见的位置**/
+        int lastVisiblePosition = listView.getLastVisiblePosition();
+
+        /**在看见范围内才更新，不可见的滑动后自动会调用getView方法更新**/
+        if (position >= firstVisiblePosition && position <= lastVisiblePosition) {
+            /**获取指定位置view对象**/
+            View view = listView.getChildAt(position - firstVisiblePosition);
+            text_adapter.getView(position, view, listView);
+        }
+
+    }
+
 
     private void handleException(){
         Toast.makeText(this, "程序出错了、您可以尝试重启App、", Toast.LENGTH_SHORT).show();
@@ -161,8 +226,15 @@ public class MainActivity extends AppCompatActivity
         mIEditUserPresenter = new IEditUserPresenterImpl(this);
         mIREditAPresenter = new REditAPresenterImpl(this);
 
+        //6.0以上sd卡读写权限动态申请、
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, PERMISSIONS_STORAGE, REQUEST_PERMISSION_CODE);
+            }
+        }
+
         //假装有这么一个用户、
-        mIEditUserPresenter.saveUserInfor("", "", "");
+        mIEditUserPresenter.saveUserInfor("游客", "无", "无");
 
 
         setContentView(R.layout.activity_main);
@@ -217,12 +289,19 @@ public class MainActivity extends AppCompatActivity
                         edit.setVisibility(View.GONE);
 
                         MainActivity.this.mIREditAPresenter.saveDiary(editTitle.getText().toString(), editBody.getText().toString());
+
+                        //关闭键盘、
+                        View view = MainActivity.this.getCurrentFocus();
+                        if (view != null) {
+                            InputMethodManager inputMethodManager = (InputMethodManager) MainActivity.this.getSystemService(Activity.INPUT_METHOD_SERVICE);
+                            inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                        }
+
+
                         MainActivity.this.setListener();//重置监听、
 
                         //刷新列表、
-                        ListView listView = MainActivity.this.findViewById(R.id.Listview);
-                        MainActivity.this.getAllDiaryList();
-                        listView.invalidate();
+                        MainActivity.this.updateListView();
                     }
                 });
 
@@ -267,7 +346,6 @@ public class MainActivity extends AppCompatActivity
               Diary[] tmp = mIMainAPresenter.getAllDiaryList();
               if(tmp != null){
                   MainActivity.this.diaries = tmp;
-                  MainActivity.this.updateListView();
               }
 
           }
@@ -278,13 +356,55 @@ public class MainActivity extends AppCompatActivity
         ListView lv = findViewById(R.id.Listview);
         lv.setAdapter(this.text_adapter);
 
+        //设置长按删除、
+        lv.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                final int toDelPosition = position;
+                AlertDialog dialog = new AlertDialog.Builder(MainActivity.this)
+                        .setIcon(R.mipmap.ic_launcher)//设置标题的图片
+                        .setTitle("删除日记")//设置对话框的标题
+                        .setMessage("您确定要删除该日记么？")//设置对话框的内容
+                        //设置对话框的按钮
+                        .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Toast.makeText(MainActivity.this, "取消操作、", Toast.LENGTH_SHORT).show();
+                                dialog.dismiss();
+                            }
+                        })
+                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                                dialog.dismiss();
+
+                                //执行删除日记、
+                                mIMainAPresenter.delDiary(diaries[diaries.length - 1 - toDelPosition].getStartTime());
+                                Toast.makeText(MainActivity.this, "您删除了一篇日记、", Toast.LENGTH_SHORT).show();
+                                MainActivity.this.updateListView();
+
+                            }
+                        }).create();
+                dialog.show();
+
+                return true;
+
+            }
+        });
+
         //设置对item的点击事件、
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @SuppressLint("RestrictedApi")
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 //Toast.makeText(MainActivity.this, "" + id +"  " + position, Toast.LENGTH_SHORT).show();
-                MainActivity.this.nowPosition = position;
+                MainActivity.this.nowPosition = diaries.length - 1 - position;
                 MainActivity.this.findViewById(R.id.redit).invalidate();
+
+                //隐藏新建按钮、
+                FloatingActionButton fab = findViewById(R.id.fab);
+                fab.setVisibility(View.GONE);
 
                 //截图、去除状态栏和标题栏、
                 Bitmap bitmap = MainActivity.this.getbmp();
@@ -295,8 +415,8 @@ public class MainActivity extends AppCompatActivity
                 View redit = MainActivity.this.findViewById(R.id.redit);
                 LinedEditView title = redit.findViewById(R.id.TextItem_time),
                         body = redit.findViewById(R.id.TextItem_data);
-                String titleStr = MainActivity.this.diaries[position].getTitle(),
-                        bodyStr = MainActivity.this.diaries[position].getBody();
+                String titleStr = MainActivity.this.diaries[diaries.length - 1 - position].getTitle(),
+                        bodyStr = MainActivity.this.diaries[diaries.length - 1 - position].getBody();
                 //阅读卡片文字装填、
                 title.setText(titleStr);
                 body.setText(bodyStr);
@@ -314,8 +434,13 @@ public class MainActivity extends AppCompatActivity
 
         //设置blur图片的点击事件防止展示时穿透点击、同时设置点击后返回、
         findViewById(R.id.blur).setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("RestrictedApi")
             @Override
             public void onClick(View v) {
+                //展示新建日记按钮、
+                FloatingActionButton fab = findViewById(R.id.fab);
+                fab.setVisibility(View.VISIBLE);
+
                 if(findViewById(R.id.userinfoCardview).getVisibility() == View.VISIBLE) {
                     View view = findViewById(R.id.userinfoCardview);
                     view.startAnimation(deleteAnimation);
@@ -342,7 +467,14 @@ public class MainActivity extends AppCompatActivity
                 View edit = MainActivity.this.findViewById(R.id.edit);
                 LinedEditView editBody = edit.findViewById(R.id.editItem_data);
                 EditText editTitle = edit.findViewById(R.id.editItem_time);
-                MainActivity.this.mIREditAPresenter.modifyDiary(diaries[nowPosition].getStartTime(), editTitle.getText().toString(), editBody.getText().toString());
+                MainActivity.this.mIREditAPresenter.modifyDiary(
+                        diaries[nowPosition].getStartTime(),
+                        editTitle.getText().toString(),
+                        editBody.getText().toString()
+                );
+
+                //更新数据、
+                MainActivity.this.updateListView();
 
             }
         });
@@ -583,7 +715,9 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_self) {//用户信息、
-            this.onBackPressed();
+            if(findViewById(R.id.blur).getVisibility() == View.VISIBLE){
+                this.onBackPressed();
+            }
             AlphaAnimation animation = new AlphaAnimation(0, 1);
             animation.setDuration(300);
             animation.setAnimationListener(new Animation.AnimationListener() {
@@ -663,6 +797,18 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void exception() {
         this.mHandler.sendEmptyMessage(-1);//子线程通知主线程  出现了异常、
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_PERMISSION_CODE) {
+            for (int i = 0; i < permissions.length; i++) {
+                //Log.i("MainActivity", "申请的权限为：" + permissions[i] + ",申请结果：" + grantResults[i]);
+                Toast.makeText(this, "申请权限：" + permissions[i] + ", 结果：" + grantResults[i], Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
 
