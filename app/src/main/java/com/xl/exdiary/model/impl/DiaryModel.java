@@ -70,7 +70,7 @@ public class DiaryModel implements IDiaryModel {
             for(int i=0;i<diaries.length();i++)
                 if(diaries.getJSONObject(i).get("date").equals(diary.get("date"))) {
                     diaries.remove(i);
-                    return true;
+                    break;
                 }
             BufferedWriter bw=new BufferedWriter(new FileWriter(new File(Environment.getExternalStorageDirectory(),"ExDiary/diaries.json")));
             bw.write(diaries.toString());
