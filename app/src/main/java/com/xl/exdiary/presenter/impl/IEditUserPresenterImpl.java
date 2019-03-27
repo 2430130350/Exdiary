@@ -10,24 +10,22 @@ import com.xl.exdiary.view.inter.IMainAView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Date;
+
 public class IEditUserPresenterImpl implements IEditUserPresenter {
     private IUserModel mIUserModel;
     private IMainAView maIMainAview;
+    private IFriendAView mIFriendAView;
 
-    public IEditUserPresenterImpl(IMainAView aIMainAView) {//未定义 activity
+    public IEditUserPresenterImpl(IMainAView aIMainAView) {//主界面 activity
         mIUserModel = new UserModel();
         maIMainAview = aIMainAView;
     }
 
-    /**
-     * 仅为上层编译添加、未修改任何逻辑、请及时填补相关逻辑、-----------------
-     * */
-    public IEditUserPresenterImpl(IFriendAView aIMainAView) {
-
-    }
-    /**
-     * --------------------------------------------------------------
-     * */
+    public IEditUserPresenterImpl(IFriendAView iFriendAView){//朋友界面 activity
+        mIUserModel = new UserModel();
+        mIFriendAView = iFriendAView;
+   }
 
     //返回保存的用户信息 true 表示正确保存 false 表示错误保存
     @Override
@@ -94,6 +92,7 @@ public class IEditUserPresenterImpl implements IEditUserPresenter {
 
     @Override
     public boolean delUserInfor() {//删除用户信息
+        //mIUserModel.delUser(String name, String uuid);
         return false;
     }
 }
