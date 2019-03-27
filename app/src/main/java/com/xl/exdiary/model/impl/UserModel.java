@@ -16,7 +16,7 @@ import java.io.FileWriter;
 
 public class UserModel implements IUserModel {
     @Override
-    public boolean saveUserInfo(JSONObject userInfo) {
+    public boolean saveUserInfoInLocal(JSONObject userInfo) {
         try {
             File file=new File(Environment.getExternalStorageDirectory(),"ExDiary/");
             if(!file.exists())
@@ -58,7 +58,7 @@ public class UserModel implements IUserModel {
     }
 
     @Override
-    public boolean saveFriend(JSONObject friend) {
+    public boolean saveFriendInLocal(JSONObject friend) {
         JSONArray friends=getAllFriend();
         int flag=0;
         try{
@@ -85,7 +85,7 @@ public class UserModel implements IUserModel {
     }
 
     @Override
-    public boolean delFriend(JSONObject friend) {
+    public boolean delFriendInLocal(JSONObject friend) {
         JSONArray friends=getAllFriend();
         try{
             for(int i=0;i<friends.length();i++)
@@ -130,7 +130,7 @@ public class UserModel implements IUserModel {
     }
 
     @Override
-    public boolean addFriend(String myUUID,String friendUUID) {
+    public boolean addFriendOnServer(String myUUID,String friendUUID) {
 
         return false;
     }
