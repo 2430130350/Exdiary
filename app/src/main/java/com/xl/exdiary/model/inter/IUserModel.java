@@ -4,12 +4,12 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public interface IUserModel {
-    public boolean saveUserInfoInLocal(JSONObject userInfo);
-    public boolean saveUserInfoOnServer(JSONObject userInfo);
+    public boolean saveUserInfoInLocal(JSONObject userInfo);//本地保存用户信息
+    public boolean saveUserInfoOnServer(JSONObject userInfo);//云端保存用户信息
     public JSONObject getUserInfo();
-    public boolean saveFriendInLocal(JSONObject friend);
-    public boolean delFriendInLocal(JSONObject friend);
+    public boolean saveFriendInLocal(JSONObject friend);//本地保存好友信息
+    public boolean delFriendInLocal(JSONObject friend);//本地删除好友
     public JSONArray getAllFriend();
-    public boolean delFriendOnServer(String myUUID,String friendUUID);
-    public boolean addFriendOnServer(String myUUID,String friendUUID);
+    public boolean delFriendOnServer(String myUUID,String friendUUID);//云端删除好友
+    public boolean addFriendOnServer(String myUUID,String friendUUID);//云端好友申请
 }
