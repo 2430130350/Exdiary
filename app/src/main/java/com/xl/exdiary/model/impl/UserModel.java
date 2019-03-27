@@ -33,6 +33,11 @@ public class UserModel implements IUserModel {
     }
 
     @Override
+    public boolean saveUserInfoOnServer(JSONObject userInfo) {
+        return false;
+    }
+
+    @Override
     public JSONObject getUserInfo() {
         try {
             File file=new File(Environment.getExternalStorageDirectory(),"ExDiary/");
@@ -54,16 +59,80 @@ public class UserModel implements IUserModel {
 
     @Override
     public boolean saveFriend(JSONObject friend) {
+        JSONArray friends=getAllFriend();
+        int flag=0;
+        try{
+            for(int i=0;i<friends.length();i++)
+                if(friends.getJSONObject(i).get("uuid").equals(friend.get("uuid"))) {
+                    friends.remove(i);
+                    friends.put(friend);
+                    flag=1;
+                }
+            if(flag==0)
+                friends.put(friend);
+            File file=new File(Environment.getExternalStorageDirectory(),"ExDiary/");
+            if(!file.exists())
+                file.mkdir();
+            BufferedWriter bw=new BufferedWriter(new FileWriter(new File(Environment.getExternalStorageDirectory(),"ExDiary/friends.json")));
+            bw.write(friends.toString());
+            bw.flush();
+            bw.close();
+            return true;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         return false;
     }
 
     @Override
     public boolean delFriend(JSONObject friend) {
+        JSONArray friends=getAllFriend();
+        try{
+            for(int i=0;i<friends.length();i++)
+                if(friends.getJSONObject(i).get("uuid").equals(friend.get("uuid"))) {
+                    friends.remove(i);
+                    break;
+                }
+            BufferedWriter bw=new BufferedWriter(new FileWriter(new File(Environment.getExternalStorageDirectory(),"ExDiary/friends.json")));
+            bw.write(friends.toString());
+            bw.flush();
+            bw.close();
+            return true;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         return false;
     }
 
     @Override
     public JSONArray getAllFriend() {
-        return null;
+        try {
+            File file=new File(Environment.getExternalStorageDirectory(),"ExDiary/");
+            if(!file.exists())
+                file.mkdir();
+            StringBuilder result = new StringBuilder();
+            BufferedReader br = new BufferedReader(new FileReader(
+                    new File(Environment.getExternalStorageDirectory(),"ExDiary/friends.json")));
+            String s = null;
+            while ((s = br.readLine()) != null)
+                result.append(System.lineSeparator() + s);
+            br.close();
+            return new JSONArray(result.toString());
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return new JSONArray();
     }
+
+    @Override
+    public boolean delFriendOnServer(String myUUID,String friendUUID) {
+        return false;
+    }
+
+    @Override
+    public boolean addFriend(String myUUID,String friendUUID) {
+
+        return false;
+    }
+
 }
