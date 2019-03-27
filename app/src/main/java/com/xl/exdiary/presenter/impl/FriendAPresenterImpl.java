@@ -13,29 +13,25 @@ import org.json.JSONArray;
 
 public class FriendAPresenterImpl implements IFriendAPresenter {
     private IFriendAView mIFriendAView;
-    private IUserModel mIFriendAModel;
+    private IUserModel mIUserModel;
 
     public FriendAPresenterImpl(IFriendAView aIFriendAView) {
         mIFriendAView = aIFriendAView;
-        mIFriendAModel = new UserModel();
+        mIUserModel = new UserModel();
     }
 
     @Override
-    public boolean addFriends(String name, String uuid, String mail, String signature) {
+    public boolean addFriends(String uuid) {
         //添加好友
-        if(name.length() != 0 && uuid.length() != 0)
+        JSONObject jso = mIUserModel.getUserInfo();
+        if(uuid.length() != 0)
         {
-            JSONObject jso = new JSONObject();
             try {
-                jso.put("name",name);
-                jso.put("uuid",uuid);
-                jso.put("mail",mail);
-                jso.put("signature",signature);
+                return mIUserModel.addFriend(jso.getString("uuid"), uuid);
             } catch (JSONException e) {
                 e.printStackTrace();
                 //异常处理
             }
-            return mIFriendAModel.saveFriend(jso);
         }
         else
             return false;
@@ -56,7 +52,7 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
                 e.printStackTrace();
                 //异常处理
             }
-            return mIFriendAModel.delFriend(jso);
+            return mIUserModel.delFriend(jso);
         }
         else
             return false;
@@ -65,7 +61,7 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
     @Override
     public User getFriend(String name, String uuid) {
         //获得好友信息
-        JSONArray jsa = mIFriendAModel.getAllFriend();
+        JSONArray jsa = mIUserModel.getAllFriend();
         JSONObject jso = null;
         if(jsa.length() != 0)
         {
@@ -93,7 +89,7 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
     @Override
     public User[] getAllFriend() {
         //获得所以好友信息
-        JSONArray jsa = mIFriendAModel.getAllFriend();
+        JSONArray jsa = mIUserModel.getAllFriend();
         JSONObject jso = null;
         User user[] = new User[jsa.length()];
         if(jsa.length() != 0)
@@ -118,7 +114,7 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
     @Override
     public boolean modifyFriend(String name, String uuid, String mail, String signature) {
         //修改用户信息
-        JSONArray jsa = mIFriendAModel.getAllFriend();
+        JSONArray jsa = mIUserModel.getAllFriend();
         JSONObject jso = null;
         if(jsa.length() != 0)
         {
@@ -139,7 +135,7 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
                            jst.put("uuid",uuid);
                            jst.put("mail",mail);
                            jst.put("signature",signature);
-                           return mIFriendAModel.saveFriend(jst);
+                           return mIUserModel.saveFriend(jst);
                        }
                        else
                            return false;
