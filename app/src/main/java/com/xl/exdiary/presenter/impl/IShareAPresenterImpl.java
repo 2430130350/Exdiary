@@ -1,7 +1,9 @@
 package com.xl.exdiary.presenter.impl;
 
 import com.xl.exdiary.model.impl.Diary;
+import com.xl.exdiary.model.impl.DiaryModel;
 import com.xl.exdiary.model.impl.UserModel;
+import com.xl.exdiary.model.inter.IDiaryModel;
 import com.xl.exdiary.model.inter.IShareDiaryModel;
 import com.xl.exdiary.model.inter.IUserModel;
 import com.xl.exdiary.presenter.inter.IShareAPresenter;
@@ -13,38 +15,65 @@ import org.json.JSONObject;
 class IShareAPresenterImpl implements IShareAPresenter {
     private IUserModel mIUserModel;
     private IShareDiaryModel miShareDiaryModel;
+    private IDiaryModel miDiaryModel;
     public IShareAPresenterImpl() {
         this.mIUserModel = new UserModel();
         miShareDiaryModel = new ShareDiaryModel();
+        miDiaryModel = new DiaryModel();
     }
 
     @Override
     public boolean shareDiary(String name, String uuid, String date) {
         JSONObject jso = mIUserModel.getUserInfo();
-        if(name.length() != 0 && uuid.length() != 0 && date.length() != 0
-                && miShareDiaryModel != null && jso.length() != 0)
+        JSONObject djso;//临时变量
+        JSONObject sjso = new JSONObject();//分享的日记
+        JSONArray jsa = miDiaryModel.getAllDiaryList();
+        if(name.length() != 0 && uuid.length() != 0 /// 保证数据完整
+                && date.length() != 0 && jso.length() != 0)
         {
-            return miShareDiaryModel.shareDiary(jso);
+            for(int i = 0; i < jsa.length(); i++)
+            {
+                try {
+                    djso = jsa.getJSONObject(i);
+                    if(djso.getString("date").equals(date))
+                    {
+                        sjso.put("myUuid",djso.getString("uuid"));
+                        sjso.put("friendUuid",uuid);
+                        sjso.put("shareDiary",djso);
+                        return miShareDiaryModel.shareDiary(sjso);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    //分享异常处理
+                }
+            }
         }
         else
-        {
             return false;
-        }
+        return false;
     }
 
     @Override
     public Diary[] getMyShareDiary() {
-        JSONArray jsa = miShareDiaryModel.getAllShareDiary();
         JSONObject ujso = mIUserModel.getUserInfo();
         JSONObject jso;
+        JSONArray jsa = null;
+        try {
+            jsa = miShareDiaryModel.getAllShareDiary(ujso.getString("uuid"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+            //获取所有分享日记错误处理
+        }
+
         Diary[] diary = new Diary[jsa.length()];
+
         if(jsa.length() != 0)
         {
             for(int i = 0; i < jsa.length(); i++)
             {
                 try {
                     jso = jsa.getJSONObject(i);
-                    if(jso.getString("uuid").equals(ujso.getString("uuid")))
+                    if(jso.getString("myUuid").equals(ujso.getString("uuid")))
                     {
                         diary[i] = new Diary(jso.getString("title"),
                                 jso.getString("body"), jso.getString("date"));
@@ -62,8 +91,52 @@ class IShareAPresenterImpl implements IShareAPresenter {
 
     @Override
     public Diary[] getFriendDiary() {
-        JSONArray jsa = miShareDiaryModel.getFriendDiary();
+        JSONObject ujso = mIUserModel.getUserInfo();
         JSONObject jso;
+        JSONArray jsa = null;
+        try {
+            jsa = miShareDiaryModel.getAllShareDiary(ujso.getString("uuid"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+            //获取所有分享日记错误处理
+        }
+
+        Diary[] diary = new Diary[jsa.length()];
+
+        if(jsa.length() != 0)
+        {
+            for(int i = 0; i < jsa.length(); i++)
+            {
+                try {
+                    jso = jsa.getJSONObject(i);
+                    if(!jso.getString("myUuid").equals(ujso.getString("uuid")))
+                    {
+                        diary[i] = new Diary(jso.getString("title"),
+                                jso.getString("body"), jso.getString("date"));
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    //异常处理
+                }
+            }
+            return diary;
+        }
+        else
+            return null;
+    }
+
+    @Override
+    public Diary[] getAllDiary() {
+        JSONObject ujso = mIUserModel.getUserInfo();
+        JSONObject jso;
+        JSONArray jsa = null;
+        try {
+            jsa = miShareDiaryModel.getAllShareDiary(ujso.getString("uuid"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+            //获取所有分享日记错误处理
+        }
+
         Diary[] diary = new Diary[jsa.length()];
         if(jsa.length() != 0)
         {
@@ -77,7 +150,6 @@ class IShareAPresenterImpl implements IShareAPresenter {
                     e.printStackTrace();
                     //异常处理
                 }
-
             }
             return diary;
         }
@@ -86,35 +158,33 @@ class IShareAPresenterImpl implements IShareAPresenter {
     }
 
     @Override
-    public Diary[] getAllDiary() {
-        Diary[] mdiary = getMyShareDiary();
-        Diary[] fdiary = getFriendDiary();
-        Diary[] diary = new Diary[mdiary.length + fdiary.length];
-        int i = 0;
-        if(mdiary != null && fdiary != null)
-        {
-            for( i = 0; i < mdiary.length; i++)
-            {
-                diary[i] = mdiary[i];
-            }
-            for(int t = i; t < (mdiary.length + fdiary.length); t++)
-            {
-                diary[t] = fdiary[t-i];
-            }
-            return diary;
-        }
-        else
-            return null;
-    }
-
-    @Override
-    public boolean diaableShareDiary(String name, String uuid, String date) {
+    public boolean disableShareDiary(String name, String uuid, String date) {
         //取消分享日记
-        if(name.length() != 0 && uuid.length() != 0 && date.length() != 0)
+        JSONObject jso = mIUserModel.getUserInfo();
+        JSONObject djso;//临时变量
+        JSONObject sjso = new JSONObject();//分享的日记
+        JSONArray jsa = miDiaryModel.getAllDiaryList();
+        if(name.length() != 0 && uuid.length() != 0 /// 保证数据完整
+                && date.length() != 0 && jso.length() != 0)
         {
-            return miShareDiaryModel.disableShareDiary(name, uuid, date);
+            for(int i = 0; i < jsa.length(); i++)
+            {
+                try {
+                    djso = jsa.getJSONObject(i);
+                    if(djso.getString("date").equals(date))
+                    {
+                        sjso.put("myUuid",djso.getString("uuid"));
+                        sjso.put("friendUuid",uuid);
+                        sjso.put("shareDiary",djso);
+                        return miShareDiaryModel.disableShareDiary(sjso);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    //分享异常处理
+                }
+            }
         }
         else
             return false;
-    }
+        return false;
 }

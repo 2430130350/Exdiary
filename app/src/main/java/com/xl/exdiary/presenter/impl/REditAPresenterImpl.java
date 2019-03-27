@@ -42,7 +42,7 @@ public class REditAPresenterImpl implements IREditAPresenter {
         else if (user != null){
             try {
                 diary.put("name",user.getString("name"));
-                diary.put("deviceNumber",user.getString("deviceNumber"));
+                diary.put("uuid",user.getString("uuid"));
                 diary.put("date",simpleDateFormat.format(date));
                 diary.put("title",title);
                 diary.put("body",body);
@@ -67,7 +67,7 @@ public class REditAPresenterImpl implements IREditAPresenter {
         else if(user != null) {
             try {
                 diary.put("name",user.getString("name"));
-                diary.put("deviceNumber",user.getString("deviceNumber"));
+                diary.put("uuid",user.getString("uuid"));
                 diary.put("date",date);
                 diary.put("title",title);
                 diary.put("body",body);
