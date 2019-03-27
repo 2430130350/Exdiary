@@ -20,9 +20,9 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
         mIUserModel = new UserModel();
     }
 
+    //添加好友
     @Override
     public boolean addFriends(String uuid) {
-        //添加好友
         JSONObject jso = mIUserModel.getUserInfo();
         if(uuid.length() != 0)
         {
@@ -37,30 +37,25 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
             return false;
     }
 
+    //删除好友
     @Override
-    public boolean delFriends(String name, String uuid, String mail, String signature) {
-        //删除好友
-        if(name.length() !=0 && uuid.length() != 0)
+    public boolean delFriends(String uuid) {
+        if(uuid.length() != 0)
         {
-            JSONObject jso = new JSONObject();
+            JSONObject jso = mIUserModel.getUserInfo();
             try {
-                jso.put("name",name);
-                jso.put("uuid",uuid);
-                jso.put("mail",mail);
-                jso.put("signature",signature);
+                return mIUserModel.delFriend(jso.getString("uuid"), uuid); // 我的 id 和朋友的 id
             } catch (JSONException e) {
                 e.printStackTrace();
-                //异常处理
             }
-            return mIUserModel.delFriend(jso);
         }
         else
             return false;
     }
 
+    //获得好友信息
     @Override
     public User getFriend(String name, String uuid) {
-        //获得好友信息
         JSONArray jsa = mIUserModel.getAllFriend();
         JSONObject jso = null;
         if(jsa.length() != 0)
@@ -86,9 +81,9 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
         return null;
     }
 
+    //获得所以好友信息
     @Override
     public User[] getAllFriend() {
-        //获得所以好友信息
         JSONArray jsa = mIUserModel.getAllFriend();
         JSONObject jso = null;
         User user[] = new User[jsa.length()];
@@ -111,9 +106,9 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
             return null;
     }
 
+    //修改用户信息
     @Override
     public boolean modifyFriend(String name, String uuid, String mail, String signature) {
-        //修改用户信息
         JSONArray jsa = mIUserModel.getAllFriend();
         JSONObject jso = null;
         if(jsa.length() != 0)
