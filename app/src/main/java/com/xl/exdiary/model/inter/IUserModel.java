@@ -12,4 +12,7 @@ public interface IUserModel {
     public JSONArray getAllFriend();
     public boolean delFriendOnServer(String myUUID,String friendUUID);//云端删除好友
     public boolean addFriendOnServer(String myUUID,String friendUUID);//云端好友申请
+    public boolean acceptFriendRequest(String myUUID,String friendUUID);//同意好友申请
+    public boolean rejectFriendRequest(String myUUID,String friendUUID);//拒绝好友申请
+    public JSONArray getAllFriendOnServer(String myUUID);//获取云端好友信息
 }

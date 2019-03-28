@@ -152,6 +152,32 @@ public class UserModel implements IUserModel {
     }
 
     @Override
+    public JSONArray getAllFriendOnServer(String myUUID) {
+        try{
+            Socket socket=new Socket(Server.getIP(),Server.getPost());
+            JSONObject jsonObject=new JSONObject();
+            jsonObject.put("operation",9);
+            jsonObject.put("deviceID",myUUID);
+            OutputStream os=socket.getOutputStream();
+            os.write(jsonObject.toString().getBytes());
+            os.flush();
+            InputStream is=socket.getInputStream();
+            byte[] bytes=new byte[1024];
+            StringBuilder string= new StringBuilder();
+            while (is.read(bytes)!=-1)
+                string.append(bytes);
+            JSONArray result=new JSONArray(string.toString());
+            os.close();
+            is.close();
+            socket.close();
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return new JSONArray();
+    }
+
+    @Override
     public boolean delFriendOnServer(String myUUID,String friendUUID) {
         return false;
     }
@@ -159,9 +185,61 @@ public class UserModel implements IUserModel {
     @Override
     public boolean addFriendOnServer(String myUUID,String friendUUID) {
         try{
-            Socket socket=new Socket("192.168.0.0",5438);
+            Socket socket=new Socket(Server.getIP(),Server.getPost());
             JSONObject jsonObject=new JSONObject();
             jsonObject.put("operation",10);
+            jsonObject.put("deviceID",myUUID);
+            jsonObject.put("friendID",friendUUID);
+            OutputStream os=socket.getOutputStream();
+            os.write(jsonObject.toString().getBytes());
+            os.flush();
+            InputStream is=socket.getInputStream();
+            byte[] bytes=new byte[1024];
+            is.read(bytes);
+            JSONObject result=new JSONObject(bytes.toString());
+            os.close();
+            is.close();
+            socket.close();
+            if(result.get("result").equals("1"))
+                return true;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    @Override
+    public boolean acceptFriendRequest(String myUUID, String friendUUID) {
+        try{
+            Socket socket=new Socket(Server.getIP(),Server.getPost());
+            JSONObject jsonObject=new JSONObject();
+            jsonObject.put("operation",11);
+            jsonObject.put("deviceID",myUUID);
+            jsonObject.put("friendID",friendUUID);
+            OutputStream os=socket.getOutputStream();
+            os.write(jsonObject.toString().getBytes());
+            os.flush();
+            InputStream is=socket.getInputStream();
+            byte[] bytes=new byte[1024];
+            is.read(bytes);
+            JSONObject result=new JSONObject(bytes.toString());
+            os.close();
+            is.close();
+            socket.close();
+            if(result.get("result").equals("1"))
+                return true;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    @Override
+    public boolean rejectFriendRequest(String myUUID, String friendUUID) {
+        try{
+            Socket socket=new Socket(Server.getIP(),Server.getPost());
+            JSONObject jsonObject=new JSONObject();
+            jsonObject.put("operation",11);
             jsonObject.put("deviceID",myUUID);
             jsonObject.put("friendID",friendUUID);
             OutputStream os=socket.getOutputStream();
