@@ -39,7 +39,7 @@ public class UserModel implements IUserModel {
     public boolean saveUserInfoOnServer(JSONObject userInfo) {
         try{
             Socket socket=new Socket("192.168.0.0",5438);
-            userInfo.put("operation","1");
+            userInfo.put("operation",1);
             userInfo.put("deviceID",userInfo.get("deviceNumber"));
             userInfo.put("username",userInfo.get("name"));
             userInfo.put("motto",userInfo.get("signature"));
@@ -158,7 +158,27 @@ public class UserModel implements IUserModel {
 
     @Override
     public boolean addFriendOnServer(String myUUID,String friendUUID) {
-
+        try{
+            Socket socket=new Socket("192.168.0.0",5438);
+            JSONObject jsonObject=new JSONObject();
+            jsonObject.put("operation",10);
+            jsonObject.put("deviceID",myUUID);
+            jsonObject.put("friendID",friendUUID);
+            OutputStream os=socket.getOutputStream();
+            os.write(jsonObject.toString().getBytes());
+            os.flush();
+            InputStream is=socket.getInputStream();
+            byte[] bytes=new byte[1024];
+            is.read(bytes);
+            JSONObject result=new JSONObject(bytes.toString());
+            os.close();
+            is.close();
+            socket.close();
+            if(result.get("result").equals("1"))
+                return true;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         return false;
     }
 
