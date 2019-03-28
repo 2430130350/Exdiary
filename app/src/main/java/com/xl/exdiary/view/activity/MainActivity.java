@@ -38,6 +38,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -336,6 +337,46 @@ public class MainActivity extends AppCompatActivity
 
 
         this.initOther();
+
+        //判断是否第一次进入app、即未注册状态、
+
+        //未注册、弹出框、注册新用户、
+        LayoutInflater factory = LayoutInflater.from(this);
+        final View signView = factory.inflate(R.layout.sigin_dialog, null);
+        android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(MainActivity.this)
+                .setIcon(R.mipmap.ic_launcher)//设置标题的图片
+                .setTitle("注册新用户")//设置对话框的标题
+                .setMessage("如果您希望跳过、将以默认参数为您注册、")//设置对话框的内容
+                //设置编辑框、
+                .setView(signView)
+                //设置对话框的按钮
+                .setNegativeButton("跳过", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Toast.makeText(MainActivity.this, "默认注册、", Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                    }
+                })
+                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        dialog.dismiss();
+
+                        //注册、
+                        String nickName = ((EditText)signView.findViewById(R.id.nickNameEdit)).getText().toString();
+                        String email = ((EditText)signView.findViewById(R.id.emailEdit)).getText().toString();
+                        String sign = ((EditText)signView.findViewById(R.id.signEdit)).getText().toString();
+
+
+
+                    }
+                })
+                .setCancelable(false)
+                .create();
+        dialog.show();
+
+
 
     }
 
@@ -780,7 +821,9 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_mine) {//我的日记、
 
         } else if (id == R.id.nav_noname) {//树洞、
-
+            Intent intent = new Intent(MainActivity.this, AnonymousActivity.class);
+            startActivity(intent);
+            this.finish();
         } else if (id == R.id.nav_setting) {//设置、
             Intent intent = new Intent(MainActivity.this, SettingActivity.class);
             startActivity(intent);

@@ -1,12 +1,18 @@
 package com.xl.exdiary.presenter.impl;
 
 import android.annotation.SuppressLint;
+
+import com.xl.exdiary.model.impl.AnonymousAModelImpl;
 import com.xl.exdiary.model.impl.Diary;
 import com.xl.exdiary.model.impl.DiaryModel;
 import com.xl.exdiary.model.impl.UserModel;
+import com.xl.exdiary.model.inter.IAnonymousAModel;
 import com.xl.exdiary.model.inter.IDiaryModel;
+import com.xl.exdiary.model.inter.ITreeHoleModel;
 import com.xl.exdiary.model.inter.IUserModel;
-import com.xl.exdiary.presenter.inter.ITreeHoleAPresenter;
+import com.xl.exdiary.presenter.inter.IAnonymousAPresenter;
+import com.xl.exdiary.view.inter.IAnonymousAView;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,11 +20,16 @@ import org.json.JSONObject;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-class ITreeHoleAPresenterImpl implements ITreeHoleAPresenter {
+public class AnonymousAPresenterImpl implements IAnonymousAPresenter {
+    private IAnonymousAView mIAnonymousAView;
+    private IAnonymousAModel mIAnonymousAModel;
     private IDiaryModel mIDiaryModel;
     private IUserModel muserModel;
+    private ITreeHoleModel mTreeHoleModel;
 
-    public ITreeHoleAPresenterImpl() {
+    public AnonymousAPresenterImpl(IAnonymousAView aIAnonymousAView) {
+        mIAnonymousAView = aIAnonymousAView;
+        mIAnonymousAModel = new AnonymousAModelImpl();
         mIDiaryModel = new DiaryModel();
         muserModel = new UserModel();
     }
@@ -28,7 +39,7 @@ class ITreeHoleAPresenterImpl implements ITreeHoleAPresenter {
     public Diary[] getTreeHoleDiary()
     {
         JSONObject jso;
-        JSONArray jsa = TreeHoleModel.getTreeHoleDiary();
+        JSONArray jsa = mTreeHoleModel.getAllTreeHoleDiary();
         Diary[] diary = new Diary[jsa.length()];
         if (jsa.length() != 0)
         {
@@ -53,7 +64,8 @@ class ITreeHoleAPresenterImpl implements ITreeHoleAPresenter {
     public boolean addTreeHoleDiary(String title, String body)
     {
         JSONObject ujso = muserModel.getUserInfo();
-        JSONObject djso = null;Date date = new Date(System.currentTimeMillis());
+        JSONObject djso = null;
+        Date date = new Date(System.currentTimeMillis());
         @SuppressLint("SimpleDateFormat") SimpleDateFormat simpleDateFormat = new  SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss");
         if(ujso != null && title.length() != 0 && body.length() != 0 )
         {
@@ -92,6 +104,7 @@ class ITreeHoleAPresenterImpl implements ITreeHoleAPresenter {
                 //异常处理
             }
         }
-            return false;
+        return false;
     }
+
 }
