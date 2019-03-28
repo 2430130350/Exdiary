@@ -1,199 +1,67 @@
 package com.xl.exdiary.view.activity;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.renderscript.Allocation;
 import android.renderscript.Element;
 import android.renderscript.RenderScript;
 import android.renderscript.ScriptIntrinsicBlur;
-import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.xl.exdiary.R;
+import com.xl.exdiary.model.impl.Diary;
 import com.xl.exdiary.model.impl.User;
-import com.xl.exdiary.presenter.impl.FriendAPresenterImpl;
+import com.xl.exdiary.presenter.impl.AnonymousAPresenterImpl;
 import com.xl.exdiary.presenter.impl.IEditUserPresenterImpl;
+import com.xl.exdiary.presenter.inter.IAnonymousAPresenter;
 import com.xl.exdiary.presenter.inter.IEditUserPresenter;
-import com.xl.exdiary.presenter.inter.IFriendAPresenter;
-import com.xl.exdiary.view.inter.IFriendAView;
-import com.xl.exdiary.view.specialView.LocalSetting;
-import com.xl.exdiary.view.specialView.LocalSettingFileHandler;
+import com.xl.exdiary.view.inter.IAnonymousAView;
+import com.xl.exdiary.view.specialView.DiaryAdapter;
 
-public class FriendActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, IFriendAView {
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-    private LocalSetting localSetting = null;
+public class AnonymousActivity extends AppCompatActivity
+        implements NavigationView.OnNavigationItemSelectedListener, IAnonymousAView {
 
-    int data_list_count = 25;
-    BaseAdapter text_adapter = new BaseAdapter() {
-        @Override
-        public int getCount() {   //getCount-------用来指定到底有多少个条目
-            return FriendActivity.this.data_list_count;
-        }
+    private RecyclerView recyclerView;
+    private Diary[] data = null;
+    //以上为自定义、
 
-        @SuppressLint("SetTextI18n")
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) { //GetView------- 用来 显示 具体的条目的内容
-
-            View view;
-            if (convertView == null)
-                view = View.inflate(FriendActivity.this, R.layout.listview_item, null);
-            else
-                view = convertView;
-            TextView tv = view.findViewById(R.id.TextItem_data);
-            String str = "卢本伟牛逼、";
-            tv.setText("\n        " + str + "\n");
-            return view;
-        }
-
-        @Override
-        public Object getItem(int position) {
-
-            return null;
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return 0;
-        }
-
-    };
-
-    PagerAdapter read_card_adapter = new PagerAdapter() {
-        @Override
-        public int getCount() {
-            return FriendActivity.this.data_list_count;
-        }
-
-        @Override
-        public boolean isViewFromObject(@NonNull View view, @NonNull Object o) {
-            return view == o;
-        }
-        @Override
-        public Object instantiateItem(ViewGroup container, int position) {
-            View view = View.inflate(FriendActivity.this, R.layout.read_card_view,null);
-
-            container.addView(view);
-            return view;
-        }
-        @Override
-        public void destroyItem(ViewGroup container, int position, Object object) {
-            // super.destroyItem(container,position,object); 这一句要删除，否则报错
-            container.removeView((View)object);
-        }
-    };
-
-    @SuppressLint("HandlerLeak")
-    public Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            switch (msg.what) {
-                case -1://异常处理、
-                    FriendActivity.this.handleException();
-                    break;
-                case 1://更新数据、
-                    final ListView listView = FriendActivity.this.findViewById(R.id.Listview);
-                    FriendActivity.this.getFriendDiaryList();
-
-                    FriendActivity.this.text_adapter.notifyDataSetChanged();
-                    listView.setVisibility(View.GONE);
-
-                    /**
-                     * 防止listview界面不刷新、
-                     * */
-                    AlphaAnimation animation = new AlphaAnimation(0, 1);
-                    animation.setDuration(1);
-                    animation.setAnimationListener(new Animation.AnimationListener() {
-                        @Override
-                        public void onAnimationStart(Animation animation) {
-
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animation animation) {
-                            listView.setVisibility(View.VISIBLE);
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animation animation) {
-
-                        }
-                    });
-                    listView.startAnimation(animation);
-                    listView.invalidate();
-
-                    /**
-                     *
-                     * */
-                    break;
-                default:
-                    break;
-            }
-        }
-
-    };
-
-
-    private void handleException(){
-        Toast.makeText(this, "程序出错了、您可以尝试重启App、", Toast.LENGTH_SHORT).show();
-    }
-
-    private void updateListView(){
-        this.mHandler.sendEmptyMessage(1);
-    }
-
-    private void getFriendDiaryList(){
-
-    }
-    //以上为自定义属性、
-
-    private IFriendAPresenter mIFriendAPresenter;
+    private IAnonymousAPresenter mIAnonymousAPresenter;
     private IEditUserPresenter mIEditUserPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        mIFriendAPresenter = new FriendAPresenterImpl(this);
+        mIAnonymousAPresenter = new AnonymousAPresenterImpl(this);
         mIEditUserPresenter = new IEditUserPresenterImpl(this);
 
-
-        setContentView(R.layout.activity_friend);
+        setContentView(R.layout.activity_anonymous);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         FloatingActionButton fab = findViewById(R.id.fab);
@@ -212,72 +80,41 @@ public class FriendActivity extends AppCompatActivity
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
 
-
-
-        //以下为自定义代码、
-        this.setListener();
-
-        this.initOther();
+        //以下为自定义、
+        recyclerView = (RecyclerView) findViewById(R.id.nonameList);
+        //使用瀑布流布局,第一个参数 spanCount 列数,第二个参数 orentation 排列方向
+        StaggeredGridLayoutManager recyclerViewLayoutManager =
+                new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+        recyclerView.setLayoutManager(recyclerViewLayoutManager);
+        /**
+         * 测试用、需要替换、
+         * */
+        initData();
+        /**
+         * */
+        DiaryAdapter adapter = new DiaryAdapter(data, this);
+        //设置adapter
+        recyclerView.setAdapter(adapter);
     }
 
-    private void setListener(){
-        ListView lv = findViewById(R.id.Listview);
-        lv.setAdapter(this.text_adapter);
 
-        ViewPager viewPager = findViewById(R.id.read_viewpager);
-        viewPager.setAdapter(this.read_card_adapter);
-
-        //设置对item的点击事件、
-        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //Toast.makeText(MainActivity.this, "" + id +"  " + position, Toast.LENGTH_SHORT).show();
-                //截图、去除状态栏和标题栏、
-                Bitmap bitmap = FriendActivity.this.getbmp();
-                //高斯模糊计算、
-                //展示图片、
-                ImageView imageView = FriendActivity.this.findViewById(R.id.blur);
-                FriendActivity.this.blurV2(bitmap, imageView);
-                imageView.setVisibility(View.VISIBLE);
-                FriendActivity.this.findViewById(R.id.read_viewpager).setVisibility(View.VISIBLE);
+    private void initData(){
+        data = new Diary[1];
+        Diary tmp = new Diary("", "", "");
+        data[0] = tmp;
+        for(int i = 0; i<20; i++){
+            List<Diary> list = new ArrayList(Arrays.asList(data));
+            String str = "";
+            for(int j = 0; j<i%6; j++){
+                str += "卢本伟牛逼、卢本伟牛逼、卢本伟牛逼、卢本伟牛逼、卢本伟牛逼、";
             }
-        });
-
-        //设置blur图片的点击事件防止展示时穿透点击、同时设置点击后返回、
-        findViewById(R.id.blur).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FriendActivity.this.findViewById(R.id.blur).setVisibility(View.INVISIBLE);
-                FriendActivity.this.findViewById(R.id.read_viewpager).setVisibility(View.INVISIBLE);
-
-            }
-        });
-    }
-
-    private void initOther(){
-        LocalSettingFileHandler localSettingFileHandler = new LocalSettingFileHandler(this, null);
-        this.localSetting = localSettingFileHandler.getLocalSetting();
-        if(localSetting == null){
-            localSettingFileHandler.setLocalSetting();
+            list.add(new Diary("卢本伟牛逼", str, "今天" + i + "点"));
+            Diary[] newdata = new Diary[list.size()];
+            list.toArray(newdata);
+            this.data = newdata;
         }
-        else{
-            //初始化背景、
-            if(localSetting.isNoBackground){
-                findViewById(R.id.friendContent).setBackgroundColor(Color.WHITE);
-            }
-            else if(localSetting.settingBackground != null){
-                //设置自定义的图片为背景、
-                setDiyBackground();
-            }
-        }
-
     }
 
-    private void setDiyBackground(){
-        Bitmap bitmap = BitmapFactory.decodeFile(this.localSetting.friendBackground);
-        findViewById(R.id.friendContent).setBackground(new BitmapDrawable(getResources(), bitmap));//把bitmap转为drawable,layout为xml文件里的主layout
-        findViewById(R.id.friendContent).invalidate();
-    }
 
     public void blurV2(Bitmap bitmap, View view){
 
@@ -348,14 +185,9 @@ public class FriendActivity extends AppCompatActivity
         return statusBarHeight + actionBarHeight;
     }
 
+
     @Override
     public void onBackPressed() {
-        if(FriendActivity.this.findViewById(R.id.blur).getVisibility() == View.VISIBLE){
-            FriendActivity.this.findViewById(R.id.blur).setVisibility(View.INVISIBLE);
-            FriendActivity.this.findViewById(R.id.read_viewpager).setVisibility(View.INVISIBLE);
-            return;
-        }
-
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
@@ -367,7 +199,7 @@ public class FriendActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.friend, menu);
+        getMenuInflater().inflate(R.menu.anonymous, menu);
         return true;
     }
 
@@ -379,8 +211,7 @@ public class FriendActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {//右上角菜单中设置、
-            startActivity(new Intent(FriendActivity.this, SettingActivity.class));
+        if (id == R.id.action_settings) {
             return true;
         }
 
@@ -394,7 +225,6 @@ public class FriendActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_self) {//用户信息、
-            // Handle the camera action
             if(findViewById(R.id.blur).getVisibility() == View.VISIBLE){
                 this.onBackPressed();
             }
@@ -409,11 +239,11 @@ public class FriendActivity extends AppCompatActivity
                 @Override
                 public void onAnimationEnd(Animation animation) {
                     //截图、去除状态栏和标题栏、
-                    Bitmap bitmap = FriendActivity.this.getbmp();
+                    Bitmap bitmap = AnonymousActivity.this.getbmp();
                     //高斯模糊计算、
                     //展示图片、
-                    ImageView imageView = FriendActivity.this.findViewById(R.id.blur);
-                    FriendActivity.this.blurV2(bitmap, imageView);
+                    ImageView imageView = AnonymousActivity.this.findViewById(R.id.blur);
+                    AnonymousActivity.this.blurV2(bitmap, imageView);
                     AlphaAnimation animationBlur = new AlphaAnimation(0, 1);
                     animationBlur.setDuration(300);
                     imageView.startAnimation(animationBlur);
@@ -445,7 +275,7 @@ public class FriendActivity extends AppCompatActivity
                     // 将ClipData内容放到系统剪贴板里。
                     cm.setPrimaryClip(mClipData);
 
-                    Toast.makeText(FriendActivity.this, "设备号已复制到剪切板、", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AnonymousActivity.this, "设备号已复制到剪切板、", Toast.LENGTH_SHORT).show();
                     return false;
                 }
             });
@@ -454,17 +284,17 @@ public class FriendActivity extends AppCompatActivity
             view.setVisibility(View.VISIBLE);
 
         } else if (id == R.id.nav_friend) {//好友日记、
-
+            Intent intent = new Intent(AnonymousActivity.this, FriendActivity.class);
+            startActivity(intent);
+            this.finish();
         } else if (id == R.id.nav_mine) {//我的日记、
-            Intent intent = new Intent(FriendActivity.this, MainActivity.class);
+            Intent intent = new Intent(AnonymousActivity.this, MainActivity.class);
             startActivity(intent);
             this.finish();
         } else if (id == R.id.nav_noname) {//树洞、
-            Intent intent = new Intent(FriendActivity.this, AnonymousActivity.class);
-            startActivity(intent);
-            this.finish();
+
         } else if (id == R.id.nav_setting) {//设置、
-            Intent intent = new Intent(FriendActivity.this, SettingActivity.class);
+            Intent intent = new Intent(AnonymousActivity.this, SettingActivity.class);
             startActivity(intent);
 
         } else if (id == R.id.nav_about) {//关于、
@@ -474,11 +304,6 @@ public class FriendActivity extends AppCompatActivity
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
-    }
-
-    @Override
-    public void exception() {
-
     }
 
     @Override
