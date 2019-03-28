@@ -13,6 +13,9 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.Socket;
 
 public class UserModel implements IUserModel {
     @Override
@@ -34,6 +37,30 @@ public class UserModel implements IUserModel {
 
     @Override
     public boolean saveUserInfoOnServer(JSONObject userInfo) {
+        try{
+            Socket socket=new Socket("192.168.0.0",5438);
+            userInfo.put("operation","1");
+            userInfo.put("deviceID",userInfo.get("deviceNumber"));
+            userInfo.put("username",userInfo.get("name"));
+            userInfo.put("motto",userInfo.get("signature"));
+            userInfo.remove("deviceNumber");
+            userInfo.remove("name");
+            userInfo.remove("signature");
+            OutputStream os=socket.getOutputStream();
+            os.write(userInfo.toString().getBytes());
+            os.flush();
+            InputStream is=socket.getInputStream();
+            byte[] bytes=new byte[1024];
+            is.read(bytes);
+            JSONObject result=new JSONObject(bytes.toString());
+            os.close();
+            is.close();
+            socket.close();
+            if(result.get("result").equals("1"))
+                return true;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         return false;
     }
 
