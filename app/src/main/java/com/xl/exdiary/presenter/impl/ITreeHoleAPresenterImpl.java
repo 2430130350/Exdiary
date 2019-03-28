@@ -5,6 +5,7 @@ import com.xl.exdiary.model.impl.Diary;
 import com.xl.exdiary.model.impl.DiaryModel;
 import com.xl.exdiary.model.impl.UserModel;
 import com.xl.exdiary.model.inter.IDiaryModel;
+import com.xl.exdiary.model.inter.ITreeHoleModel;
 import com.xl.exdiary.model.inter.IUserModel;
 import com.xl.exdiary.presenter.inter.ITreeHoleAPresenter;
 import org.json.JSONArray;
@@ -17,6 +18,7 @@ import java.util.Date;
 class ITreeHoleAPresenterImpl implements ITreeHoleAPresenter {
     private IDiaryModel mIDiaryModel;
     private IUserModel muserModel;
+    private ITreeHoleModel mTreeHoleModel;
 
     public ITreeHoleAPresenterImpl() {
         mIDiaryModel = new DiaryModel();
@@ -28,7 +30,7 @@ class ITreeHoleAPresenterImpl implements ITreeHoleAPresenter {
     public Diary[] getTreeHoleDiary()
     {
         JSONObject jso;
-        JSONArray jsa = TreeHoleModel.getTreeHoleDiary();
+        JSONArray jsa = mTreeHoleModel.getAllTreeHoleDiary();
         Diary[] diary = new Diary[jsa.length()];
         if (jsa.length() != 0)
         {
