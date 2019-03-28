@@ -1,5 +1,6 @@
 package com.xl.exdiary.view.activity;
 
+import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -7,6 +8,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.renderscript.Allocation;
 import android.renderscript.Element;
 import android.renderscript.RenderScript;
@@ -28,6 +31,7 @@ import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -50,6 +54,58 @@ public class AnonymousActivity extends AppCompatActivity
 
     private RecyclerView recyclerView;
     private Diary[] data = null;
+
+    @SuppressLint("HandlerLeak")
+    public Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case -1://异常处理、
+                    AnonymousActivity.this.handleException();
+                    break;
+                case 1://更新数据、
+                   /* final ListView listView = AnonymousActivity.this.findViewById(R.id.Listview);
+                    AnonymousActivity.this.getFriendDiaryList();
+
+                    AnonymousActivity.this.text_adapter.notifyDataSetChanged();
+                    listView.setVisibility(View.GONE);
+
+                    *//**//**
+                     * 防止listview界面不刷新、
+                     * *//**//*
+                    AlphaAnimation animation = new AlphaAnimation(0, 1);
+                    animation.setDuration(1);
+                    animation.setAnimationListener(new Animation.AnimationListener() {
+                        @Override
+                        public void onAnimationStart(Animation animation) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animation animation) {
+                            listView.setVisibility(View.VISIBLE);
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animation animation) {
+
+                        }
+                    });
+                    listView.startAnimation(animation);
+                    listView.invalidate();
+
+                    *//**//**
+                     *
+                     * *//*
+                    break;*/
+                default:
+                    break;
+            }
+        }
+
+    };
+
     //以上为自定义、
 
     private IAnonymousAPresenter mIAnonymousAPresenter;
@@ -305,6 +361,17 @@ public class AnonymousActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+
+    private void handleException(){
+        Toast.makeText(this, "程序出错了、您可以尝试重启App、", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void exception() {
+
+    }
+
 
     @Override
     public <T> T request(int requestFlag) {

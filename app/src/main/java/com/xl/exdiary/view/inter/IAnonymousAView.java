@@ -10,6 +10,8 @@ public interface IAnonymousAView {
     int RESPONSE_TWO = 1;
     int RESPONSE_THREE = 2;
 
+    public void exception();
+
     <T> T request(int requestFlag);
 
     <T> void response(T response, int responseFlag);

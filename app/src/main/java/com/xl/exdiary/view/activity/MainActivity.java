@@ -371,7 +371,9 @@ public class MainActivity extends AppCompatActivity
 
 
                     }
-                }).create();
+                })
+                .setCancelable(false)
+                .create();
         dialog.show();
 
 
