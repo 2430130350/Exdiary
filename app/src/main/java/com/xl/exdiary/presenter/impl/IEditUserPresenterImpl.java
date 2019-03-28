@@ -5,17 +5,19 @@ import com.xl.exdiary.model.impl.UserModel;
 import com.xl.exdiary.presenter.inter.IEditUserPresenter;
 import com.xl.exdiary.model.inter.IUserModel;
 import com.xl.exdiary.model.impl.User;
+import com.xl.exdiary.view.activity.AnonymousActivity;
+import com.xl.exdiary.view.inter.IAnonymousAView;
 import com.xl.exdiary.view.inter.IFriendAView;
 import com.xl.exdiary.view.inter.IMainAView;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class IEditUserPresenterImpl implements IEditUserPresenter {
-    private IUserModel mIUserModel;
-    private IMainAView maIMainAview;
-    private IFriendAView mIFriendAView;
+    private IUserModel mIUserModel = null;
+    private IMainAView maIMainAview = null;
+    private IFriendAView mIFriendAView = null;
+    private IAnonymousAView iAnonymousAView = null;
 
     public IEditUserPresenterImpl(IMainAView aIMainAView) {//主界面 activity
         mIUserModel = new UserModel();
@@ -26,6 +28,12 @@ public class IEditUserPresenterImpl implements IEditUserPresenter {
         mIUserModel = new UserModel();
         mIFriendAView = iFriendAView;
    }
+
+    public IEditUserPresenterImpl(AnonymousActivity anonymousActivity){//树洞界面 activity
+        iAnonymousAView = anonymousActivity;
+        mIUserModel = new UserModel();
+    }
+
 
     //返回保存的用户信息 true 表示正确保存 false 表示错误保存
     @Override
@@ -62,7 +70,12 @@ public class IEditUserPresenterImpl implements IEditUserPresenter {
                 user = new User(jsa.getString("name"), jsa.getString("uuid")
                         ,jsa.getString("signature"), jsa.getString("mail"));
             } catch (JSONException e) {
+                if(maIMainAview != null )
                 maIMainAview.exception();
+                else if(mIFriendAView != null)
+                    mIFriendAView.exception();
+                else if(iAnonymousAView != null)
+                    ;//树洞层异常返回
                 return null;
             }
             return user;
