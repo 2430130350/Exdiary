@@ -22,12 +22,24 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
 
     //添加好友
     @Override
-    public boolean addFriends(String uuid) {
-        JSONObject jso = mIUserModel.getUserInfo();
+    public boolean addFriends(String name, String uuid) {
+        JSONObject mjso = mIUserModel.getUserInfo();
+        JSONObject fjso = new JSONObject();
         if(uuid.length() != 0)
         {
             try {
-                return mIUserModel.addFriend(jso.getString("uuid"), uuid);
+                fjso.put("name",name);
+                fjso.put("uuid",uuid);
+                fjso.put("mail",null);
+                fjso.put("signature",null);
+                if(mIUserModel.saveUserInfoInLocal(fjso))
+                    if(!mIUserModel.saveUserInfoOnServer(fjso))//进一步实现好友请求通过步骤，
+                        /*
+                         *  好友请求确认步骤
+                         */
+                        mIUserModel.delFriendInLocal(fjso);//服务器添加失败， 同步删除本地
+                    else
+                        return true;
             } catch (JSONException e) {
                 e.printStackTrace();
                 //异常处理
@@ -35,6 +47,7 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
         }
         else
             return false;
+        return false;
     }
 
     //删除好友
@@ -42,15 +55,30 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
     public boolean delFriends(String uuid) {
         if(uuid.length() != 0)
         {
-            JSONObject jso = mIUserModel.getUserInfo();
-            try {
-                return mIUserModel.delFriend(jso.getString("uuid"), uuid); // 我的 id 和朋友的 id
-            } catch (JSONException e) {
-                e.printStackTrace();
+            JSONArray jsa = mIUserModel.getAllFriend();
+            JSONObject mjso = mIUserModel.getUserInfo();
+            JSONObject fjso;
+            for(int i = 0; i < jsa.length(); i++)
+            {
+                try {
+                fjso = jsa.getJSONObject(i);
+                if (fjso.getString("uuid").equals(uuid))
+                {
+                    if(mIUserModel.delFriendOnServer(mjso.getString("uuid"), uuid))
+                        if(mIUserModel.delFriendInLocal(fjso))
+                            return true;
+                        else
+                            return false;
+                    else
+                        return false;
+                }
+                } catch (JSONException e) {
+                      e.printStackTrace();
+                      //异常处理，删除异常
+                    }
             }
         }
-        else
-            return false;
+        return false;
     }
 
     //获得好友信息
@@ -81,7 +109,7 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
         return null;
     }
 
-    //获得所以好友信息
+    //获得所有好友信息
     @Override
     public User[] getAllFriend() {
         JSONArray jsa = mIUserModel.getAllFriend();
@@ -106,7 +134,7 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
             return null;
     }
 
-    //修改用户信息
+    //修改用户信息 保证 uuid 号不变
     @Override
     public boolean modifyFriend(String name, String uuid, String mail, String signature) {
         JSONArray jsa = mIUserModel.getAllFriend();
@@ -117,11 +145,9 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
             {
                 try {
                     jso = jsa.getJSONObject(i);
-                    if(jso.getString("name").equals(name)
-                            && jso.getString("uuid").equals(uuid))
+                    if(jso.getString("uuid").equals(uuid))
                     {
                        if(!jso.getString("name").equals(name)
-                               || !jso.getString("uuid").equals(uuid)
                                || !jso.getString("mail").equals(mail)
                                || !jso.getString("signature").equals(signature))
                        {
@@ -130,7 +156,13 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
                            jst.put("uuid",uuid);
                            jst.put("mail",mail);
                            jst.put("signature",signature);
-                           return mIUserModel.saveFriend(jst);
+                           if(mIUserModel.saveUserInfoInLocal(jst))
+                               if(mIUserModel.saveUserInfoOnServer(jst))
+                                   return true;
+                               else
+                                   return false;
+                           else
+                               return false;
                        }
                        else
                            return false;
@@ -141,8 +173,6 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
                 }
             }
         }
-        else
-            return false;
         return false;
     }
 }

@@ -10,8 +10,6 @@ import com.xl.exdiary.view.inter.IMainAView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Date;
-
 public class IEditUserPresenterImpl implements IEditUserPresenter {
     private IUserModel mIUserModel;
     private IMainAView maIMainAview;
@@ -37,7 +35,7 @@ public class IEditUserPresenterImpl implements IEditUserPresenter {
         {
                 try {
                     jsoUser.put("name",nickName);
-                    jsoUser.put("deviceNumber",device);
+                    jsoUser.put("uuid",device);
                     jsoUser.put("signature",signature);
                     jsoUser.put("mail",mail);
                 } catch (JSONException e) {
@@ -46,15 +44,22 @@ public class IEditUserPresenterImpl implements IEditUserPresenter {
                 }
                 if(jso == null)
                 {//当前无用户
-                    return mIUserModel.saveUserInfo(jsoUser);
+                    if(mIUserModel.saveUserInfoInLocal(jsoUser))
+                        if(mIUserModel.saveUserInfoOnServer(jsoUser))
+                            return true;
+                        else
+                            return false;
+                    return false;
                 }
                 else
                 {
                     try {
-                        if( !jso.getString("name").equals(nickName) || !jso.getString("deviceNumber").equals(device)
+                        if( !jso.getString("name").equals(nickName) || !jso.getString("uuid").equals(device)
                                 || !jso.getString("mail").equals(mail) || !jso.getString("signature").equals(signature) )
                         {//用户信息改变
-                            return mIUserModel.saveUserInfo(jsoUser);
+                            if(mIUserModel.saveUserInfoInLocal(jsoUser))//本地更新
+                                return mIUserModel.saveUserInfoOnServer(jsoUser);//服务器更新
+                            return false;//本地更新失败，返回
                         }
                         else {//用户信息未改变
                             return true;
@@ -67,7 +72,6 @@ public class IEditUserPresenterImpl implements IEditUserPresenter {
         }
         else
             return false;
-
     }
 
     @Override
@@ -78,7 +82,7 @@ public class IEditUserPresenterImpl implements IEditUserPresenter {
         {
             User user = null;
             try {
-                user = new User(jsa.getString("name"), jsa.getString("deviceNumber")
+                user = new User(jsa.getString("name"), jsa.getString("uuid")
                         ,jsa.getString("signature"), jsa.getString("mail"));
             } catch (JSONException e) {
                 maIMainAview.exception();
