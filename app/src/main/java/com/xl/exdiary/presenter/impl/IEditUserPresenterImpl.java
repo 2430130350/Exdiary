@@ -7,6 +7,8 @@ import com.xl.exdiary.model.inter.IUserModel;
 import com.xl.exdiary.model.impl.User;
 import com.xl.exdiary.view.inter.IFriendAView;
 import com.xl.exdiary.view.inter.IMainAView;
+
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -29,54 +31,29 @@ public class IEditUserPresenterImpl implements IEditUserPresenter {
     @Override
     public boolean saveUserInfor(String nickName, String mail, String signature) {
         String device = DeviceUuidFactory.getInstance((Context)maIMainAview).getDeviceUuid().toString();
-        JSONObject jso = mIUserModel.getUserInfo();
         JSONObject jsoUser = new JSONObject();
         if(nickName.length() != 0 )
         {
-                try {
-                    jsoUser.put("name",nickName);
-                    jsoUser.put("uuid",device);
-                    jsoUser.put("signature",signature);
-                    jsoUser.put("mail",mail);
-                } catch (JSONException e) {
-                    maIMainAview.exception();
-                    return false;
-                }
-                if(jso == null)
-                {//当前无用户
-                    if(mIUserModel.saveUserInfoInLocal(jsoUser))
-                        if(mIUserModel.saveUserInfoOnServer(jsoUser))
-                            return true;
-                        else
-                            return false;
-                    return false;
-                }
-                else
-                {
-                    try {
-                        if( !jso.getString("name").equals(nickName) || !jso.getString("uuid").equals(device)
-                                || !jso.getString("mail").equals(mail) || !jso.getString("signature").equals(signature) )
-                        {//用户信息改变
-                            if(mIUserModel.saveUserInfoInLocal(jsoUser))//本地更新
-                                return mIUserModel.saveUserInfoOnServer(jsoUser);//服务器更新
-                            return false;//本地更新失败，返回
-                        }
-                        else {//用户信息未改变
-                            return true;
-                        }
-                    } catch (JSONException e) {
-                        maIMainAview.exception();
-                        return false;
-                    }
-                }
+            try {
+                jsoUser.put("name",nickName);
+                jsoUser.put("uuid",device);
+                jsoUser.put("signature",signature);
+                jsoUser.put("mail",mail);
+                if(mIUserModel.saveUserInfoInLocal(jsoUser))//本地保存
+                    return mIUserModel.saveUserInfoOnServer(jsoUser);//服务器保存
+            } catch (JSONException e) {
+                maIMainAview.exception();
+                return false;
+            }
         }
         else
             return false;
+        return false;
     }
 
+    //返回用户信息的 json 对象 无用户信息则为 null
     @Override
     public User getUserInfor() {
-        //返回用户信息的 json 对象 无用户信息则为 null
         JSONObject jsa = mIUserModel.getUserInfo();
         if( jsa != null)
         {
@@ -94,10 +71,56 @@ public class IEditUserPresenterImpl implements IEditUserPresenter {
             return null;
     }
 
+    //删除用户信息
     @Override
-    public boolean delUserInfor() {//删除用户信息
+    public boolean delUserInfor() {
         //mIUserModel.delUser(String name, String uuid);
         return false;
+    }
+
+    //修改用户
+    @Override
+    public boolean updateUserInfor(String nickName, String uuid, String mail, String signature) {
+        JSONObject jso = mIUserModel.getUserInfo();
+        JSONObject jsoUser = new JSONObject();
+        if(jso != null)
+        {
+            try {
+                if(uuid.equals(jso.getString("uuid")))
+                {
+                    if(!nickName.equals(jso.getString("nickName")) || !mail.equals(jso.getString("mail"))
+                            || !signature.equals(jso.getString("signature")))
+                    {
+                        JSONObject mjso = new JSONObject();
+                        mjso.put("nickName",nickName);
+                        mjso.put("uuid",uuid);
+                        mjso.put("mail",mail);
+                        mjso.put("signature",signature);
+                        if(mIUserModel.saveUserInfoInLocal(mjso))
+                            if( mIUserModel.saveUserInfoInLocal(mjso))
+                                mIUserModel.saveUserInfoInLocal(null);//删除本地用户信息
+                        else
+                            return false;
+                        //更新用户信息
+                    }
+                }
+                else
+                    return false;
+            } catch (JSONException e) {
+                e.printStackTrace();
+                maIMainAview.exception();
+                //更新异常
+            }
+        }
+        else
+            return false;
+        return false;
+    }
+
+    //判断登陆
+    @Override
+    public boolean isLogic() {
+        return mIUserModel.getUserInfo() != null;
     }
 }
 

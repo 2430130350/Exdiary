@@ -1,12 +1,12 @@
 package com.xl.exdiary.presenter.impl;
 
+import android.annotation.SuppressLint;
 import com.xl.exdiary.model.impl.Diary;
 import com.xl.exdiary.model.impl.DiaryModel;
 import com.xl.exdiary.model.impl.UserModel;
 import com.xl.exdiary.model.inter.IDiaryModel;
 import com.xl.exdiary.model.inter.IUserModel;
 import com.xl.exdiary.presenter.inter.ITreeHoleAPresenter;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,9 +23,10 @@ class ITreeHoleAPresenterImpl implements ITreeHoleAPresenter {
         muserModel = new UserModel();
     }
 
+    //获得树洞
     @Override
     public Diary[] getTreeHoleDiary()
-    {//获得树洞
+    {
         JSONObject jso;
         JSONArray jsa = TreeHoleModel.getTreeHoleDiary();
         Diary[] diary = new Diary[jsa.length()];
@@ -47,12 +48,13 @@ class ITreeHoleAPresenterImpl implements ITreeHoleAPresenter {
         return null;
     }
 
+    //添加树洞
     @Override
     public boolean addTreeHoleDiary(String title, String body)
-    {//添加树洞
+    {
         JSONObject ujso = muserModel.getUserInfo();
         JSONObject djso = null;Date date = new Date(System.currentTimeMillis());
-        SimpleDateFormat simpleDateFormat = new  SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss");
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat simpleDateFormat = new  SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss");
         if(ujso != null && title.length() != 0 && body.length() != 0 )
         {
             try {
@@ -72,9 +74,10 @@ class ITreeHoleAPresenterImpl implements ITreeHoleAPresenter {
         return false;
     }
 
+    //删除树洞
     @Override
     public boolean delTreeHoleDiary(String date, String title)
-    {//删除树洞
+    {
         JSONObject jso = new JSONObject();
         JSONObject ujso = muserModel.getUserInfo();
         if(ujso != null && date.length() != 0 && title.length() != 0)

@@ -6,8 +6,8 @@ import com.xl.exdiary.model.impl.UserModel;
 import com.xl.exdiary.model.inter.IDiaryModel;
 import com.xl.exdiary.model.inter.IShareDiaryModel;
 import com.xl.exdiary.model.inter.IUserModel;
+import com.xl.exdiary.model.impl.ShareDiaryModel;
 import com.xl.exdiary.presenter.inter.IShareAPresenter;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,6 +22,7 @@ class IShareAPresenterImpl implements IShareAPresenter {
         miDiaryModel = new DiaryModel();
     }
 
+    //分享日记
     @Override
     public boolean shareDiary(String name, String uuid, String date) {
         JSONObject jso = mIUserModel.getUserInfo();
@@ -53,6 +54,7 @@ class IShareAPresenterImpl implements IShareAPresenter {
         return false;
     }
 
+    //获得我的分享日记
     @Override
     public Diary[] getMyShareDiary() {
         JSONObject ujso = mIUserModel.getUserInfo();
@@ -89,6 +91,7 @@ class IShareAPresenterImpl implements IShareAPresenter {
             return null;
     }
 
+    //获得朋友分享的日记
     @Override
     public Diary[] getFriendDiary() {
         JSONObject ujso = mIUserModel.getUserInfo();
@@ -125,6 +128,7 @@ class IShareAPresenterImpl implements IShareAPresenter {
             return null;
     }
 
+    //获得所有的分享日记
     @Override
     public Diary[] getAllDiary() {
         JSONObject ujso = mIUserModel.getUserInfo();
@@ -157,6 +161,7 @@ class IShareAPresenterImpl implements IShareAPresenter {
             return null;
     }
 
+    //取消分享的日记
     @Override
     public boolean disableShareDiary(String name, String uuid, String date) {
         //取消分享日记
@@ -164,18 +169,15 @@ class IShareAPresenterImpl implements IShareAPresenter {
         JSONObject djso;//临时变量
         JSONObject sjso = new JSONObject();//分享的日记
         JSONArray jsa = miDiaryModel.getAllDiaryList();
-        if(name.length() != 0 && uuid.length() != 0 /// 保证数据完整
-                && date.length() != 0 && jso.length() != 0)
-        {
-            for(int i = 0; i < jsa.length(); i++)
-            {
+        if (name.length() != 0 && uuid.length() != 0 /// 保证数据完整
+                && date.length() != 0 && jso.length() != 0) {
+            for (int i = 0; i < jsa.length(); i++) {
                 try {
                     djso = jsa.getJSONObject(i);
-                    if(djso.getString("date").equals(date))
-                    {
-                        sjso.put("myUuid",djso.getString("uuid"));
-                        sjso.put("friendUuid",uuid);
-                        sjso.put("shareDiary",djso);
+                    if (djso.getString("date").equals(date)) {
+                        sjso.put("myUuid", djso.getString("uuid"));
+                        sjso.put("friendUuid", uuid);
+                        sjso.put("shareDiary", djso);
                         return miShareDiaryModel.disableShareDiary(sjso);
                     }
                 } catch (JSONException e) {
@@ -183,8 +185,8 @@ class IShareAPresenterImpl implements IShareAPresenter {
                     //分享异常处理
                 }
             }
-        }
-        else
+        } else
             return false;
         return false;
+    }
 }
