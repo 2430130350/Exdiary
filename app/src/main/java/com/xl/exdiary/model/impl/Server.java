@@ -1,7 +1,7 @@
 package com.xl.exdiary.model.impl;
 
 public class Server {
-    private static String IP="192.168.0.0";
+    private static String IP="192.168.1.102";
     private static int post=5438;
 
     public static String getIP() {

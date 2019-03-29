@@ -38,7 +38,7 @@ public class UserModel implements IUserModel {
     @Override
     public boolean saveUserInfoOnServer(JSONObject userInfo) {
         try{
-            Socket socket=new Socket("192.168.0.0",5438);
+            Socket socket=new Socket(Server.getIP(),Server.getPost());
             userInfo.put("operation",1);
             userInfo.put("deviceID",userInfo.get("deviceNumber"));
             userInfo.put("username",userInfo.get("name"));
@@ -52,12 +52,10 @@ public class UserModel implements IUserModel {
             InputStream is=socket.getInputStream();
             byte[] bytes=new byte[1024];
             is.read(bytes);
-            JSONObject result=new JSONObject(bytes.toString());
             os.close();
             is.close();
             socket.close();
-            if(result.get("result").equals("1"))
-                return true;
+            return true;
         }catch (Exception e){
             e.printStackTrace();
         }
