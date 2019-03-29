@@ -1,9 +1,7 @@
 package com.xl.exdiary.presenter.impl;
 
-import com.xl.exdiary.model.impl.FriendAModelImpl;
 import com.xl.exdiary.model.impl.User;
 import com.xl.exdiary.model.impl.UserModel;
-import com.xl.exdiary.model.inter.IFriendAModel;
 import com.xl.exdiary.model.inter.IUserModel;
 import com.xl.exdiary.presenter.inter.IFriendAPresenter;
 import com.xl.exdiary.view.inter.IFriendAView;
@@ -32,13 +30,14 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
                 fjso.put("uuid",uuid);
                 fjso.put("mail",null);
                 fjso.put("signature",null);
-                if(mIUserModel.saveUserInfoInLocal(fjso))
-                    if(!mIUserModel.saveUserInfoOnServer(fjso))//进一步实现好友请求通过步骤，
-                        /*
-                         *  好友请求确认步骤
-                         */
-                        mIUserModel.delFriendInLocal(fjso);//服务器添加失败， 同步删除本地
-                    else
+                //接口未定义
+                if(mIUserModel.saveUserInfoOnServer(fjso))
+                if(!mIUserModel.saveUserInfoInLocal(fjso))//进一步实现好友请求通过步骤，
+                    /*
+                     *  好友请求确认步骤
+                     */
+                    mIUserModel.delFriendInLocal(fjso);//服务器添加失败， 同步删除本地
+                else
                         return true;
             } catch (JSONException e) {
                 e.printStackTrace();

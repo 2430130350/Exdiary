@@ -22,15 +22,15 @@ public class MainAPresenterImpl implements IMainAPresenter {
         mIDiaryModel = new DiaryModel();//实例化日记类
         mIUserModel = new UserModel();
     }
-
+    //返回所有的日记 diary数组 格式
     @Override
-    public Diary[] getAllDiaryList()  {//返回所有的日记 jsonarray 格式
+    public Diary[] getAllDiaryList()  {
         JSONObject jso = null;
         JSONArray jsa = mIDiaryModel.getAllDiaryList();
         Diary[] diaries = new Diary[jsa.length()];
         if( jsa.length() == 0)
         {//传入一个 长度为0 的 json array 的对象
-            return null;
+            return new Diary[0];
         }
         else {
             for(int i = 0; i< jsa.length(); i++){
@@ -53,8 +53,9 @@ public class MainAPresenterImpl implements IMainAPresenter {
         return null;
     }
 
+    //删除一个日记 包含 账户/id date
     @Override
-    public boolean delDiary(String date)  {//删除一个日记 包含 账户/id date
+    public boolean delDiary(String date)  {
         JSONObject jso = mIUserModel.getUserInfo();
         if(date.length() == 0)
         {//删除为空的日记对象

@@ -29,8 +29,9 @@ public class REditAPresenterImpl implements IREditAPresenter {
         mIMainAview = tIMainAview;
     }
 
+    //添加一个日记 JSONObject 包含 账户姓名/id 日记 title body
     @Override
-    public boolean saveDiary(String title, String body){//添加一个日记 JSONObject 包含 账户姓名/id 日记 title body
+    public boolean saveDiary(String title, String body){
         JSONObject diary = new JSONObject();
         JSONObject user = mIUserModel.getUserInfo();
         Date date = new Date(System.currentTimeMillis());
@@ -56,8 +57,9 @@ public class REditAPresenterImpl implements IREditAPresenter {
             return false;
     }
 
+    //修改日记
     @Override
-    public boolean modifyDiary(String date, String title, String body) {//修改日记
+    public boolean modifyDiary(String date, String title, String body) {
         JSONObject diary = new JSONObject();
         JSONObject user = mIUserModel.getUserInfo();
         if(title.length() == 0 || body.length() == 0 || date.length() == 0)
