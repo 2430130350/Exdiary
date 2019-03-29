@@ -71,11 +71,11 @@ public class IEditUserPresenterImpl implements IEditUserPresenter {
                         ,jsa.getString("signature"), jsa.getString("mail"));
             } catch (JSONException e) {
                 if(maIMainAview != null )
-                maIMainAview.exception();
+                    maIMainAview.exception();
                 else if(mIFriendAView != null)
                     mIFriendAView.exception();
                 else if(iAnonymousAView != null)
-                    ;//树洞层异常返回
+                    iAnonymousAView.exception(); ;//树洞层异常返回
                 return null;
             }
             return user;
@@ -109,11 +109,10 @@ public class IEditUserPresenterImpl implements IEditUserPresenter {
                         mjso.put("uuid",uuid);
                         mjso.put("mail",mail);
                         mjso.put("signature",signature);
-                        if(mIUserModel.saveUserInfoInLocal(mjso))
-                            if( mIUserModel.saveUserInfoInLocal(mjso))
-                                mIUserModel.saveUserInfoInLocal(null);//删除本地用户信息
-                        else
-                            return false;
+                        if(mIUserModel.saveUserInfoOnServer(mjso))
+                            //服务器更新失败， 同步删除本地用户信息
+                            //
+                            return mIUserModel.saveUserInfoInLocal(mjso);
                         //更新用户信息
                     }
                 }
@@ -121,7 +120,10 @@ public class IEditUserPresenterImpl implements IEditUserPresenter {
                     return false;
             } catch (JSONException e) {
                 e.printStackTrace();
-                maIMainAview.exception();
+                if(maIMainAview != null)
+                    maIMainAview.exception();
+                else//其它异常捕获
+                    ;
                 //更新异常
             }
         }
