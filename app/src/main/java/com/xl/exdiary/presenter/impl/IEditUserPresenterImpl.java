@@ -13,6 +13,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Date;
+
 public class IEditUserPresenterImpl implements IEditUserPresenter {
     private IUserModel mIUserModel = null;
     private IMainAView maIMainAview = null;
@@ -48,7 +50,7 @@ public class IEditUserPresenterImpl implements IEditUserPresenter {
                 jsoUser.put("signature",signature);
                 jsoUser.put("mail",mail);
                 if(mIUserModel.saveUserInfoInLocal(jsoUser))//本地保存
-                    return mIUserModel.saveUserInfoOnServer(jsoUser);//服务器保存
+                    return true;//return mIUserModel.saveUserInfoOnServer(jsoUser);//服务器保存
             } catch (JSONException e) {
                 maIMainAview.exception();
                 return false;
@@ -101,11 +103,11 @@ public class IEditUserPresenterImpl implements IEditUserPresenter {
             try {
                 if(uuid.equals(jso.getString("uuid")))
                 {
-                    if(!nickName.equals(jso.getString("nickName")) || !mail.equals(jso.getString("mail"))
+                    if(!nickName.equals(jso.getString("name")) || !mail.equals(jso.getString("mail"))
                             || !signature.equals(jso.getString("signature")))
                     {
                         JSONObject mjso = new JSONObject();
-                        mjso.put("nickName",nickName);
+                        mjso.put("name",nickName);
                         mjso.put("uuid",uuid);
                         mjso.put("mail",mail);
                         mjso.put("signature",signature);
@@ -134,9 +136,10 @@ public class IEditUserPresenterImpl implements IEditUserPresenter {
 
     //判断登陆
     @Override
-    public boolean isLogic() {
+    public boolean isLogin() {
         return mIUserModel.getUserInfo() != null;
     }
+
 }
 
 

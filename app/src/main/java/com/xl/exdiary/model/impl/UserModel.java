@@ -40,7 +40,7 @@ public class UserModel implements IUserModel {
         try{
             Socket socket=new Socket(Server.getIP(),Server.getPost());
             userInfo.put("operation",1);
-            userInfo.put("deviceID",userInfo.get("deviceNumber"));
+            userInfo.put("deviceID",userInfo.get("uuid"));
             userInfo.put("username",userInfo.get("name"));
             userInfo.put("motto",userInfo.get("signature"));
             userInfo.remove("deviceNumber");

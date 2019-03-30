@@ -21,35 +21,10 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
     //添加好友
     @Override
     public boolean addFriends(String name, String uuid) {
-        JSONObject mjso = mIUserModel.getUserInfo();
-        JSONObject fjso = new JSONObject();
-        if(uuid.length() != 0)
-        {
-            try {
-                fjso.put("name",name);
-                fjso.put("uuid",uuid);
-                fjso.put("mail",null);
-                fjso.put("signature",null);
-                //接口未定义
-                if(mIUserModel.saveUserInfoOnServer(fjso))
-                if(!mIUserModel.saveUserInfoInLocal(fjso))//进一步实现好友请求通过步骤，
-                    /*
-                     *  好友请求确认步骤
-                     */
-                    mIUserModel.delFriendInLocal(fjso);//服务器添加失败， 同步删除本地
-                else
-                        return true;
-            } catch (JSONException e) {
-                e.printStackTrace();
-                //异常处理
-            }
-        }
-        else
-            return false;
         return false;
     }
 
-    //删除好友
+    //删除好友,已完成
     @Override
     public boolean delFriends(String uuid) {
         if(uuid.length() != 0)
@@ -90,8 +65,8 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
             for(int i = 0; i < jsa.length(); i++)
             {
                 try {
-                    jso = jsa.getJSONObject(i);
-                    if(jso.getString("name").equals(name)
+                    jso = jsa.getJSONObject(i);//好友状态待处理
+                    if(jso.getString("state").equals('0') && jso.getString("name").equals(name)
                             && jso.getString("uuid").equals(uuid))
                     {
                         return new User(jso.getString("name"), jso.getString("uuid"),
@@ -120,7 +95,8 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
             {
                 try {
                     jso = jsa.getJSONObject(i);
-                     user[i] = new User(jso.getString("name"), jso.getString("uuid"),
+                    if(jso.getString("state").equals('0'))//状态待定
+                         user[i] = new User(jso.getString("name"), jso.getString("uuid"),
                                 jso.getString("signature"), jso.getString("mail"));
                     } catch (JSONException e) {
                     e.printStackTrace();
@@ -172,6 +148,46 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
                 }
             }
         }
+        return false;
+    }
+
+    //保存好友信息
+    @Override
+    public boolean saveFriend(String name, String uuid, String mail, String signature) {
+        JSONObject mjso = mIUserModel.getUserInfo();
+        JSONObject fjso = new JSONObject();
+        if(uuid.length() != 0)
+        {
+            try {
+                fjso.put("name",name);
+                fjso.put("uuid",uuid);
+                fjso.put("mail",mail);
+                fjso.put("signature",signature);
+                //接口未定义
+                if(mIUserModel.saveFriendInLocal(fjso))
+                    return mIUserModel.saveUserInfoInLocal(fjso);//服务器更新好友信息
+            } catch (JSONException e) {
+                e.printStackTrace();
+                //异常处理
+            }
+        }
+        else
+            return false;
+        return false;
+    }
+
+    @Override
+    public User[] getFriendToSure() {
+        return new User[0];
+    }
+
+    @Override
+    public boolean acceptFriend(String fname, String fuuid) {
+        return false;
+    }
+
+    @Override
+    public boolean rejectFriend(String fname, String fuuid) {
         return false;
     }
 }
