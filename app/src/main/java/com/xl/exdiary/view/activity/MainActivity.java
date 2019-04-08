@@ -2,6 +2,7 @@ package com.xl.exdiary.view.activity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -10,6 +11,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -43,6 +45,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 
 import android.view.animation.AlphaAnimation;
@@ -76,12 +79,14 @@ import com.xl.exdiary.view.specialView.LocalSettingFileHandler;
 
 import java.io.FileDescriptor;
 import java.lang.annotation.Target;
+import java.lang.reflect.Method;
 
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, IMainAView {
     private AlphaAnimation appearAnimation = new AlphaAnimation(0, 1);
     private AlphaAnimation deleteAnimation = new AlphaAnimation(1, 0);
+
 
     //6.0以上sd卡读写权限动态申请、
     //读写权限
@@ -159,7 +164,7 @@ public class MainActivity extends AppCompatActivity
                      * 防止listview界面不刷新、
                      * */
                     AlphaAnimation animation = new AlphaAnimation(0, 1);
-                    animation.setDuration(1);
+                    animation.setDuration(200);
                     animation.setAnimationListener(new Animation.AnimationListener() {
                         @Override
                         public void onAnimationStart(Animation animation) {
@@ -191,6 +196,10 @@ public class MainActivity extends AppCompatActivity
     };
 
     private void updateItem(int position) {
+        if (position == 0){
+            return;
+        }
+
         ListView listView = findViewById(R.id.Listview);
         /**第一个可见的位置**/
         int firstVisiblePosition = listView.getFirstVisiblePosition();
@@ -234,10 +243,6 @@ public class MainActivity extends AppCompatActivity
             }
         }
 
-        //假装有这么一个用户、
-        mIEditUserPresenter.saveUserInfor("游客", "无", "无");
-
-
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -249,6 +254,8 @@ public class MainActivity extends AppCompatActivity
 
                 FloatingActionButton fab = findViewById(R.id.fab);
                 fab.setVisibility(View.GONE);
+
+                MainActivity.this.nowPosition = -1;//标识当前为新建日记、
 
                 /**
                  * 新建日记、
@@ -277,38 +284,9 @@ public class MainActivity extends AppCompatActivity
                 imageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        FloatingActionButton fab = findViewById(R.id.fab);
-                        fab.setVisibility(View.VISIBLE);
-                        //新建日记、
-                        View edit = MainActivity.this.findViewById(R.id.edit);
-                        LinedEditView editBody = edit.findViewById(R.id.editItem_data);
-                        EditText editTitle = edit.findViewById(R.id.editItem_time);
-
-                        ImageView imageView = MainActivity.this.findViewById(R.id.blur);
-                        imageView.setVisibility(View.GONE);
-                        edit.startAnimation(deleteAnimation);
-                        edit.setVisibility(View.GONE);
-
-                        MainActivity.this.mIREditAPresenter.saveDiary(editTitle.getText().toString(), editBody.getText().toString());
-
-                        //关闭键盘、
-                        View view = MainActivity.this.getCurrentFocus();
-                        if (view != null) {
-                            InputMethodManager inputMethodManager = (InputMethodManager) MainActivity.this.getSystemService(Activity.INPUT_METHOD_SERVICE);
-                            inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-                        }
-
-
-                        MainActivity.this.setListener();//重置监听、
-
-                        //刷新列表、
-                        MainActivity.this.updateListView();
+                        MainActivity.this.saveDiary();
                     }
                 });
-
-
-
-
             }
         });
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -320,64 +298,86 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         //以下为自定义方法、
-
         /**
          * 从客户端获取数据、
          * */
         this.getAllDiaryList();
         this.setListener();
 
-
-
-
         //设置卡片逐渐出现和消失的动画、
         appearAnimation.setDuration(500);
         deleteAnimation.setDuration(500);
 
-
-
         this.initOther();
-
         //判断是否第一次进入app、即未注册状态、
+        if(!mIEditUserPresenter.isLogin()){//第一次进入app、执行注册、
+            //未注册、弹出框、注册新用户、
+            LayoutInflater factory = LayoutInflater.from(this);
+            final View signView = factory.inflate(R.layout.sigin_dialog, null);
+            android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(MainActivity.this)
+                    .setIcon(R.mipmap.ic_launcher)//设置标题的图片
+                    .setTitle("注册新用户")//设置对话框的标题
+                    .setMessage("如果您希望跳过、将以默认参数为您注册、")//设置对话框的内容
+                    //设置编辑框、
+                    .setView(signView)
+                    //设置对话框的按钮
+                    .setNegativeButton("跳过", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Toast.makeText(MainActivity.this, "默认注册、", Toast.LENGTH_SHORT).show();
+                            mIEditUserPresenter.saveUserInfor("MVP", "无", "无");
+                            dialog.dismiss();
+                        }
+                    })
+                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            //注册、
+                            String nickName = ((EditText)signView.findViewById(R.id.nickNameEdit)).getText().toString();
+                            String email = ((EditText)signView.findViewById(R.id.emailEdit)).getText().toString();
+                            String sign = ((EditText)signView.findViewById(R.id.signEdit)).getText().toString();
+                            mIEditUserPresenter.saveUserInfor(
+                                    (nickName.equals("")) ? "MVP": nickName,
+                                    (email.equals("")) ? "无": email,
+                                    (sign.equals("")) ? "无": sign
+                            );
+                        }
+                    })
+                    .setCancelable(false)
+                    .create();
+            dialog.show();
+        }
 
-        //未注册、弹出框、注册新用户、
-        LayoutInflater factory = LayoutInflater.from(this);
-        final View signView = factory.inflate(R.layout.sigin_dialog, null);
-        android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(MainActivity.this)
-                .setIcon(R.mipmap.ic_launcher)//设置标题的图片
-                .setTitle("注册新用户")//设置对话框的标题
-                .setMessage("如果您希望跳过、将以默认参数为您注册、")//设置对话框的内容
-                //设置编辑框、
-                .setView(signView)
-                //设置对话框的按钮
-                .setNegativeButton("跳过", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Toast.makeText(MainActivity.this, "默认注册、", Toast.LENGTH_SHORT).show();
-                        dialog.dismiss();
-                    }
-                })
-                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+    }
 
-                        dialog.dismiss();
+    @SuppressLint("RestrictedApi")
+    private void saveDiary(){
+        FloatingActionButton fab = findViewById(R.id.fab);
+        fab.setVisibility(View.VISIBLE);
+        //新建日记、
+        View edit = MainActivity.this.findViewById(R.id.edit);
+        LinedEditView editBody = edit.findViewById(R.id.editItem_data);
+        EditText editTitle = edit.findViewById(R.id.editItem_time);
 
-                        //注册、
-                        String nickName = ((EditText)signView.findViewById(R.id.nickNameEdit)).getText().toString();
-                        String email = ((EditText)signView.findViewById(R.id.emailEdit)).getText().toString();
-                        String sign = ((EditText)signView.findViewById(R.id.signEdit)).getText().toString();
+        ImageView imageView = MainActivity.this.findViewById(R.id.blur);
+        imageView.setVisibility(View.GONE);
+        edit.startAnimation(deleteAnimation);
+        edit.setVisibility(View.GONE);
 
+        MainActivity.this.mIREditAPresenter.saveDiary(editTitle.getText().toString(), editBody.getText().toString());
 
+        //关闭键盘、
+        View view = MainActivity.this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager inputMethodManager = (InputMethodManager) MainActivity.this.getSystemService(Activity.INPUT_METHOD_SERVICE);
+            inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        }
 
-                    }
-                })
-                .setCancelable(false)
-                .create();
-        dialog.show();
+        MainActivity.this.setListener();//重置监听、
 
-
-
+        //刷新列表、
+        MainActivity.this.updateListView();
     }
 
     private void getAllDiaryList(){//获得数据、
@@ -671,10 +671,11 @@ public class MainActivity extends AppCompatActivity
          */
         Bitmap bmp1 = view.getDrawingCache();
         int height = getOtherHeight();
+        int navigationBarHeight = getNavigationBarHeight();
         /**
          * 除去状态栏和标题栏
          */
-        Bitmap bmp2 = Bitmap.createBitmap(bmp1,0, height,bmp1.getWidth(), bmp1.getHeight() - height);
+        Bitmap bmp2 = Bitmap.createBitmap(bmp1,0, height, bmp1.getWidth(), bmp1.getHeight() - height - navigationBarHeight);
         return bmp2;
     }
 
@@ -695,8 +696,72 @@ public class MainActivity extends AppCompatActivity
         return statusBarHeight + actionBarHeight;
     }
 
+
+    //获取虚拟按键的高度
+    public int getNavigationBarHeight() {
+        int result = 0;
+        if (hasNavBar()) {
+            Resources res = this.getResources();
+            int resourceId = res.getIdentifier("navigation_bar_height", "dimen", "android");
+            if (resourceId > 0) {
+                result = res.getDimensionPixelSize(resourceId);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 检查是否存在虚拟按键栏
+     *
+     *
+     * @return
+     */
+    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+    public boolean hasNavBar() {
+        Resources res = this.getResources();
+        int resourceId = res.getIdentifier("config_showNavigationBar", "bool", "android");
+        if (resourceId != 0) {
+            boolean hasNav = res.getBoolean(resourceId);
+            // check override flag
+            String sNavBarOverride = getNavBarOverride();
+            if ("1".equals(sNavBarOverride)) {
+                hasNav = false;
+            } else if ("0".equals(sNavBarOverride)) {
+                hasNav = true;
+            }
+            return hasNav;
+        } else { // fallback
+            return !ViewConfiguration.get(this).hasPermanentMenuKey();
+        }
+    }
+
+    /**
+     * 判断虚拟按键栏是否重写
+     *
+     * @return
+     */
+    private static String getNavBarOverride() {
+        String sNavBarOverride = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            try {
+                Class c = Class.forName("android.os.SystemProperties");
+                Method m = c.getDeclaredMethod("get", String.class);
+                m.setAccessible(true);
+                sNavBarOverride = (String) m.invoke(null, "qemu.hw.mainkeys");
+            } catch (Throwable e) {
+            }
+        }
+        return sNavBarOverride;
+    }
+
+
     @Override
     public void onBackPressed() {
+        if(nowPosition == -1){
+            MainActivity.this.saveDiary();
+            return;
+        }
+
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if(MainActivity.this.findViewById(R.id.redit).getVisibility() == View.VISIBLE || MainActivity.this.findViewById(R.id.edit).getVisibility() == View.VISIBLE){//退出编辑查看模式、
             //该处所有代码其实与  点击高斯模糊图片    的代码完全相同、但是那个地方是内部类、    暂使用复制方式实现调用、
@@ -716,6 +781,7 @@ public class MainActivity extends AppCompatActivity
             MainActivity.this.findViewById(R.id.blur).setVisibility(View.GONE);
             return;
         }
+
 
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
@@ -741,8 +807,6 @@ public class MainActivity extends AppCompatActivity
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {//右上角菜单中设置、
             startActivity(new Intent(MainActivity.this, SettingActivity.class));
-
-
             return true;
         }
 

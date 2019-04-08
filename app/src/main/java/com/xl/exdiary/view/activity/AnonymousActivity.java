@@ -1,12 +1,18 @@
 package com.xl.exdiary.view.activity;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
+
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -18,6 +24,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
+
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -28,10 +35,13 @@ import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+
+
 import android.widget.ImageView;
-import android.widget.ListView;
+
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -44,13 +54,21 @@ import com.xl.exdiary.presenter.inter.IAnonymousAPresenter;
 import com.xl.exdiary.presenter.inter.IEditUserPresenter;
 import com.xl.exdiary.view.inter.IAnonymousAView;
 import com.xl.exdiary.view.specialView.DiaryAdapter;
+import com.xl.exdiary.view.specialView.LocalSetting;
+import com.xl.exdiary.view.specialView.LocalSettingFileHandler;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class AnonymousActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, IAnonymousAView {
+
+    private AlphaAnimation appearAnimation = new AlphaAnimation(0, 1);
+    private AlphaAnimation deleteAnimation = new AlphaAnimation(1, 0);
+
+    private LocalSetting localSetting = null;
 
     private RecyclerView recyclerView;
     private Diary[] data = null;
@@ -65,40 +83,7 @@ public class AnonymousActivity extends AppCompatActivity
                     AnonymousActivity.this.handleException();
                     break;
                 case 1://更新数据、
-                   /* final ListView listView = AnonymousActivity.this.findViewById(R.id.Listview);
-                    AnonymousActivity.this.getFriendDiaryList();
 
-                    AnonymousActivity.this.text_adapter.notifyDataSetChanged();
-                    listView.setVisibility(View.GONE);
-
-                    *//**//**
-                     * 防止listview界面不刷新、
-                     * *//**//*
-                    AlphaAnimation animation = new AlphaAnimation(0, 1);
-                    animation.setDuration(1);
-                    animation.setAnimationListener(new Animation.AnimationListener() {
-                        @Override
-                        public void onAnimationStart(Animation animation) {
-
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animation animation) {
-                            listView.setVisibility(View.VISIBLE);
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animation animation) {
-
-                        }
-                    });
-                    listView.startAnimation(animation);
-                    listView.invalidate();
-
-                    *//**//**
-                     *
-                     * *//*
-                    break;*/
                 default:
                     break;
             }
@@ -116,6 +101,10 @@ public class AnonymousActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         mIAnonymousAPresenter = new AnonymousAPresenterImpl(this);
         mIEditUserPresenter = new IEditUserPresenterImpl(this);
+
+        //设置卡片逐渐出现和消失的动画、
+        appearAnimation.setDuration(500);
+        deleteAnimation.setDuration(500);
 
         setContentView(R.layout.activity_anonymous);
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -151,6 +140,10 @@ public class AnonymousActivity extends AppCompatActivity
         DiaryAdapter adapter = new DiaryAdapter(data, this);
         //设置adapter
         recyclerView.setAdapter(adapter);
+
+        this.setListener();
+        this.initOther();
+
     }
 
 
@@ -171,6 +164,59 @@ public class AnonymousActivity extends AppCompatActivity
         }
     }
 
+
+    private void setListener(){
+
+        //设置blur图片的点击事件防止展示时穿透点击、同时设置点击后返回、
+        findViewById(R.id.blur).setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("RestrictedApi")
+            @Override
+            public void onClick(View v) {
+                FloatingActionButton fab = findViewById(R.id.fab);
+                fab.setVisibility(View.VISIBLE);
+
+                if(findViewById(R.id.userinfoCardview).getVisibility() == View.VISIBLE) {
+                    View view = findViewById(R.id.userinfoCardview);
+                    view.startAnimation(deleteAnimation);
+                    view.setVisibility(View.GONE);
+                    AnonymousActivity.this.findViewById(R.id.blur).setVisibility(View.GONE);
+                    return;
+                }
+
+
+                AnonymousActivity.this.findViewById(R.id.blur).setVisibility(View.INVISIBLE);
+                //AnonymousActivity.this.findViewById(R.id.read_viewpager).setVisibility(View.INVISIBLE);
+
+            }
+        });
+    }
+
+
+    private void initOther(){
+        LocalSettingFileHandler localSettingFileHandler = new LocalSettingFileHandler(this, null);
+        this.localSetting = localSettingFileHandler.getLocalSetting();
+        if(localSetting == null){
+            localSettingFileHandler.setLocalSetting();
+        }
+        else{
+            //初始化背景、
+            if(localSetting.isNoBackground){
+                findViewById(R.id.anonymousContent).setBackgroundColor(Color.WHITE);
+            }
+            else if(localSetting.settingBackground != null){
+                //设置自定义的图片为背景、
+                setDiyBackground();
+            }
+        }
+
+    }
+
+
+    private void setDiyBackground(){
+        Bitmap bitmap = BitmapFactory.decodeFile(this.localSetting.anonymousBackground);
+        findViewById(R.id.anonymousContent).setBackground(new BitmapDrawable(getResources(), bitmap));//把bitmap转为drawable,layout为xml文件里的主layout
+        findViewById(R.id.anonymousContent).invalidate();
+    }
 
     public void blurV2(Bitmap bitmap, View view){
 
@@ -217,10 +263,11 @@ public class AnonymousActivity extends AppCompatActivity
          */
         Bitmap bmp1 = view.getDrawingCache();
         int height = getOtherHeight();
+        int navigationBarHeight = getNavigationBarHeight();
         /**
          * 除去状态栏和标题栏
          */
-        Bitmap bmp2 = Bitmap.createBitmap(bmp1,0, height,bmp1.getWidth(), bmp1.getHeight() - height);
+        Bitmap bmp2 = Bitmap.createBitmap(bmp1,0, height, bmp1.getWidth(), bmp1.getHeight() - height - navigationBarHeight);
         return bmp2;
     }
 
@@ -242,8 +289,76 @@ public class AnonymousActivity extends AppCompatActivity
     }
 
 
+
+    //获取虚拟按键的高度
+    public int getNavigationBarHeight() {
+        int result = 0;
+        if (hasNavBar()) {
+            Resources res = this.getResources();
+            int resourceId = res.getIdentifier("navigation_bar_height", "dimen", "android");
+            if (resourceId > 0) {
+                result = res.getDimensionPixelSize(resourceId);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 检查是否存在虚拟按键栏
+     *
+     *
+     * @return
+     */
+    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+    public boolean hasNavBar() {
+        Resources res = this.getResources();
+        int resourceId = res.getIdentifier("config_showNavigationBar", "bool", "android");
+        if (resourceId != 0) {
+            boolean hasNav = res.getBoolean(resourceId);
+            // check override flag
+            String sNavBarOverride = getNavBarOverride();
+            if ("1".equals(sNavBarOverride)) {
+                hasNav = false;
+            } else if ("0".equals(sNavBarOverride)) {
+                hasNav = true;
+            }
+            return hasNav;
+        } else { // fallback
+            return !ViewConfiguration.get(this).hasPermanentMenuKey();
+        }
+    }
+
+    /**
+     * 判断虚拟按键栏是否重写
+     *
+     * @return
+     */
+    private static String getNavBarOverride() {
+        String sNavBarOverride = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            try {
+                Class c = Class.forName("android.os.SystemProperties");
+                Method m = c.getDeclaredMethod("get", String.class);
+                m.setAccessible(true);
+                sNavBarOverride = (String) m.invoke(null, "qemu.hw.mainkeys");
+            } catch (Throwable e) {
+            }
+        }
+        return sNavBarOverride;
+    }
+
+
+
     @Override
     public void onBackPressed() {
+         if(findViewById(R.id.userinfoCardview).getVisibility() == View.VISIBLE){
+            View view = findViewById(R.id.userinfoCardview);
+            view.startAnimation(deleteAnimation);
+            view.setVisibility(View.GONE);
+            this.findViewById(R.id.blur).setVisibility(View.GONE);
+            return;
+        }
+
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
@@ -268,12 +383,14 @@ public class AnonymousActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            startActivity(new Intent(AnonymousActivity.this, SettingActivity.class));
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
+    @SuppressLint("RestrictedApi")
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -281,6 +398,8 @@ public class AnonymousActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_self) {//用户信息、
+            FloatingActionButton fab = findViewById(R.id.fab);
+            fab.setVisibility(View.GONE);
             if(findViewById(R.id.blur).getVisibility() == View.VISIBLE){
                 this.onBackPressed();
             }
@@ -369,7 +488,7 @@ public class AnonymousActivity extends AppCompatActivity
 
     @Override
     public void exception() {
-
+        this.mHandler.sendEmptyMessage(-1);//子线程通知主线程  出现了异常、
     }
 
 
