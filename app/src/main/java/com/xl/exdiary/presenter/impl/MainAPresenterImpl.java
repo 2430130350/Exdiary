@@ -82,7 +82,6 @@ public class MainAPresenterImpl implements IMainAPresenter {
             return false;
     }
 
-
     //针对日记进行排序
     @Override
     public void orderJSONArrayList(JSONArray diarys, int first, int end) {
