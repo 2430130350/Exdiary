@@ -30,7 +30,7 @@ class IShareAPresenterImpl implements IShareAPresenter {
         JSONObject sjso = new JSONObject();//分享的日记
         JSONArray jsa = miDiaryModel.getAllDiaryList();
         if(name.length() != 0 && uuid.length() != 0 /// 保证数据完整
-                && date.length() != 0 && jso.length() != 0)
+                && date.length() != 0 && jso != null)
         {
             for(int i = 0; i < jsa.length(); i++)
             {
@@ -40,7 +40,9 @@ class IShareAPresenterImpl implements IShareAPresenter {
                     {
                         sjso.put("myUuid",djso.getString("uuid"));
                         sjso.put("friendUuid",uuid);
-                        sjso.put("shareDiary",djso);
+                        sjso.put("shareDate",djso.getString("date"));
+                        sjso.put("shareTitle",djso.getString("title"));
+                        sjso.put("shareBody",djso.getString("body"));
                         return miShareDiaryModel.shareDiary(sjso);
                     }
                 } catch (JSONException e) {
@@ -60,6 +62,7 @@ class IShareAPresenterImpl implements IShareAPresenter {
         JSONObject ujso = mIUserModel.getUserInfo();
         JSONObject jso;
         JSONArray jsa = null;
+        int counts = 0;
         try {
             jsa = miShareDiaryModel.getAllShareDiary(ujso.getString("uuid"));
         } catch (JSONException e) {
@@ -73,19 +76,26 @@ class IShareAPresenterImpl implements IShareAPresenter {
         {
             for(int i = 0; i < jsa.length(); i++)
             {
+
                 try {
                     jso = jsa.getJSONObject(i);
                     if(jso.getString("myUuid").equals(ujso.getString("uuid")))
                     {
-                        diary[i] = new Diary(jso.getString("title"),
-                                jso.getString("body"), jso.getString("date"));
+                        counts += 1;
+                        diary[i] = new Diary(jso.getString("shareTitle"),
+                                jso.getString("shareBody"), jso.getString("shareDate"));
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
                     //异常处理
                 }
+
             }
-            return diary;
+            Diary[] tdiary = new Diary[counts];
+            for(int t = 0; t < counts; t++){
+                tdiary[t] = diary[t];
+            }
+            return tdiary;
         }
         else
             return null;
@@ -97,6 +107,7 @@ class IShareAPresenterImpl implements IShareAPresenter {
         JSONObject ujso = mIUserModel.getUserInfo();
         JSONObject jso;
         JSONArray jsa = null;
+        int counts = 0;
         try {
             jsa = miShareDiaryModel.getAllShareDiary(ujso.getString("uuid"));
         } catch (JSONException e) {
@@ -114,15 +125,20 @@ class IShareAPresenterImpl implements IShareAPresenter {
                     jso = jsa.getJSONObject(i);
                     if(!jso.getString("myUuid").equals(ujso.getString("uuid")))
                     {
-                        diary[i] = new Diary(jso.getString("title"),
-                                jso.getString("body"), jso.getString("date"));
+                        counts += 1;
+                        diary[i] = new Diary(jso.getString("shareTitle"),
+                                jso.getString("shareBody"), jso.getString("shareDate"));
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
                     //异常处理
                 }
             }
-            return diary;
+            Diary[] tdiary = new Diary[counts];
+            for(int t = 0; t < counts; t++){
+                tdiary[t] = diary[t];
+            }
+            return tdiary;
         }
         else
             return null;
@@ -174,11 +190,11 @@ class IShareAPresenterImpl implements IShareAPresenter {
             for (int i = 0; i < jsa.length(); i++) {
                 try {
                     djso = jsa.getJSONObject(i);
-                    if (djso.getString("date").equals(date)) {
-                        sjso.put("myUuid", djso.getString("uuid"));
-                        sjso.put("friendUuid", uuid);
-                        sjso.put("shareDiary", djso);
-                        return miShareDiaryModel.disableShareDiary(sjso);
+                    if(djso.getString("myUuid").equals(jso.getString("uuid"))){
+                        if (djso.getString("date").equals(date)) {
+                            //取消分享日记
+                            return miShareDiaryModel.disableShareDiary(djso);
+                        }
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();

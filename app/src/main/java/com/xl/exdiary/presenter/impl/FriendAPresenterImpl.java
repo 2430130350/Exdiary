@@ -53,8 +53,8 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
                 fjso = jsa.getJSONObject(i);
                 if (fjso.getString("uuid").equals(uuid))
                 {
-                    if(mIUserModel.delFriendOnServer(mjso.getString("uuid"), uuid))
-                        return mIUserModel.delFriendInLocal(fjso);
+                    if(mIUserModel.delFriendOnServer(mjso.getString("uuid"), uuid))//服务器删除好友
+                        return mIUserModel.delFriendInLocal(fjso);//本地删除好友
                     else
                         return false;
                 }
@@ -183,6 +183,7 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
     //获取云端好友请求信息
     @Override
     public User[] getFriendToSure() {
+        //返回的结构未定！！！！！！
         JSONObject jso = mIUserModel.getUserInfo();
         JSONArray jsa = null;
         try {
@@ -198,7 +199,7 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
             {
                 try {
                     jso = jsa.getJSONObject(i);
-                    if(jso.getString("requested").equals('1'))//状态待定
+                    if(jso.getString("requested").equals('0'))//状态待定
                         user[i] = new User(jso.getString("username"), jso.getString("friendID"),
                                 jso.getString("motto"), jso.getString("mail"));
                 } catch (JSONException e) {
@@ -219,9 +220,9 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
         JSONObject mjso = mIUserModel.getUserInfo();
         if(fname != null && fuuid != null)
         {
-            if(saveFriend(fname, fuuid, mail, signature)) {
+            if(saveFriend(fname, fuuid, mail, signature)) {//将朋友信息保存到本地
                 try {
-                    mIUserModel.acceptFriendRequest(mjso.getString("uuid"), fuuid);
+                    mIUserModel.acceptFriendRequest(mjso.getString("uuid"), fuuid);//云端接受请求
                 } catch (JSONException e) {
                     e.printStackTrace();
                     //异常处理
