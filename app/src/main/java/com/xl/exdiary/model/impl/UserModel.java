@@ -177,7 +177,8 @@ public class UserModel implements IUserModel {
                     break;
                 string.append(read);
             }
-            JSONArray result=new JSONObject(string.toString()).getJSONArray("result");
+            JSONObject jso = new JSONObject(string.toString());
+            JSONArray result = new JSONArray(jso.getString("result"));
             os.close();
             br.close();
             socket.close();
