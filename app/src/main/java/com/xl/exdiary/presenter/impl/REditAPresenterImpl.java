@@ -35,7 +35,6 @@ public class REditAPresenterImpl implements IREditAPresenter {
     public boolean saveDiary(String title, String body){
         JSONObject diary = new JSONObject();
         JSONObject user = mIUserModel.getUserInfo();
-       // Date date = new Date(System.currentTimeMillis());
         Timestamp date = new Timestamp(System.currentTimeMillis());
         @SuppressLint("SimpleDateFormat") SimpleDateFormat simpleDateFormat = new  SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss");
         if(title.length() == 0 || body.length() == 0)
@@ -65,7 +64,7 @@ public class REditAPresenterImpl implements IREditAPresenter {
         JSONObject diary = new JSONObject();
         JSONObject user = mIUserModel.getUserInfo();
         if(title.length() == 0 || body.length() == 0 || date.length() == 0)
-        {//传入一个参数为空的 json 对象
+        {//传入一个参数为空的字符串对象
             return false;
         }
         else if(user != null) {

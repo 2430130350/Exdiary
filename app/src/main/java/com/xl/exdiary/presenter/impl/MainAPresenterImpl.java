@@ -78,7 +78,6 @@ public class MainAPresenterImpl implements IMainAPresenter {
             }
             return mIDiaryModel.deleteDiary(diary);
         }
-        else
             return false;
     }
 

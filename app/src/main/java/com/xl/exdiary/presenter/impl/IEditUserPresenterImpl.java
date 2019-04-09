@@ -56,8 +56,6 @@ public class IEditUserPresenterImpl implements IEditUserPresenter {
                 return false;
             }
         }
-        else
-            return false;
         return false;
     }
 
@@ -103,20 +101,15 @@ public class IEditUserPresenterImpl implements IEditUserPresenter {
             try {
                 if(uuid.equals(jso.getString("uuid")))
                 {
-                    if(!nickName.equals(jso.getString("name")) || !mail.equals(jso.getString("mail"))
-                            || !signature.equals(jso.getString("signature")))
-                    {
                         JSONObject mjso = new JSONObject();
                         mjso.put("name",nickName);
                         mjso.put("uuid",uuid);
                         mjso.put("mail",mail);
                         mjso.put("signature",signature);
                         if(mIUserModel.saveUserInfoOnServer(mjso))
-                            //服务器更新失败， 同步删除本地用户信息
-                            //
+                            //服务器更新失败， 同步删除本地用户信息（未处理）
                             return mIUserModel.saveUserInfoInLocal(mjso);
                         //更新用户信息
-                    }
                 }
                 else
                     return false;
@@ -129,8 +122,6 @@ public class IEditUserPresenterImpl implements IEditUserPresenter {
                 //更新异常
             }
         }
-        else
-            return false;
         return false;
     }
 

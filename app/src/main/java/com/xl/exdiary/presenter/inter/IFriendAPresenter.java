@@ -90,6 +90,7 @@ public interface IFriendAPresenter {
 
          异常 ：未对异常做处理
      */
+
     public boolean acceptFriend(String fname, String fuuid, String mail, String signature);
 
     /*
