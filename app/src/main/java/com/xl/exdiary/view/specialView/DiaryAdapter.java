@@ -55,6 +55,7 @@ public class DiaryAdapter extends RecyclerView.Adapter<DiaryAdapter.DiaryViewHol
             timeView = itemView.findViewById(R.id.nonameTime);
             titleView = itemView.findViewById(R.id.nonameTitle);
             bodyView = itemView.findViewById(R.id.nonameBody);
+
         }
     }
 }

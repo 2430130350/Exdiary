@@ -6,7 +6,9 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".view.activity.AnonymousActivity"
-    tools:showIn="@layout/app_bar_anonymous">
+    tools:showIn="@layout/app_bar_anonymous"
+    android:background="@drawable/noname"
+    android:id="@+id/anonymousContent">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/nonameList"

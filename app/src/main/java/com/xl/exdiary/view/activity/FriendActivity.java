@@ -1,15 +1,18 @@
 package com.xl.exdiary.view.activity;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -32,6 +35,7 @@ import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
@@ -53,8 +57,16 @@ import com.xl.exdiary.view.inter.IFriendAView;
 import com.xl.exdiary.view.specialView.LocalSetting;
 import com.xl.exdiary.view.specialView.LocalSettingFileHandler;
 
+import java.lang.reflect.Method;
+
 public class FriendActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, IFriendAView {
+
+    private AlphaAnimation appearAnimation = new AlphaAnimation(0, 1);
+    private AlphaAnimation deleteAnimation = new AlphaAnimation(1, 0);
+
+
+    //以上是自定义参数、
 
     private LocalSetting localSetting = null;
 
@@ -185,6 +197,7 @@ public class FriendActivity extends AppCompatActivity
     private IFriendAPresenter mIFriendAPresenter;
     private IEditUserPresenter mIEditUserPresenter;
 
+    @SuppressLint("RestrictedApi")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -204,6 +217,9 @@ public class FriendActivity extends AppCompatActivity
                         .setAction("Action", null).show();
             }
         });
+
+        fab.setVisibility(View.GONE);
+
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -215,6 +231,11 @@ public class FriendActivity extends AppCompatActivity
 
 
         //以下为自定义代码、
+
+        //设置卡片逐渐出现和消失的动画、
+        appearAnimation.setDuration(500);
+        deleteAnimation.setDuration(500);
+
         this.setListener();
 
         this.initOther();
@@ -245,8 +266,21 @@ public class FriendActivity extends AppCompatActivity
 
         //设置blur图片的点击事件防止展示时穿透点击、同时设置点击后返回、
         findViewById(R.id.blur).setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("RestrictedApi")
             @Override
             public void onClick(View v) {
+                FloatingActionButton fab = findViewById(R.id.fab);
+                fab.setVisibility(View.VISIBLE);
+
+                if(findViewById(R.id.userinfoCardview).getVisibility() == View.VISIBLE) {
+                    View view = findViewById(R.id.userinfoCardview);
+                    view.startAnimation(deleteAnimation);
+                    view.setVisibility(View.GONE);
+                    FriendActivity.this.findViewById(R.id.blur).setVisibility(View.GONE);
+                    return;
+                }
+
+
                 FriendActivity.this.findViewById(R.id.blur).setVisibility(View.INVISIBLE);
                 FriendActivity.this.findViewById(R.id.read_viewpager).setVisibility(View.INVISIBLE);
 
@@ -324,10 +358,11 @@ public class FriendActivity extends AppCompatActivity
          */
         Bitmap bmp1 = view.getDrawingCache();
         int height = getOtherHeight();
+        int navigationBarHeight = getNavigationBarHeight();
         /**
          * 除去状态栏和标题栏
          */
-        Bitmap bmp2 = Bitmap.createBitmap(bmp1,0, height,bmp1.getWidth(), bmp1.getHeight() - height);
+        Bitmap bmp2 = Bitmap.createBitmap(bmp1,0, height, bmp1.getWidth(), bmp1.getHeight() - height - navigationBarHeight);
         return bmp2;
     }
 
@@ -348,11 +383,76 @@ public class FriendActivity extends AppCompatActivity
         return statusBarHeight + actionBarHeight;
     }
 
+
+    //获取虚拟按键的高度
+    public int getNavigationBarHeight() {
+        int result = 0;
+        if (hasNavBar()) {
+            Resources res = this.getResources();
+            int resourceId = res.getIdentifier("navigation_bar_height", "dimen", "android");
+            if (resourceId > 0) {
+                result = res.getDimensionPixelSize(resourceId);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 检查是否存在虚拟按键栏
+     *
+     *
+     * @return
+     */
+    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+    public boolean hasNavBar() {
+        Resources res = this.getResources();
+        int resourceId = res.getIdentifier("config_showNavigationBar", "bool", "android");
+        if (resourceId != 0) {
+            boolean hasNav = res.getBoolean(resourceId);
+            // check override flag
+            String sNavBarOverride = getNavBarOverride();
+            if ("1".equals(sNavBarOverride)) {
+                hasNav = false;
+            } else if ("0".equals(sNavBarOverride)) {
+                hasNav = true;
+            }
+            return hasNav;
+        } else { // fallback
+            return !ViewConfiguration.get(this).hasPermanentMenuKey();
+        }
+    }
+
+    /**
+     * 判断虚拟按键栏是否重写
+     *
+     * @return
+     */
+    private static String getNavBarOverride() {
+        String sNavBarOverride = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            try {
+                Class c = Class.forName("android.os.SystemProperties");
+                Method m = c.getDeclaredMethod("get", String.class);
+                m.setAccessible(true);
+                sNavBarOverride = (String) m.invoke(null, "qemu.hw.mainkeys");
+            } catch (Throwable e) {
+            }
+        }
+        return sNavBarOverride;
+    }
+
     @Override
     public void onBackPressed() {
-        if(FriendActivity.this.findViewById(R.id.blur).getVisibility() == View.VISIBLE){
+        if(FriendActivity.this.findViewById(R.id.read_viewpager).getVisibility() == View.VISIBLE){
             FriendActivity.this.findViewById(R.id.blur).setVisibility(View.INVISIBLE);
             FriendActivity.this.findViewById(R.id.read_viewpager).setVisibility(View.INVISIBLE);
+            return;
+        }
+        else if(findViewById(R.id.userinfoCardview).getVisibility() == View.VISIBLE){
+            View view = findViewById(R.id.userinfoCardview);
+            view.startAnimation(deleteAnimation);
+            view.setVisibility(View.GONE);
+            this.findViewById(R.id.blur).setVisibility(View.GONE);
             return;
         }
 
@@ -453,6 +553,9 @@ public class FriendActivity extends AppCompatActivity
             view.startAnimation(animation);
             view.setVisibility(View.VISIBLE);
 
+
+
+
         } else if (id == R.id.nav_friend) {//好友日记、
 
         } else if (id == R.id.nav_mine) {//我的日记、
@@ -478,7 +581,7 @@ public class FriendActivity extends AppCompatActivity
 
     @Override
     public void exception() {
-
+        this.mHandler.sendEmptyMessage(-1);//子线程通知主线程  出现了异常、
     }
 
     @Override
