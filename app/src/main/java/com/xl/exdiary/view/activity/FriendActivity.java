@@ -256,6 +256,15 @@ public class FriendActivity extends AppCompatActivity
                             .create();
                     dialog.show();
                     break;
+                case 4:
+                    //更新好友列表界面、
+                    NavigationView rightNav = findViewById(R.id.right_nav_view);
+                    View headView = rightNav.getHeaderView(0);
+                    final ListView friendList = headView.findViewById(R.id.friendList);
+
+                    FriendActivity.this.friend_adapter.notifyDataSetChanged();
+                    friendList.invalidate();
+                    break;
                 default:
                     break;
             }
@@ -275,6 +284,7 @@ public class FriendActivity extends AppCompatActivity
     private void getFriendDiaryList(){
 
     }
+
     //以上为自定义属性、
 
     private IFriendAPresenter mIFriendAPresenter;
@@ -499,6 +509,7 @@ public class FriendActivity extends AppCompatActivity
     private void getFriendList(){
         this.friends = this.mIFriendAPresenter.getAllFriend();
         this.friends = (this.friends == null) ? new User[0] : this.friends;
+        this.mHandler.sendEmptyMessage(4);//更新好友列表界面、
     }
 
     private void setDiyBackground(){

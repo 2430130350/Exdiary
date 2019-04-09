@@ -6,6 +6,7 @@ import android.annotation.TargetApi;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -36,12 +37,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 
 
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,9 +56,11 @@ import com.xl.exdiary.R;
 import com.xl.exdiary.model.impl.Diary;
 import com.xl.exdiary.model.impl.User;
 import com.xl.exdiary.presenter.impl.AnonymousAPresenterImpl;
+import com.xl.exdiary.presenter.impl.FriendAPresenterImpl;
 import com.xl.exdiary.presenter.impl.IEditUserPresenterImpl;
 import com.xl.exdiary.presenter.inter.IAnonymousAPresenter;
 import com.xl.exdiary.presenter.inter.IEditUserPresenter;
+import com.xl.exdiary.presenter.inter.IFriendAPresenter;
 import com.xl.exdiary.view.inter.IAnonymousAView;
 import com.xl.exdiary.view.specialView.DiaryAdapter;
 import com.xl.exdiary.view.specialView.LocalSetting;
@@ -69,6 +78,7 @@ public class AnonymousActivity extends AppCompatActivity
     private AlphaAnimation deleteAnimation = new AlphaAnimation(1, 0);
 
     private LocalSetting localSetting = null;
+    private User oneMakeFriend = null;
 
     private RecyclerView recyclerView;
     private Diary[] data = null;
@@ -83,7 +93,59 @@ public class AnonymousActivity extends AppCompatActivity
                     AnonymousActivity.this.handleException();
                     break;
                 case 1://更新数据、
+                    break;
+                case 3://处理好友申请、
+                    if(oneMakeFriend == null){
+                        Toast.makeText(AnonymousActivity.this, "您当前没有需要处理的好友申请、", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    TextView makeFriendText = new TextView(AnonymousActivity.this);
+                    makeFriendText.setText(oneMakeFriend.getName());
 
+                    //对话框添加好友、
+                    android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(AnonymousActivity.this)
+                            .setIcon(R.mipmap.ic_launcher)//设置标题的图片
+                            .setTitle("好友申请")//设置对话框的标题
+                            .setMessage("您要同意该用户的好友申请么、")//设置对话框的内容
+                            //设置编辑框、
+                            .setView(makeFriendText)
+                            //设置对话框的按钮
+                            .setNegativeButton("同意申请", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Toast.makeText(AnonymousActivity.this, "已同意好友请求、", Toast.LENGTH_SHORT).show();
+                                    mIFriendAPresenter.acceptFriend(
+                                            oneMakeFriend.getName(),
+                                            oneMakeFriend.getDeviceNumber(),
+                                            oneMakeFriend.getMail(),
+                                            oneMakeFriend.getSignature()
+                                    );
+                                    dialog.dismiss();
+                                    oneMakeFriend = null;
+                                }
+                            })
+                            .setPositiveButton("拒不同意", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                    Toast.makeText(AnonymousActivity.this, "拒绝申请、", Toast.LENGTH_SHORT).show();
+                                    mIFriendAPresenter.rejectFriend(oneMakeFriend.getDeviceNumber());
+                                    oneMakeFriend = null;
+                                }
+                            })
+                            .setCancelable(false)
+                            .create();
+                    dialog.show();
+                    break;
+                case 4:
+                    //更新好友列表界面、
+                    NavigationView rightNav = findViewById(R.id.right_nav_view);
+                    View headView = rightNav.getHeaderView(0);
+                    final ListView friendList = headView.findViewById(R.id.friendList);
+
+                    AnonymousActivity.this.friend_adapter.notifyDataSetChanged();
+                    friendList.invalidate();
+                    break;
                 default:
                     break;
             }
@@ -91,16 +153,52 @@ public class AnonymousActivity extends AppCompatActivity
 
     };
 
+    private User[] friends = null;
+    BaseAdapter friend_adapter = new BaseAdapter() {
+        @Override
+        public int getCount() {   //getCount-------用来指定到底有多少个条目
+            return AnonymousActivity.this.friends.length;
+        }
+
+        @SuppressLint("SetTextI18n")
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) { //GetView------- 用来 显示 具体的条目的内容
+
+            View view;
+            if (convertView == null)
+                view = View.inflate(AnonymousActivity.this, R.layout.listview_item, null);
+            else
+                view = convertView;
+            TextView tv = view.findViewById(R.id.TextItem_data);
+            String str = friends[position].getDeviceNumber();
+            tv.setText("\n        " + str + "\n");
+            return view;
+        }
+
+        @Override
+        public Object getItem(int position) {
+
+            return null;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return 0;
+        }
+
+    };
     //以上为自定义、
 
     private IAnonymousAPresenter mIAnonymousAPresenter;
     private IEditUserPresenter mIEditUserPresenter;
+    private IFriendAPresenter mIFriendAPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mIAnonymousAPresenter = new AnonymousAPresenterImpl(this);
         mIEditUserPresenter = new IEditUserPresenterImpl(this);
+        mIFriendAPresenter = new FriendAPresenterImpl(this);
 
         //设置卡片逐渐出现和消失的动画、
         appearAnimation.setDuration(500);
@@ -141,8 +239,9 @@ public class AnonymousActivity extends AppCompatActivity
         //设置adapter
         recyclerView.setAdapter(adapter);
 
-        this.setListener();
         this.initOther();
+        this.setListener();
+
 
     }
 
@@ -189,6 +288,105 @@ public class AnonymousActivity extends AppCompatActivity
 
             }
         });
+
+
+        //右侧滑设置、
+        NavigationView rightNav = findViewById(R.id.right_nav_view);
+        View headView = rightNav.getHeaderView(0);
+        final ListView friendList = headView.findViewById(R.id.friendList);
+        //长按删除、
+        friendList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+
+                return false;
+            }
+        });
+        //点击显示好友完整信息、
+        friendList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+            }
+        });
+
+        //设置添加好友按钮、
+        Button addFriend = headView.findViewById(R.id.addFriend);
+        addFriend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //关闭侧滑栏、
+                DrawerLayout drawer = findViewById(R.id.drawer_layout);
+                drawer.closeDrawer(GravityCompat.END);
+
+                final EditText friendUUIDEdit = new EditText(AnonymousActivity.this);
+                friendUUIDEdit.setHint("此处输入好友UUID、");
+                //对话框添加好友、
+                android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(AnonymousActivity.this)
+                        .setIcon(R.mipmap.ic_launcher)//设置标题的图片
+                        .setTitle("添加好友")//设置对话框的标题
+                        .setMessage("请输入您需要添加的好友设备号UUID、")//设置对话框的内容
+                        //设置编辑框、
+                        .setView(friendUUIDEdit)
+                        //设置对话框的按钮
+                        .setNegativeButton("发起申请", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Toast.makeText(AnonymousActivity.this, "已发起好友申请、", Toast.LENGTH_SHORT).show();
+                                final String friendUUID = friendUUIDEdit.getText().toString();
+
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        mIFriendAPresenter.addFriends("", friendUUID);
+                                    }
+                                }).start();
+                                dialog.dismiss();
+                            }
+                        })
+                        .setPositiveButton("取消操作", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                                Toast.makeText(AnonymousActivity.this, "取消操作、", Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        .setCancelable(false)
+                        .create();
+                dialog.show();
+            }
+        });
+
+        //设置好友申请按钮、
+        final Button makeFriend = headView.findViewById(R.id.makeFriend);
+        makeFriend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //关闭侧滑栏、
+                DrawerLayout drawer = findViewById(R.id.drawer_layout);
+                drawer.closeDrawer(GravityCompat.END);
+
+                //获得待处理好友列表、
+                new Thread(new Runnable(){
+                    @Override
+                    public void run() {
+                        User[] makeFriends = mIFriendAPresenter.getFriendToSure();
+                        if(makeFriends == null || makeFriends.length == 0){
+                            mHandler.sendEmptyMessage(3);
+                            return;
+                        }
+                        oneMakeFriend = new User("","","","");
+                        oneMakeFriend.setDeviceNumber(makeFriends[0].getDeviceNumber());
+                        oneMakeFriend.setMail(makeFriends[0].getMail());
+                        oneMakeFriend.setName(makeFriends[0].getName());
+                        oneMakeFriend.setSignature(makeFriends[0].getSignature());
+
+                        mHandler.sendEmptyMessage(3);
+                    }
+                }).start();
+
+            }
+        });
     }
 
 
@@ -209,8 +407,20 @@ public class AnonymousActivity extends AppCompatActivity
             }
         }
 
+        //初始化好友列表、
+        this.getFriendList();
+
+        NavigationView rightNav = findViewById(R.id.right_nav_view);
+        View headView = rightNav.getHeaderView(0);
+        ListView friendList = headView.findViewById(R.id.friendList);
+        friendList.setAdapter(this.friend_adapter);
     }
 
+    private void getFriendList(){
+        this.friends = this.mIFriendAPresenter.getAllFriend();
+        this.friends = (this.friends == null) ? new User[0] : this.friends;
+        this.mHandler.sendEmptyMessage(4);//更新好友列表界面、
+    }
 
     private void setDiyBackground(){
         Bitmap bitmap = BitmapFactory.decodeFile(this.localSetting.anonymousBackground);
