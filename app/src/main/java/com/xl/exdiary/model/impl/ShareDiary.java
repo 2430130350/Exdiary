@@ -6,13 +6,23 @@ public class ShareDiary {
     private String startTime;
     private String friendName;
     private String myName;
+    private String friendUuid;
 
-    public ShareDiary(String title, String body, String startTime, String friendName, String myName) {
+    public ShareDiary(String title, String body, String startTime, String friendName, String myName, String friendUuid) {
         this.title = title;
         this.body = body;
         this.startTime = startTime;
         this.friendName = friendName;
         this.myName = myName;
+        this.friendUuid = friendUuid;
+    }
+
+    public String getFriendUuid() {
+        return friendUuid;
+    }
+
+    public void setFriendUuid(String friendUuid) {
+        this.friendUuid = friendUuid;
     }
 
     public String getTitle() {

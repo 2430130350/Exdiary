@@ -2,11 +2,13 @@ package com.xl.exdiary.presenter.impl;
 
 import com.xl.exdiary.model.impl.Diary;
 import com.xl.exdiary.model.impl.DiaryModel;
+import com.xl.exdiary.model.impl.User;
 import com.xl.exdiary.model.impl.UserModel;
 import com.xl.exdiary.model.inter.IDiaryModel;
 import com.xl.exdiary.model.inter.IShareDiaryModel;
 import com.xl.exdiary.model.inter.IUserModel;
 import com.xl.exdiary.model.impl.ShareDiaryModel;
+import com.xl.exdiary.presenter.inter.IFriendAPresenter;
 import com.xl.exdiary.presenter.inter.IShareAPresenter;
 import com.xl.exdiary.view.activity.AnonymousActivity;
 import com.xl.exdiary.view.inter.IFriendAView;
@@ -23,12 +25,14 @@ class IShareAPresenterImpl implements IShareAPresenter {
     private IMainAView maIMainAview;
     private IFriendAView mIFriendAView;
     private AnonymousActivity iAnonymousAView;
+    private IFriendAPresenter miFriendAPresenter;
 
     public IShareAPresenterImpl(IMainAView aIMainAView) {//主界面 activity
         mIUserModel = new UserModel();
         maIMainAview = aIMainAView;
         miShareDiaryModel = new ShareDiaryModel();
         miDiaryModel = new DiaryModel();
+        miFriendAPresenter = new FriendAPresenterImpl(maIMainAview);
     }
 
     public IShareAPresenterImpl(IFriendAView iFriendAView){//朋友界面 activity
@@ -36,6 +40,7 @@ class IShareAPresenterImpl implements IShareAPresenter {
         mIFriendAView = iFriendAView;
         miShareDiaryModel = new ShareDiaryModel();
         miDiaryModel = new DiaryModel();
+        miFriendAPresenter = new FriendAPresenterImpl(iFriendAView);
     }
 
     public IShareAPresenterImpl(AnonymousActivity anonymousActivity){//树洞界面 activity
@@ -43,6 +48,7 @@ class IShareAPresenterImpl implements IShareAPresenter {
         mIUserModel = new UserModel();
         miShareDiaryModel = new ShareDiaryModel();
         miDiaryModel = new DiaryModel();
+        miFriendAPresenter = new FriendAPresenterImpl(anonymousActivity);
     }
 
     //分享日记
@@ -96,9 +102,10 @@ class IShareAPresenterImpl implements IShareAPresenter {
                 try {
                     jso = jsa.getJSONObject(i);
                         counts += 1;
+                        User user = miFriendAPresenter.getFriend("",jso.getString("friendID"));
                         diary[i] = new ShareDiary(jso.getString("shareTitle"),
                                 jso.getString("shareBody"), jso.getString("shareDate"),
-                                jso.getString(""),jso.getString("name"));
+                                user.getName(),ujso.getString("name"),jso.getString("friendID"));
                 } catch (JSONException e) {
                     e.printStackTrace();
                     //异常处理
@@ -136,9 +143,10 @@ class IShareAPresenterImpl implements IShareAPresenter {
                 try {
                     jso = jsa.getJSONObject(i);
                         counts += 1;
+                        User user = miFriendAPresenter.getFriend("",jso.getString("friendID"));
                         diary[i] = new ShareDiary(jso.getString("shareTitle"),
                                 jso.getString("shareBody"), jso.getString("shareDate"),
-                                jso.getString(""),ujso.getString("name"));
+                               user.getName(),ujso.getString("name"),jso.getString("friendID"));
                 } catch (JSONException e) {
                     e.printStackTrace();
                     //异常处理
@@ -190,19 +198,17 @@ class IShareAPresenterImpl implements IShareAPresenter {
         JSONObject sjso = new JSONObject();//分享的日记
         JSONArray jsa = null;
 
-        try {
-            jsa = miShareDiaryModel.getAllShareToDiary(jso.getString("uuid"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        jsa = miDiaryModel.getAllDiaryList();
 
-        if (name.length() != 0 && uuid.length() != 0 /// 保证数据完整
+        if (uuid.length() != 0 /// 保证数据完整
                 && date.length() != 0 && jso != null) {
             for (int i = 0; i < jsa.length(); i++) {
                 try {
                         djso = jsa.getJSONObject(i);
-                        if (djso.getString("shareDate").equals(date)) {
+                        if (djso.getString("date").equals(date)) {
                             //取消分享日记
+                            djso.put("myUuid",jso.getString("uuid"));
+                            djso.put("friendID",uuid);
                             return miShareDiaryModel.disableShareDiary(djso);
                     }
                 } catch (JSONException e) {

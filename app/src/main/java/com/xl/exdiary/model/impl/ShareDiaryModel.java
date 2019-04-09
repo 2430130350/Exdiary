@@ -164,8 +164,8 @@ public class ShareDiaryModel implements IShareDiaryModel {
             String ID=new String();
             JSONArray jsonArray = getAllShareToDiary(disShareDiary.getString("myUuid"));
             for(int i=0;i<jsonArray.length();i++){
-                if(jsonArray.getJSONObject(i).getString("time").equals(disShareDiary.getJSONObject("shareDiary").getString("date"))){
-                    ID=jsonArray.getJSONObject(i).getString("articleID");
+                if(jsonArray.getJSONObject(i).getString("writetime").equals(disShareDiary.getJSONObject("shareDiary").getString("date"))){
+                    ID=jsonArray.getJSONObject(i).getString("ID");
                     break;
                 }
             }
