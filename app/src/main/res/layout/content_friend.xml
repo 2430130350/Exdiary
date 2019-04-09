@@ -12,10 +12,7 @@
     android:id="@+id/friendContent">
 
 
-
-
     <ListView
-
         android:divider="@null"
         android:id="@+id/Listview"
         android:layout_width="0dp"

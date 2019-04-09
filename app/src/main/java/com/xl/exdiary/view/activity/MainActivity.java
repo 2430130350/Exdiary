@@ -17,6 +17,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -77,9 +78,8 @@ import com.xl.exdiary.view.specialView.LinedEditView;
 import com.xl.exdiary.view.specialView.LocalSetting;
 import com.xl.exdiary.view.specialView.LocalSettingFileHandler;
 
-import java.io.FileDescriptor;
-import java.lang.annotation.Target;
 import java.lang.reflect.Method;
+
 
 
 public class MainActivity extends AppCompatActivity
@@ -236,6 +236,8 @@ public class MainActivity extends AppCompatActivity
         mIEditUserPresenter = new IEditUserPresenterImpl(this);
         mIREditAPresenter = new REditAPresenterImpl(this);
 
+
+
         //6.0以上sd卡读写权限动态申请、
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -378,6 +380,7 @@ public class MainActivity extends AppCompatActivity
 
         //刷新列表、
         MainActivity.this.updateListView();
+        this.nowPosition = -2;//表示当前无操作、
     }
 
     private void getAllDiaryList(){//获得数据、
@@ -395,6 +398,7 @@ public class MainActivity extends AppCompatActivity
 
     private void setListener(){
         ListView lv = findViewById(R.id.Listview);
+
         lv.setAdapter(this.text_adapter);
 
         //设置长按删除、
@@ -402,7 +406,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 final int toDelPosition = position;
-                AlertDialog dialog = new AlertDialog.Builder(MainActivity.this)
+                /*new AlertDialog.Builder(MainActivity.this)
                         .setIcon(R.mipmap.ic_launcher)//设置标题的图片
                         .setTitle("删除日记")//设置对话框的标题
                         .setMessage("您确定要删除该日记么？")//设置对话框的内容
@@ -426,8 +430,33 @@ public class MainActivity extends AppCompatActivity
                                 MainActivity.this.updateListView();
 
                             }
-                        }).create();
-                dialog.show();
+                        }).create().show();*/
+                new AlertDialog.Builder(MainActivity.this)
+                        .setIcon(R.mipmap.ic_launcher)//设置标题的图片
+                        .setTitle("更多操作")//设置对话框的标题
+                        .setMessage("请选择您希望的操作、")//设置对话框的内容
+                        //设置对话框的按钮
+                        .setNegativeButton("删除日记", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+
+                                //执行删除日记、
+                                mIMainAPresenter.delDiary(diaries[diaries.length - 1 - toDelPosition].getStartTime());
+                                Toast.makeText(MainActivity.this, "您删除了一篇日记、", Toast.LENGTH_SHORT).show();
+                                MainActivity.this.updateListView();
+
+                            }
+                        })
+                        .setPositiveButton("分享日记", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Toast.makeText(MainActivity.this, "分享日记、", Toast.LENGTH_SHORT).show();
+                                dialog.dismiss();
+
+                            }
+                        }).create().show();
+
 
                 return true;
 

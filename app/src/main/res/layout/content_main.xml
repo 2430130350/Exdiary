@@ -12,8 +12,6 @@
     android:id="@+id/mainContent">
 
 
-
-
     <ListView
         android:divider="@null"
         android:id="@+id/Listview"
@@ -26,6 +24,7 @@
         >
 
     </ListView>
+
 
     <ImageView
         android:visibility="invisible"
@@ -80,6 +79,8 @@
                 />
 
         </LinearLayout>
+
+
 
     </android.support.v7.widget.CardView>
 
