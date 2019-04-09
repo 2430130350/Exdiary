@@ -4,7 +4,10 @@ import com.xl.exdiary.model.impl.User;
 import com.xl.exdiary.model.impl.UserModel;
 import com.xl.exdiary.model.inter.IUserModel;
 import com.xl.exdiary.presenter.inter.IFriendAPresenter;
+import com.xl.exdiary.view.activity.AnonymousActivity;
 import com.xl.exdiary.view.inter.IFriendAView;
+import com.xl.exdiary.view.inter.IMainAView;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONArray;
@@ -12,9 +15,25 @@ import org.json.JSONArray;
 public class FriendAPresenterImpl implements IFriendAPresenter {
     private IFriendAView mIFriendAView;
     private IUserModel mIUserModel;
+    private IMainAView maIMainAview;
+    private AnonymousActivity iAnonymousAView;
 
-    public FriendAPresenterImpl(IFriendAView aIFriendAView) {
-        mIFriendAView = aIFriendAView;
+
+    public FriendAPresenterImpl(IMainAView aIMainAView) {//主界面 activity
+        mIUserModel = new UserModel();
+        maIMainAview = aIMainAView;
+        mIUserModel = new UserModel();
+    }
+
+    public FriendAPresenterImpl(IFriendAView iFriendAView){//朋友界面 activity
+        mIUserModel = new UserModel();
+        mIFriendAView = iFriendAView;
+        mIUserModel = new UserModel();
+    }
+
+    public FriendAPresenterImpl(AnonymousActivity anonymousActivity){//树洞界面 activity
+        iAnonymousAView = anonymousActivity;
+        mIUserModel = new UserModel();
         mIUserModel = new UserModel();
     }
 

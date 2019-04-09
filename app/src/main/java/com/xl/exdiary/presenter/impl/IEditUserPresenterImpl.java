@@ -50,7 +50,7 @@ public class IEditUserPresenterImpl implements IEditUserPresenter {
                 jsoUser.put("signature",signature);
                 jsoUser.put("mail",mail);
                 if(mIUserModel.saveUserInfoInLocal(jsoUser))//本地保存
-                    return true;//return mIUserModel.saveUserInfoOnServer(jsoUser);//服务器保存
+                    return mIUserModel.saveUserInfoOnServer(jsoUser);//服务器保存
             } catch (JSONException e) {
                 maIMainAview.exception();
                 return false;
