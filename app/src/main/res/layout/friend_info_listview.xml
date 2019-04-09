@@ -22,4 +22,11 @@
         android:divider="@null">
 
     </ListView>
+
+    <Button
+        android:id="@+id/makeFriend"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#80FCFFC8"
+        android:text="好友申请" />
 </LinearLayout>

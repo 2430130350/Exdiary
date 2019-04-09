@@ -335,22 +335,29 @@ public class MainActivity extends AppCompatActivity
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();
-                            //注册、
-                            String nickName = ((EditText)signView.findViewById(R.id.nickNameEdit)).getText().toString();
-                            String email = ((EditText)signView.findViewById(R.id.emailEdit)).getText().toString();
-                            String sign = ((EditText)signView.findViewById(R.id.signEdit)).getText().toString();
-                            mIEditUserPresenter.saveUserInfor(
-                                    (nickName.equals("")) ? "MVP": nickName,
-                                    (email.equals("")) ? "无": email,
-                                    (sign.equals("")) ? "无": sign
-                            );
+
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    //注册、
+                                    String nickName = ((EditText)signView.findViewById(R.id.nickNameEdit)).getText().toString();
+                                    String email = ((EditText)signView.findViewById(R.id.emailEdit)).getText().toString();
+                                    String sign = ((EditText)signView.findViewById(R.id.signEdit)).getText().toString();
+                                    mIEditUserPresenter.saveUserInfor(
+                                            (nickName.equals("")) ? "MVP": nickName,
+                                            (email.equals("")) ? "无": email,
+                                            (sign.equals("")) ? "无": sign
+                                    );
+                                }
+                            }).start();
+
+
                         }
                     })
                     .setCancelable(false)
                     .create();
             dialog.show();
         }
-
     }
 
     @SuppressLint("RestrictedApi")

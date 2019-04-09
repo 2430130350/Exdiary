@@ -69,6 +69,8 @@ public class FriendActivity extends AppCompatActivity
     private AlphaAnimation deleteAnimation = new AlphaAnimation(1, 0);
 
 
+    private User oneMakeFriend = null;
+
     //以上是自定义参数、
 
     private LocalSetting localSetting = null;
@@ -210,6 +212,49 @@ public class FriendActivity extends AppCompatActivity
                     /**
                      *
                      * */
+                    break;
+                case 3://处理好友申请、
+                    if(oneMakeFriend == null){
+                        Toast.makeText(FriendActivity.this, "您当前没有需要处理的好友申请、", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    TextView makeFriendText = new TextView(FriendActivity.this);
+                    makeFriendText.setText(oneMakeFriend.getName());
+
+                    //对话框添加好友、
+                    android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(FriendActivity.this)
+                            .setIcon(R.mipmap.ic_launcher)//设置标题的图片
+                            .setTitle("好友申请")//设置对话框的标题
+                            .setMessage("您要同意该用户的好友申请么、")//设置对话框的内容
+                            //设置编辑框、
+                            .setView(makeFriendText)
+                            //设置对话框的按钮
+                            .setNegativeButton("同意申请", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Toast.makeText(FriendActivity.this, "已同意好友请求、", Toast.LENGTH_SHORT).show();
+                                    mIFriendAPresenter.acceptFriend(
+                                            oneMakeFriend.getName(),
+                                            oneMakeFriend.getDeviceNumber(),
+                                            oneMakeFriend.getMail(),
+                                            oneMakeFriend.getSignature()
+                                    );
+                                    dialog.dismiss();
+                                    oneMakeFriend = null;
+                                }
+                            })
+                            .setPositiveButton("拒不同意", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                    Toast.makeText(FriendActivity.this, "拒绝申请、", Toast.LENGTH_SHORT).show();
+                                    mIFriendAPresenter.rejectFriend(oneMakeFriend.getDeviceNumber());
+                                    oneMakeFriend = null;
+                                }
+                            })
+                            .setCancelable(false)
+                            .create();
+                    dialog.show();
                     break;
                 default:
                     break;
@@ -369,8 +414,14 @@ public class FriendActivity extends AppCompatActivity
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 Toast.makeText(FriendActivity.this, "已发起好友申请、", Toast.LENGTH_SHORT).show();
-                                String friendUUID = friendUUIDEdit.getText().toString();
-                                mIFriendAPresenter.addFriends("", friendUUID);
+                                final String friendUUID = friendUUIDEdit.getText().toString();
+
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        mIFriendAPresenter.addFriends("", friendUUID);
+                                    }
+                                }).start();
                                 dialog.dismiss();
                             }
                         })
@@ -385,7 +436,37 @@ public class FriendActivity extends AppCompatActivity
                         .create();
                 dialog.show();
             }
-    });
+        });
+
+        //设置好友申请按钮、
+        final Button makeFriend = headView.findViewById(R.id.makeFriend);
+        makeFriend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //关闭侧滑栏、
+                DrawerLayout drawer = findViewById(R.id.drawer_layout);
+                drawer.closeDrawer(GravityCompat.END);
+
+                //获得待处理好友列表、
+                new Thread(new Runnable(){
+                    @Override
+                    public void run() {
+                        User[] makeFriends = mIFriendAPresenter.getFriendToSure();
+                        if(makeFriends == null || makeFriends.length == 0){
+                            mHandler.sendEmptyMessage(3);
+                            return;
+                        }
+                        oneMakeFriend.setDeviceNumber(makeFriends[0].getDeviceNumber());
+                        oneMakeFriend.setMail(makeFriends[0].getMail());
+                        oneMakeFriend.setName(makeFriends[0].getName());
+                        oneMakeFriend.setSignature(makeFriends[0].getSignature());
+
+                        mHandler.sendEmptyMessage(3);
+                    }
+                }).start();
+
+            }
+        });
     }
 
     private void initOther(){
