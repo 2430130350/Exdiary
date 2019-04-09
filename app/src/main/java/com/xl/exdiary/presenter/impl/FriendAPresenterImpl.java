@@ -45,6 +45,7 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
         {
             try {
                 mIUserModel.addFriendOnServer(jso.getString("uuid"),uuid);
+                return true;
             } catch (JSONException e) {
                 e.printStackTrace();
                 //异常管理
@@ -97,8 +98,7 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
             {
                 try {
                     jso = jsa.getJSONObject(i);//好友状态待处理
-                    if(jso.getString("name").equals(name)
-                            && jso.getString("uuid").equals(uuid))
+                    if(jso.getString("uuid").equals(uuid))
                     {
                         return new User(jso.getString("name"), jso.getString("uuid"),
                                 jso.getString("signature"), jso.getString("mail"));
@@ -152,19 +152,12 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
                     jso = jsa.getJSONObject(i);
                     if(jso.getString("uuid").equals(uuid))
                     {
-                       if(!jso.getString("name").equals(name)
-                               || !jso.getString("mail").equals(mail)
-                               || !jso.getString("signature").equals(signature))
-                       {
                            JSONObject jst = new JSONObject();
                            jst.put("name",name);
                            jst.put("uuid",uuid);
                            jst.put("mail",mail);
                            jst.put("signature",signature);
                            return mIUserModel.saveUserInfoInLocal(jst);
-                       }
-                       else
-                           return false;
                     }
                 } catch (JSONException e) {
                     //异常处理
@@ -242,6 +235,7 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
             if(saveFriend(fname, fuuid, mail, signature)) {//将朋友信息保存到本地
                 try {
                     mIUserModel.acceptFriendRequest(mjso.getString("uuid"), fuuid);//云端接受请求
+                    return true;
                 } catch (JSONException e) {
                     e.printStackTrace();
                     //异常处理
@@ -261,6 +255,7 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
         {
             try {
                 mIUserModel.rejectFriendRequest(mjso.getString("uuid"), fuuid);
+                return true;
             } catch (JSONException e) {
                 e.printStackTrace();
                 //异常处理
