@@ -7,7 +7,9 @@ import com.xl.exdiary.model.inter.IShareDiaryModel;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
@@ -24,14 +26,20 @@ public class ShareDiaryModel implements IShareDiaryModel {
             OutputStream os=socket.getOutputStream();
             os.write(jsonObject.toString().getBytes());
             os.flush();
-            InputStream is=socket.getInputStream();
-            byte[] bytes=new byte[1024];
-            is.read(bytes);
-            JSONObject result=new JSONObject(bytes.toString());
+            BufferedReader br=new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            StringBuilder string= new StringBuilder();
+            String read=new String();
+            while (true){
+                read=br.readLine();
+                if(read==null)
+                    break;
+                string.append(read);
+            }
+            JSONArray result=new JSONObject(string.toString()).getJSONArray("result");
             os.close();
-            is.close();
+            br.close();
             socket.close();
-            return result.getJSONArray("result");
+            return result;
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -51,12 +59,18 @@ public class ShareDiaryModel implements IShareDiaryModel {
             OutputStream os=socket.getOutputStream();
             os.write(jsonObject.toString().getBytes());
             os.flush();
-            InputStream is=socket.getInputStream();
-            byte[] bytes=new byte[1024];
-            is.read(bytes);
-            JSONObject result=new JSONObject(bytes.toString());
+            BufferedReader br=new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            StringBuilder string= new StringBuilder();
+            String read=new String();
+            while (true){
+                read=br.readLine();
+                if(read==null)
+                    break;
+                string.append(read);
+            }
+            JSONObject result=new JSONObject(string.toString());
             os.close();
-            is.close();
+            br.close();
             socket.close();
             if(result.get("result").equals("1"))
                 return true;
@@ -91,12 +105,18 @@ public class ShareDiaryModel implements IShareDiaryModel {
             OutputStream os=socket.getOutputStream();
             os.write(jsonObject.toString().getBytes());
             os.flush();
-            InputStream is=socket.getInputStream();
-            byte[] bytes=new byte[1024];
-            is.read(bytes);
-            JSONObject result=new JSONObject(bytes.toString());
+            BufferedReader br=new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            StringBuilder string= new StringBuilder();
+            String read=new String();
+            while (true){
+                read=br.readLine();
+                if(read==null)
+                    break;
+                string.append(read);
+            }
+            JSONObject result=new JSONObject(string.toString());
             os.close();
-            is.close();
+            br.close();
             socket.close();
             if(result.get("result").equals("1"))
                 return true;
@@ -116,14 +136,18 @@ public class ShareDiaryModel implements IShareDiaryModel {
             OutputStream os=socket.getOutputStream();
             os.write(jsonObject.toString().getBytes());
             os.flush();
-            InputStream is=socket.getInputStream();
-            byte[] bytes=new byte[1024];
+            BufferedReader br=new BufferedReader(new InputStreamReader(socket.getInputStream()));
             StringBuilder string= new StringBuilder();
-            while (is.read(bytes)!=-1)
-                string.append(bytes);
-            JSONArray result=new JSONArray(string.toString());
+            String read=new String();
+            while (true){
+                read=br.readLine();
+                if(read==null)
+                    break;
+                string.append(read);
+            }
+            JSONArray result=new JSONObject(string.toString()).getJSONArray("result");
             os.close();
-            is.close();
+            br.close();
             socket.close();
             return result;
         }catch (Exception e){
@@ -142,14 +166,18 @@ public class ShareDiaryModel implements IShareDiaryModel {
             OutputStream os=socket.getOutputStream();
             os.write(jsonObject.toString().getBytes());
             os.flush();
-            InputStream is=socket.getInputStream();
-            byte[] bytes=new byte[1024];
+            BufferedReader br=new BufferedReader(new InputStreamReader(socket.getInputStream()));
             StringBuilder string= new StringBuilder();
-            while (is.read(bytes)!=-1)
-                string.append(bytes);
-            JSONArray result=new JSONArray(string.toString());
+            String read=new String();
+            while (true){
+                read=br.readLine();
+                if(read==null)
+                    break;
+                string.append(read);
+            }
+            JSONArray result=new JSONObject(string.toString()).getJSONArray("result");
             os.close();
-            is.close();
+            br.close();
             socket.close();
             return result;
         }catch (Exception e){
@@ -177,12 +205,18 @@ public class ShareDiaryModel implements IShareDiaryModel {
             OutputStream os=socket.getOutputStream();
             os.write(jsonObject.toString().getBytes());
             os.flush();
-            InputStream is=socket.getInputStream();
-            byte[] bytes=new byte[1024];
-            is.read(bytes);
-            JSONObject result=new JSONObject(bytes.toString());
+            BufferedReader br=new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            StringBuilder string= new StringBuilder();
+            String read=new String();
+            while (true){
+                read=br.readLine();
+                if(read==null)
+                    break;
+                string.append(read);
+            }
+            JSONObject result=new JSONObject(string.toString());
             os.close();
-            is.close();
+            br.close();
             socket.close();
             if(result.get("result").equals("1"))
                 return true;
