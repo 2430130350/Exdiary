@@ -8,6 +8,7 @@ public class LocalSetting implements Serializable {
     public String settingBackground = null;
     public String mainBackground = null;
     public String friendBackground = null;
+    public String anonymousBackground = null;
     public LocalSetting(boolean isNoBackground){
         this.isNoBackground = isNoBackground;
     }

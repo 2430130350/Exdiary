@@ -32,5 +32,5 @@
     <string name="menu_send">Send</string>
     <string name="title_activity_setting">设置</string>
     <string name="title_activity_friend">好友日记</string>
-    <string name="title_activity_anonymous">AnonymousActivity</string>
+    <string name="title_activity_anonymous">树洞</string>
 </resources>

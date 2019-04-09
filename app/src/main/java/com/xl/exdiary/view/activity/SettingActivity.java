@@ -133,7 +133,7 @@ public class SettingActivity extends AppCompatActivity
                 AlertDialog dialog = new AlertDialog.Builder(SettingActivity.this)
                         .setIcon(R.mipmap.ic_launcher)//设置标题的图片
                         .setTitle("自定义背景")//设置对话框的标题
-                        .setMessage("请在接下来的图库中一次选择一张、依次选择设置界面、主界面、好友界面的背景图、")//设置对话框的内容
+                        .setMessage("请在接下来的图库中一次选择一张、依次选择设置界面、主界面、好友界面、树洞界面的背景图、")//设置对话框的内容
                         //设置对话框的按钮
                         .setNegativeButton("取消", new DialogInterface.OnClickListener() {
                             @Override
@@ -204,19 +204,17 @@ public class SettingActivity extends AppCompatActivity
                 //好友界面的背景图、
                 //设置写入本地文件、
                 this.localSetting.friendBackground = path;
+                intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("image/*");
+                startActivityForResult(intent, 0004);
+            case 0004:
+                //树洞界面的背景图、
+                //设置写入本地文件、
+                this.localSetting.anonymousBackground = path;
                 setLocalSetting();
                 Toast.makeText(SettingActivity.this, "设置页面仅作预览、全局设置重启App生效、", Toast.LENGTH_SHORT).show();
                 break;
         }
-        if (requestCode == 0001) {
-
-
-        }
-        else if(requestCode == 0002){
-
-
-        }
-
     }
 
 
