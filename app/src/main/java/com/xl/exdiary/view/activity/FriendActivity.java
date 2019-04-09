@@ -456,6 +456,7 @@ public class FriendActivity extends AppCompatActivity
                             mHandler.sendEmptyMessage(3);
                             return;
                         }
+                        oneMakeFriend = new User("","","","");
                         oneMakeFriend.setDeviceNumber(makeFriends[0].getDeviceNumber());
                         oneMakeFriend.setMail(makeFriends[0].getMail());
                         oneMakeFriend.setName(makeFriends[0].getName());
