@@ -43,7 +43,7 @@ public class UserModel implements IUserModel {
             userInfo.put("deviceID",userInfo.get("uuid"));
             userInfo.put("username",userInfo.get("name"));
             userInfo.put("motto",userInfo.get("signature"));
-            userInfo.remove("deviceNumber");
+            userInfo.remove("uuid");
             userInfo.remove("name");
             userInfo.remove("signature");
             OutputStream os=socket.getOutputStream();
