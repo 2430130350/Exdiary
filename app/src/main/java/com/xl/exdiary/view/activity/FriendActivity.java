@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -42,6 +43,8 @@ import android.view.animation.Animation;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -88,6 +91,41 @@ public class FriendActivity extends AppCompatActivity
                 view = convertView;
             TextView tv = view.findViewById(R.id.TextItem_data);
             String str = "卢本伟牛逼、";
+            tv.setText("\n        " + str + "\n");
+            return view;
+        }
+
+        @Override
+        public Object getItem(int position) {
+
+            return null;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return 0;
+        }
+
+    };
+
+    private User[] friends = null;
+    BaseAdapter friend_adapter = new BaseAdapter() {
+        @Override
+        public int getCount() {   //getCount-------用来指定到底有多少个条目
+            return FriendActivity.this.friends.length;
+        }
+
+        @SuppressLint("SetTextI18n")
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) { //GetView------- 用来 显示 具体的条目的内容
+
+            View view;
+            if (convertView == null)
+                view = View.inflate(FriendActivity.this, R.layout.listview_item, null);
+            else
+                view = convertView;
+            TextView tv = view.findViewById(R.id.TextItem_data);
+            String str = friends[position].getDeviceNumber();
             tv.setText("\n        " + str + "\n");
             return view;
         }
@@ -236,9 +274,10 @@ public class FriendActivity extends AppCompatActivity
         appearAnimation.setDuration(500);
         deleteAnimation.setDuration(500);
 
+        this.initOther();
         this.setListener();
 
-        this.initOther();
+
     }
 
     private void setListener(){
@@ -286,6 +325,67 @@ public class FriendActivity extends AppCompatActivity
 
             }
         });
+
+        //右侧滑设置、
+        NavigationView rightNav = findViewById(R.id.right_nav_view);
+        View headView = rightNav.getHeaderView(0);
+        final ListView friendList = headView.findViewById(R.id.friendList);
+        //长按删除、
+        friendList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+
+                return false;
+            }
+        });
+        //点击显示好友完整信息、
+        friendList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+            }
+        });
+
+        //设置添加好友按钮、
+        Button addFriend = headView.findViewById(R.id.addFriend);
+        addFriend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //关闭侧滑栏、
+                DrawerLayout drawer = findViewById(R.id.drawer_layout);
+                drawer.closeDrawer(GravityCompat.END);
+
+                final EditText friendUUIDEdit = new EditText(FriendActivity.this);
+                friendUUIDEdit.setHint("此处输入好友UUID、");
+                //对话框添加好友、
+                android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(FriendActivity.this)
+                        .setIcon(R.mipmap.ic_launcher)//设置标题的图片
+                        .setTitle("添加好友")//设置对话框的标题
+                        .setMessage("请输入您需要添加的好友设备号UUID、")//设置对话框的内容
+                        //设置编辑框、
+                        .setView(friendUUIDEdit)
+                        //设置对话框的按钮
+                        .setNegativeButton("发起申请", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Toast.makeText(FriendActivity.this, "已发起好友申请、", Toast.LENGTH_SHORT).show();
+                                String friendUUID = friendUUIDEdit.getText().toString();
+                                mIFriendAPresenter.addFriends("", friendUUID);
+                                dialog.dismiss();
+                            }
+                        })
+                        .setPositiveButton("取消操作", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                                Toast.makeText(FriendActivity.this, "取消操作、", Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        .setCancelable(false)
+                        .create();
+                dialog.show();
+            }
+    });
     }
 
     private void initOther(){
@@ -305,6 +405,18 @@ public class FriendActivity extends AppCompatActivity
             }
         }
 
+        //初始化好友列表、
+        this.getFriendList();
+
+        NavigationView rightNav = findViewById(R.id.right_nav_view);
+        View headView = rightNav.getHeaderView(0);
+        ListView friendList = headView.findViewById(R.id.friendList);
+        friendList.setAdapter(this.friend_adapter);
+    }
+
+    private void getFriendList(){
+        this.friends = this.mIFriendAPresenter.getAllFriend();
+        this.friends = (this.friends == null) ? new User[0] : this.friends;
     }
 
     private void setDiyBackground(){
