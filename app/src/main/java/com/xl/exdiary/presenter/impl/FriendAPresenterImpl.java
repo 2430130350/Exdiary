@@ -148,9 +148,9 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
         JSONObject jso = null;
         User user[] = new User[jsa.length()];
         int counts = 0;//记录好友数目
-        if(jsa.length() != 0)
+        if(friendonServer.length != 0)
         {
-            for(int t = 0; t < user.length; t++)
+            for(int t = 0; t < friendonServer.length; t++)
             {
                 User u =  friendonServer[t];
                 for(int i = 0; i < jsa.length(); i++)
@@ -298,9 +298,9 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
     public User[] getFriends() {
         JSONObject jso = mIUserModel.getUserInfo();
         JSONArray jsa = null;
-        JSONObject tjso ;
+        JSONObject tjso = null;
         try {
-        if(jso != null && jsa.length() != 0)
+        if(jso != null)
         {  
             jsa = mIUserModel.getAllFriendOnServer(jso.getString("uuid"));
 

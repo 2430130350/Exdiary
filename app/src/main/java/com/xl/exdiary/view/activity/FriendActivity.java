@@ -110,7 +110,7 @@ public class FriendActivity extends AppCompatActivity
 
     };
 
-    private User[] friends = null;
+    private User[] friends = new User[0];
     BaseAdapter friend_adapter = new BaseAdapter() {
         @Override
         public int getCount() {   //getCount-------用来指定到底有多少个条目
@@ -233,14 +233,23 @@ public class FriendActivity extends AppCompatActivity
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     Toast.makeText(FriendActivity.this, "已同意好友请求、", Toast.LENGTH_SHORT).show();
-                                    mIFriendAPresenter.acceptFriend(
-                                            oneMakeFriend.getName(),
-                                            oneMakeFriend.getDeviceNumber(),
-                                            oneMakeFriend.getMail(),
-                                            oneMakeFriend.getSignature()
-                                    );
+                                    new Thread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            mIFriendAPresenter.acceptFriend(
+                                                    oneMakeFriend.getName(),
+                                                    oneMakeFriend.getDeviceNumber(),
+                                                    oneMakeFriend.getMail(),
+                                                    oneMakeFriend.getSignature()
+                                            );
+                                            oneMakeFriend = null;
+
+                                            //刷新好友列表、
+                                            getFriendList();
+                                        }
+                                    }).start();
                                     dialog.dismiss();
-                                    oneMakeFriend = null;
+
                                 }
                             })
                             .setPositiveButton("拒不同意", new DialogInterface.OnClickListener() {
@@ -248,8 +257,13 @@ public class FriendActivity extends AppCompatActivity
                                 public void onClick(DialogInterface dialog, int which) {
                                     dialog.dismiss();
                                     Toast.makeText(FriendActivity.this, "拒绝申请、", Toast.LENGTH_SHORT).show();
-                                    mIFriendAPresenter.rejectFriend(oneMakeFriend.getDeviceNumber());
-                                    oneMakeFriend = null;
+                                    new Thread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            mIFriendAPresenter.rejectFriend(oneMakeFriend.getDeviceNumber());
+                                            oneMakeFriend = null;
+                                        }
+                                    }).start();
                                 }
                             })
                             .setCancelable(false)
@@ -507,9 +521,14 @@ public class FriendActivity extends AppCompatActivity
     }
 
     private void getFriendList(){
-        this.friends = this.mIFriendAPresenter.getAllFriend();
-        this.friends = (this.friends == null) ? new User[0] : this.friends;
-        this.mHandler.sendEmptyMessage(4);//更新好友列表界面、
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                friends = mIFriendAPresenter.getAllFriend();
+                friends = (friends == null) ? new User[0] : friends;
+                mHandler.sendEmptyMessage(4);//更新好友列表界面、
+            }
+        }).start();
     }
 
     private void setDiyBackground(){

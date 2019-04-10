@@ -230,7 +230,7 @@ public class UserModel implements IUserModel {
         try{
             Socket socket=new Socket(Server.getIP(),Server.getPost());
             JSONObject jsonObject=new JSONObject();
-            jsonObject.put("operation",11);
+            jsonObject.put("operation",12);
             jsonObject.put("deviceID",myUUID);
             jsonObject.put("friendID",friendUUID);
             OutputStream os=socket.getOutputStream();

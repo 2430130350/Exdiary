@@ -149,7 +149,7 @@ public class MainActivity extends AppCompatActivity
 
     };
 
-    private User[] friends = null;
+    private User[] friends = new User[0];
     BaseAdapter friend_adapter = new BaseAdapter() {
         @Override
         public int getCount() {   //getCount-------用来指定到底有多少个条目
@@ -258,6 +258,9 @@ public class MainActivity extends AppCompatActivity
                                                     oneMakeFriend.getSignature()
                                             );
                                             oneMakeFriend = null;
+
+                                            //刷新好友列表、
+                                            getFriendList();
                                         }
                                     }).start();
 
@@ -893,9 +896,14 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void getFriendList(){
-        this.friends = this.mIFriendAPresenter.getAllFriend();
-        this.friends = (this.friends == null) ? new User[0] : this.friends;
-        this.mHandler.sendEmptyMessage(4);//更新好友列表界面、
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+               friends = mIFriendAPresenter.getAllFriend();
+                friends = (friends == null) ? new User[0] : friends;
+                mHandler.sendEmptyMessage(4);//更新好友列表界面、
+            }
+        }).start();
     }
 
     private void setDiyBackground(){
