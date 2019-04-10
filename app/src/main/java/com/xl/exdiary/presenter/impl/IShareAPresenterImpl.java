@@ -18,7 +18,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-class IShareAPresenterImpl implements IShareAPresenter {
+ public class IShareAPresenterImpl implements IShareAPresenter {
     private IUserModel mIUserModel;
     private IShareDiaryModel miShareDiaryModel;
     private IDiaryModel miDiaryModel;

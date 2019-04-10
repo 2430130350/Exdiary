@@ -70,12 +70,14 @@ import com.xl.exdiary.model.impl.Diary;
 import com.xl.exdiary.model.impl.User;
 import com.xl.exdiary.presenter.impl.FriendAPresenterImpl;
 import com.xl.exdiary.presenter.impl.IEditUserPresenterImpl;
+import com.xl.exdiary.presenter.impl.IShareAPresenterImpl;
 import com.xl.exdiary.presenter.impl.MainAPresenterImpl;
 import com.xl.exdiary.presenter.impl.REditAPresenterImpl;
 import com.xl.exdiary.presenter.inter.IEditUserPresenter;
 import com.xl.exdiary.presenter.inter.IFriendAPresenter;
 import com.xl.exdiary.presenter.inter.IMainAPresenter;
 import com.xl.exdiary.presenter.inter.IREditAPresenter;
+import com.xl.exdiary.presenter.inter.IShareAPresenter;
 import com.xl.exdiary.view.inter.IMainAView;
 import com.xl.exdiary.view.specialView.LinedEditView;
 import com.xl.exdiary.view.specialView.LocalSetting;
@@ -332,6 +334,7 @@ public class MainActivity extends AppCompatActivity
     private IEditUserPresenter mIEditUserPresenter;
     private IMainAPresenter mIMainAPresenter;
     private IFriendAPresenter mIFriendAPresenter;
+    private IShareAPresenter mIShareAPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -340,6 +343,7 @@ public class MainActivity extends AppCompatActivity
         mIEditUserPresenter = new IEditUserPresenterImpl(this);
         mIREditAPresenter = new REditAPresenterImpl(this);
         mIFriendAPresenter = new FriendAPresenterImpl(this);
+        mIShareAPresenter = new IShareAPresenterImpl(this);
 
 
         //6.0以上sd卡读写权限动态申请、
@@ -563,6 +567,39 @@ public class MainActivity extends AppCompatActivity
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 Toast.makeText(MainActivity.this, "分享日记、", Toast.LENGTH_SHORT).show();
+
+                                //弹出 好友侧滑栏   设置新的点击函数  并在分享后重设点击函数\
+                                NavigationView rightNav = findViewById(R.id.right_nav_view);
+                                View headView = rightNav.getHeaderView(0);
+                                final ListView friendList = headView.findViewById(R.id.friendList);
+
+                                final User oneFriend = new User("", "", "", "");
+                                friendList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                    @Override
+                                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                                        User tmpFriend = friends[i];
+                                        oneFriend.setDeviceNumber(tmpFriend.getDeviceNumber());
+                                        oneFriend.setMail(tmpFriend.getMail());
+                                        oneFriend.setName(tmpFriend.getName());
+                                        oneFriend.setSignature(tmpFriend.getSignature());
+                                    }
+                                });
+
+                                //重置监听
+                                MainActivity.this.setListener();
+
+                                //分享操作
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Diary tmpDiary = diaries[diaries.length - 1 - toDelPosition];
+                                        mIShareAPresenter.shareDiary(
+                                                "",
+                                                oneFriend.getDeviceNumber(),
+                                                tmpDiary.getStartTime()
+                                        );
+                                    }
+                                }).start();
                                 dialog.dismiss();
 
                             }
