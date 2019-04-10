@@ -35,7 +35,7 @@ public class ShareDiaryModel implements IShareDiaryModel {
                     break;
                 string.append(read);
             }
-            JSONArray result=new JSONObject(string.toString()).getJSONArray("result");
+            JSONArray result = new JSONArray(new JSONObject(string.toString()).getString("result"));
             os.close();
             br.close();
             socket.close();
@@ -139,13 +139,13 @@ public class ShareDiaryModel implements IShareDiaryModel {
             BufferedReader br=new BufferedReader(new InputStreamReader(socket.getInputStream()));
             StringBuilder string= new StringBuilder();
             String read=new String();
-            while (true){
-                read=br.readLine();
-                if(read==null)
+            while (true) {
+                read = br.readLine();
+                if (read == null)
                     break;
                 string.append(read);
             }
-            JSONArray result=new JSONObject(string.toString()).getJSONArray("result");
+            JSONArray result = new JSONArray(new JSONObject(string.toString()).getString("result"));
             os.close();
             br.close();
             socket.close();
@@ -175,7 +175,7 @@ public class ShareDiaryModel implements IShareDiaryModel {
                     break;
                 string.append(read);
             }
-            JSONArray result=new JSONObject(string.toString()).getJSONArray("result");
+            JSONArray result = new JSONArray(new JSONObject(string.toString()).getString("result"));
             os.close();
             br.close();
             socket.close();
