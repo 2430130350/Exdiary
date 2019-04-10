@@ -52,7 +52,7 @@ public interface IShareAPresenter {
     /*
         取消分享日记
 
-        输入： 好友信息 name uuii   日记日期 date   （uuid,date不可为空, name随意)
+        输入： 好友信息 name uuid   日记日期 date   （uuid,date不可为空, name随意)
 
         输出： true  false
 

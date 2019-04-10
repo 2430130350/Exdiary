@@ -24,7 +24,7 @@ public interface IFriendAPresenter {
     /*
         获得所有好友信息
 
-        输入  无
+        输入 ： 好友 uuid
 
         输出 ： 有好友信息  User[]
                 无好友信息  null
@@ -79,6 +79,20 @@ public interface IFriendAPresenter {
         异常 ： 未对异常做处理
      */
     public User[] getFriendToSure();
+
+        /*
+         以下完成好友添加和请求
+         */
+    /*
+        返回未添加的好友列表
+
+        输入 ：
+
+        输出 ： 返回 User[]
+
+        异常 ： 未对异常做处理
+     */
+        public User[] getFriends();
 
     /*
         接受好友请求

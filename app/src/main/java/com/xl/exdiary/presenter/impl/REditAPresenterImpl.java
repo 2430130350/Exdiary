@@ -11,8 +11,6 @@ import com.xl.exdiary.model.inter.IUserModel;
 import com.xl.exdiary.presenter.inter.IREditAPresenter;
 import com.xl.exdiary.view.inter.IMainAView;
 import com.xl.exdiary.view.inter.IREditAView;
-
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.sql.Timestamp;
@@ -48,7 +46,7 @@ public class REditAPresenterImpl implements IREditAPresenter {
                 diary.put("date",simpleDateFormat.format(date));
                 diary.put("title",title);
                 diary.put("body",body);
-            } catch (JSONException e) {
+            } catch (Exception e) {
                mIMainAview.exception();
                return false;
             }
@@ -74,7 +72,7 @@ public class REditAPresenterImpl implements IREditAPresenter {
                 diary.put("date",date);
                 diary.put("title",title);
                 diary.put("body",body);
-            } catch (JSONException e) {
+            } catch (Exception e) {
                 mIMainAview.exception();
                 return false;
             }

@@ -12,9 +12,7 @@ import com.xl.exdiary.model.inter.ITreeHoleModel;
 import com.xl.exdiary.model.inter.IUserModel;
 import com.xl.exdiary.presenter.inter.IAnonymousAPresenter;
 import com.xl.exdiary.view.inter.IAnonymousAView;
-
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
@@ -49,7 +47,7 @@ public class AnonymousAPresenterImpl implements IAnonymousAPresenter {
                     jso = jsa.getJSONObject(i);
                     diary[i] = new Diary(jso.getString("title"),
                             jso.getString("body"), jso.getString("date"));
-                } catch (JSONException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                     //异常处理
                 }
@@ -76,7 +74,7 @@ public class AnonymousAPresenterImpl implements IAnonymousAPresenter {
                 djso.put("body",body);
                 djso.put("date",date);
                 djso.put("praise",0);
-            } catch (JSONException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 //异常处理
             }
@@ -99,7 +97,7 @@ public class AnonymousAPresenterImpl implements IAnonymousAPresenter {
                 jso.put("uuid",ujso.getString("uuid"));
                 jso.put("date",date);
                 jso.put("title",title);
-            } catch (JSONException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 //异常处理
             }

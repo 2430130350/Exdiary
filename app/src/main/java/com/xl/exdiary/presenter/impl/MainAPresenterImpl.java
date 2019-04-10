@@ -10,7 +10,6 @@ import com.xl.exdiary.view.inter.IMainAView;
 import com.xl.exdiary.model.inter.IUserModel;
 import com.xl.exdiary.model.impl.Diary;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.ParseException;
@@ -43,7 +42,7 @@ public class MainAPresenterImpl implements IMainAPresenter {
                 try {
                     jso = jsa.getJSONObject(i);
                     diaries[i] = new Diary(jso.getString("title"), jso.getString("body"), jso.getString("date"));
-                } catch (JSONException e) {
+                } catch (Exception e) {
                     mIMainAView.exception();
                     return null;
                     //异常处理
@@ -72,7 +71,7 @@ public class MainAPresenterImpl implements IMainAPresenter {
             try {
                 diary.put("user",jso.getString("name"));
                 diary.put("date",date);
-            } catch (JSONException e) {
+            } catch (Exception e) {
                 mIMainAView.exception();
                 return false;
             }
@@ -91,16 +90,14 @@ public class MainAPresenterImpl implements IMainAPresenter {
                 mid = partition(diarys, first, end);
                 orderJSONArrayList(diarys, first, mid-1);
                 orderJSONArrayList(diarys, mid+1, end);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            } catch (ParseException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
 
     //划分JSONArray
-    public int partition(JSONArray jsa, int first, int end) throws JSONException, ParseException {
+    public int partition(JSONArray jsa, int first, int end) throws Exception, ParseException {
         int i = first, j = end;
         Date date1 = null;
         Date date2 = null;
