@@ -13,10 +13,10 @@ import org.json.JSONObject;
 import org.json.JSONArray;
 
 public class FriendAPresenterImpl implements IFriendAPresenter {
-    private IFriendAView mIFriendAView;
+    private IFriendAView mIFriendAView = null;
     private IUserModel mIUserModel;
-    private IMainAView maIMainAview;
-    private AnonymousActivity iAnonymousAView;
+    private IMainAView maIMainAview = null;
+    private AnonymousActivity iAnonymousAView = null;
 
 
     public FriendAPresenterImpl(IMainAView aIMainAView) {//主界面 activity
@@ -182,7 +182,6 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
                 fjso.put("signature",signature);
                 //接口未定义
                return  mIUserModel.saveFriendInLocal(fjso);
-               //return mIUserModel.acceptFriendRequest(mjso.getString("uuid"), uuid);//服务器更新好友信息
             } catch (JSONException e) {
                 e.printStackTrace();
                 //异常处理
@@ -210,7 +209,7 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
             {
                 try {
                     tjso = jsa.getJSONObject(i);
-                    if(tjso.getInt("requested") == 0 && tjso.getString("friendID").equals(jso.getString("uuid")))//状态待定
+                    if(tjso.getInt("requested") == 0 && !tjso.getString("friendID").equals(jso.getString("uuid")))
                         user[i] = new User(tjso.getString("username"), tjso.getString("friendID"),
                                 tjso.getString("motto"), tjso.getString("mail"));
                 } catch (JSONException e) {
