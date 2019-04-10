@@ -181,8 +181,8 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
                 fjso.put("mail",mail);
                 fjso.put("signature",signature);
                 //接口未定义
-               if( mIUserModel.saveFriendInLocal(fjso))
-               return mIUserModel.acceptFriendRequest(mjso.getString("uuid"), uuid);//服务器更新好友信息
+               return  mIUserModel.saveFriendInLocal(fjso);
+               //return mIUserModel.acceptFriendRequest(mjso.getString("uuid"), uuid);//服务器更新好友信息
             } catch (JSONException e) {
                 e.printStackTrace();
                 //异常处理
@@ -194,9 +194,9 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
     //获取云端好友请求信息
     @Override
     public User[] getFriendToSure() {
-        //返回的结构未定！！！！！！
         JSONObject jso = mIUserModel.getUserInfo();
         JSONArray jsa = null;
+        JSONObject tjso ;
         try {
             jsa = mIUserModel.getAllFriendOnServer(jso.getString("uuid"));
         } catch (JSONException e) {
@@ -209,10 +209,10 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
             for(int i = 0; i < jsa.length(); i++)
             {
                 try {
-                    jso = jsa.getJSONObject(i);
-                    if(jso.getInt("requested") == 0 && jso.getString("friendID").equals(jso.getString("uuid")))//状态待定
-                        user[i] = new User(jso.getString("username"), jso.getString("friendID"),
-                                jso.getString("motto"), jso.getString("mail"));
+                    tjso = jsa.getJSONObject(i);
+                    if(tjso.getInt("requested") == 0 && tjso.getString("friendID").equals(jso.getString("uuid")))//状态待定
+                        user[i] = new User(tjso.getString("username"), tjso.getString("friendID"),
+                                tjso.getString("motto"), tjso.getString("mail"));
                 } catch (JSONException e) {
                     e.printStackTrace();
                     //异常处理
