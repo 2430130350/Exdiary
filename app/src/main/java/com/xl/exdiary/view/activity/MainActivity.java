@@ -246,14 +246,21 @@ public class MainActivity extends AppCompatActivity
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     Toast.makeText(MainActivity.this, "已同意好友请求、", Toast.LENGTH_SHORT).show();
-                                    mIFriendAPresenter.acceptFriend(
-                                            oneMakeFriend.getName(),
-                                            oneMakeFriend.getDeviceNumber(),
-                                            oneMakeFriend.getMail(),
-                                            oneMakeFriend.getSignature()
-                                    );
+                                    new Thread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            mIFriendAPresenter.acceptFriend(
+                                                    oneMakeFriend.getName(),
+                                                    oneMakeFriend.getDeviceNumber(),
+                                                    oneMakeFriend.getMail(),
+                                                    oneMakeFriend.getSignature()
+                                            );
+                                            oneMakeFriend = null;
+                                        }
+                                    }).start();
+
                                     dialog.dismiss();
-                                    oneMakeFriend = null;
+
                                 }
                             })
                             .setPositiveButton("拒不同意", new DialogInterface.OnClickListener() {
@@ -261,8 +268,14 @@ public class MainActivity extends AppCompatActivity
                                 public void onClick(DialogInterface dialog, int which) {
                                     dialog.dismiss();
                                     Toast.makeText(MainActivity.this, "拒绝申请、", Toast.LENGTH_SHORT).show();
-                                    mIFriendAPresenter.rejectFriend(oneMakeFriend.getDeviceNumber());
-                                    oneMakeFriend = null;
+                                    new Thread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            mIFriendAPresenter.rejectFriend(oneMakeFriend.getDeviceNumber());
+                                            oneMakeFriend = null;
+                                        }
+                                    }).start();
+
                                 }
                             })
                             .setCancelable(false)
