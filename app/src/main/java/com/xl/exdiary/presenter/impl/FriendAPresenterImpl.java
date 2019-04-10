@@ -118,25 +118,41 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
     @Override
     public User[] getAllFriend() {
         JSONArray jsa = mIUserModel.getAllFriend();
+        User[] friendonServer = getFriendToSure();
         JSONObject jso = null;
         User user[] = new User[jsa.length()];
+        int counts = 0;//记录好友数目
         if(jsa.length() != 0)
         {
-            for(int i = 0; i < jsa.length(); i++)
+            for(int t = 0; t < user.length; t++)
             {
+                User u =  friendonServer[t];
+                for(int i = 0; i < jsa.length(); i++)
+                {
                 try {
                     jso = jsa.getJSONObject(i);
-                         user[i] = new User(jso.getString("name"), jso.getString("uuid"),
+                    if(u.getDeviceNumber().equals(jso.getString("uuid")))
+                    {
+                        user[counts] = new User(jso.getString("name"), jso.getString("uuid"),
                                 jso.getString("signature"), jso.getString("mail"));
+                        counts += 1;
+                    }
+                     else
+                    {//本地无好友信息
+                        user[counts] = new User(null,u.getDeviceNumber(),null,null);
+                        counts += 1;
+                    }
                     } catch (JSONException e) {
-                    e.printStackTrace();
-                    //异常处理
+                        e.printStackTrace();
+                        //异常处理
+                    }
                 }
             }
+
             return user;
         }
         else
-            return null;
+            return new User[0];
     }
 
     //修改用户信息 保证 uuid 号不变
@@ -209,7 +225,7 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
             {
                 try {
                     tjso = jsa.getJSONObject(i);
-                    if(tjso.getInt("requested") == 0 && !tjso.getString("friendID").equals(jso.getString("uuid")))
+                    if(tjso.getInt("requested") == 0)
                         user[i] = new User(tjso.getString("username"), tjso.getString("friendID"),
                                 tjso.getString("motto"), tjso.getString("mail"));
                 } catch (JSONException e) {
