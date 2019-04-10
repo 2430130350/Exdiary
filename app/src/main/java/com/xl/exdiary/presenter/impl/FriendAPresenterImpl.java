@@ -47,8 +47,20 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
                 mIUserModel.addFriendOnServer(jso.getString("uuid"),uuid);
                 return true;
             } catch (JSONException e) {
-                e.printStackTrace();
                 //异常管理
+                if(maIMainAview != null)
+                {
+                    maIMainAview.exception();
+                }
+                else if(mIFriendAView != null){
+                    mIFriendAView.exception();
+                }
+                else if(iAnonymousAView != null) {
+                    iAnonymousAView.exception();
+                }
+                else{
+                    e.printStackTrace();
+                }
             }
         }
         else
@@ -79,8 +91,16 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
                         return false;
                 }
                 } catch (JSONException e) {
-                      e.printStackTrace();
-                      //异常处理，删除异常
+                    //异常处理
+                    if(maIMainAview != null){
+                        maIMainAview.exception();
+                    }else if(mIFriendAView != null){
+                        mIFriendAView.exception();
+                    }else if(iAnonymousAView != null){
+                        iAnonymousAView.exception();
+                    }else{
+                        e.printStackTrace();
+                    }
                     }
             }
         }
@@ -105,7 +125,15 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
                     }
                 } catch (JSONException e) {
                     //异常处理
-                    e.printStackTrace();
+                    if(maIMainAview != null){
+                        maIMainAview.exception();
+                    }else if(mIFriendAView != null){
+                        mIFriendAView.exception();
+                    }else if(iAnonymousAView != null){
+                        iAnonymousAView.exception();
+                    }else{
+                        e.printStackTrace();
+                    }
                 }
             }
         }
@@ -143,12 +171,19 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
                         counts += 1;
                     }
                     } catch (JSONException e) {
+                    //异常处理
+                    if(maIMainAview != null){
+                        maIMainAview.exception();
+                    }else if(mIFriendAView != null){
+                        mIFriendAView.exception();
+                    }else if(iAnonymousAView != null){
+                        iAnonymousAView.exception();
+                    }else{
                         e.printStackTrace();
-                        //异常处理
+                    }
                     }
                 }
             }
-
             return user;
         }
         else
@@ -177,7 +212,15 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
                     }
                 } catch (JSONException e) {
                     //异常处理
-                    e.printStackTrace();
+                    if(maIMainAview != null){
+                        maIMainAview.exception();
+                    }else if(mIFriendAView != null){
+                        mIFriendAView.exception();
+                    }else if(iAnonymousAView != null){
+                        iAnonymousAView.exception();
+                    }else{
+                        e.printStackTrace();
+                    }
                 }
             }
         }
@@ -199,8 +242,16 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
                 //接口未定义
                return  mIUserModel.saveFriendInLocal(fjso);
             } catch (JSONException e) {
-                e.printStackTrace();
                 //异常处理
+                if(maIMainAview != null){
+                    maIMainAview.exception();
+                }else if(mIFriendAView != null){
+                    mIFriendAView.exception();
+                }else if(iAnonymousAView != null){
+                    iAnonymousAView.exception();
+                }else{
+                    e.printStackTrace();
+                }
             }
         }
         return false;
@@ -214,28 +265,33 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
         JSONObject tjso ;
         try {
             jsa = mIUserModel.getAllFriendOnServer(jso.getString("uuid"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-            //异常处理
-        }
+
         User user[] = new User[jsa.length()];
         if(jsa.length() != 0)
         {
             for(int i = 0; i < jsa.length(); i++)
             {
-                try {
-                    tjso = jsa.getJSONObject(i);
-                    if(tjso.getInt("requested") == 0)
-                        user[i] = new User(tjso.getString("username"), tjso.getString("friendID"),
-                                tjso.getString("motto"), tjso.getString("mail"));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    //异常处理
-                }
+                tjso = jsa.getJSONObject(i);
+                if(tjso.getInt("requested") == 0)
+                    user[i] = new User(tjso.getString("username"),
+                            tjso.getString("friendID"),
+                            tjso.getString("motto"),
+                            tjso.getString("mail"));
             }
             return user;
         }
-        else
+        } catch (JSONException e) {
+            //异常处理
+            if(maIMainAview != null){
+                maIMainAview.exception();
+            }else if(mIFriendAView != null){
+                mIFriendAView.exception();
+            }else if(iAnonymousAView != null){
+                iAnonymousAView.exception();
+            }else{
+                e.printStackTrace();
+            }
+         }
         return new User[0];
     }
 
@@ -247,28 +303,33 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
         JSONObject tjso ;
         try {
             jsa = mIUserModel.getAllFriendOnServer(jso.getString("uuid"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-            //异常处理
-        }
+
         User user[] = new User[jsa.length()];
         if(jsa.length() != 0)
         {
             for(int i = 0; i < jsa.length(); i++)
             {
-                try {
-                    tjso = jsa.getJSONObject(i);
-                    if(tjso.getInt("requested") == 1)
-                        user[i] = new User(tjso.getString("username"), tjso.getString("friendID"),
-                                tjso.getString("motto"), tjso.getString("mail"));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    //异常处理
-                }
+                tjso = jsa.getJSONObject(i);
+                if(tjso.getInt("requested") == 1)
+                    user[i] = new User(tjso.getString("username"),
+                            tjso.getString("friendID"),
+                            tjso.getString("motto"),
+                            tjso.getString("mail"));
             }
             return user;
         }
-        else
+        } catch (JSONException e) {
+            //异常处理
+            if(maIMainAview != null){
+                maIMainAview.exception();
+            }else if(mIFriendAView != null){
+                mIFriendAView.exception();
+            }else if(iAnonymousAView != null){
+                iAnonymousAView.exception();
+            }else{
+                e.printStackTrace();
+            }
+         }
             return new User[0];
     }
 
@@ -284,8 +345,16 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
                     mIUserModel.acceptFriendRequest(mjso.getString("uuid"), fuuid);//云端接受请求
                     return true;
                 } catch (JSONException e) {
-                    e.printStackTrace();
                     //异常处理
+                    if(maIMainAview != null){
+                        maIMainAview.exception();
+                    }else if(mIFriendAView != null){
+                        mIFriendAView.exception();
+                    }else if(iAnonymousAView != null){
+                        iAnonymousAView.exception();
+                    }else{
+                        e.printStackTrace();
+                    }
                 }
             }
             else
@@ -304,8 +373,16 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
                 mIUserModel.rejectFriendRequest(mjso.getString("uuid"), fuuid);
                 return true;
             } catch (JSONException e) {
-                e.printStackTrace();
                 //异常处理
+                if(maIMainAview != null){
+                    maIMainAview.exception();
+                }else if(mIFriendAView != null){
+                    mIFriendAView.exception();
+                }else if(iAnonymousAView != null){
+                    iAnonymousAView.exception();
+                }else{
+                    e.printStackTrace();
+                }
             }
         }
         return false;

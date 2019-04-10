@@ -22,9 +22,9 @@ import org.json.JSONObject;
     private IUserModel mIUserModel;
     private IShareDiaryModel miShareDiaryModel;
     private IDiaryModel miDiaryModel;
-    private IMainAView maIMainAview;
-    private IFriendAView mIFriendAView;
-    private AnonymousActivity iAnonymousAView;
+    private IMainAView maIMainAview = null;
+    private IFriendAView mIFriendAView = null;
+    private AnonymousActivity iAnonymousAView = null;
     private IFriendAPresenter miFriendAPresenter;
 
     public IShareAPresenterImpl(IMainAView aIMainAView) {//主界面 activity
@@ -51,6 +51,7 @@ import org.json.JSONObject;
         miFriendAPresenter = new FriendAPresenterImpl(anonymousActivity);
     }
 
+
     //分享日记
     @Override
     public boolean shareDiary(String name, String uuid, String date) {
@@ -73,8 +74,16 @@ import org.json.JSONObject;
                         return miShareDiaryModel.shareDiary(sjso);
                     }
                 } catch (JSONException e) {
-                    e.printStackTrace();
-                    //分享异常处理
+                    //异常处理
+                    if(maIMainAview != null){
+                        maIMainAview.exception();
+                    }else if(mIFriendAView != null){
+                        mIFriendAView.exception();
+                    }else if(iAnonymousAView != null){
+                        iAnonymousAView.exception();
+                    }else{
+                        e.printStackTrace();
+                    }
                 }
             }
         }
@@ -87,37 +96,36 @@ import org.json.JSONObject;
         JSONObject ujso = mIUserModel.getUserInfo();
         JSONObject jso;
         JSONArray jsa = null;
-        int counts = 0;
         try {
             jsa = miShareDiaryModel.getAllShareToDiary(ujso.getString("uuid"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-            //获取所有分享日记错误处理
-        }
         ShareDiary[] diary = new ShareDiary[jsa.length()];
         if(jsa.length() != 0)
         {
             for(int i = 0; i < jsa.length(); i++)
             {
-                try {
-                    jso = jsa.getJSONObject(i);
-                        counts += 1;
-                        User user = miFriendAPresenter.getFriend("",jso.getString("friendID"));
-                        diary[i] = new ShareDiary(jso.getString("shareTitle"),
-                                jso.getString("shareBody"), jso.getString("shareDate"),
-                                user.getName(),ujso.getString("name"),jso.getString("friendID"));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    //异常处理
-                }
+             jso = jsa.getJSONObject(i);
+                User user = miFriendAPresenter.getFriend(null,jso.getString("friendID"));
+                diary[i] = new ShareDiary(jso.getString("shareTitle"),
+                        jso.getString("shareBody"),
+                        jso.getString("shareDate"),
+                        user.getName(),
+                        ujso.getString("name"),
+                        jso.getString("friendID"));
             }
-            ShareDiary[] tdiary = new ShareDiary[counts];
-            for(int t = 0; t < counts; t++){
-                tdiary[t] = diary[t];
-            }
-            return tdiary;
+            return diary;
         }
-        else
+    } catch (JSONException e) {
+            //异常处理
+            if(maIMainAview != null){
+                maIMainAview.exception();
+            }else if(mIFriendAView != null){
+                mIFriendAView.exception();
+            }else if(iAnonymousAView != null){
+                iAnonymousAView.exception();
+            }else{
+                e.printStackTrace();
+            }
+     }
             return new ShareDiary[0];
     }
 
@@ -127,38 +135,35 @@ import org.json.JSONObject;
         JSONObject ujso = mIUserModel.getUserInfo();
         JSONObject jso;
         JSONArray jsa = null;
-        int counts = 0;
         try {
             jsa = miShareDiaryModel.getAllShareFromDiary(ujso.getString("uuid"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-            //获取所有分享日记错误处理
-        }
         ShareDiary[] diary = new ShareDiary[jsa.length()];
-
         if(jsa.length() != 0)
         {
             for(int i = 0; i < jsa.length(); i++)
             {
-                try {
-                    jso = jsa.getJSONObject(i);
-                        counts += 1;
-                        User user = miFriendAPresenter.getFriend("",jso.getString("friendID"));
-                        diary[i] = new ShareDiary(jso.getString("shareTitle"),
-                                jso.getString("shareBody"), jso.getString("shareDate"),
-                               user.getName(),ujso.getString("name"),jso.getString("friendID"));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    //异常处理
-                }
+                jso = jsa.getJSONObject(i);
+                User user = miFriendAPresenter.getFriend("",jso.getString("friendID"));
+                diary[i] = new ShareDiary(jso.getString("shareTitle"),
+                        jso.getString("shareBody"),
+                        jso.getString("shareDate"),
+                       user.getName(),ujso.getString("name"),
+                        jso.getString("friendID"));
             }
-            ShareDiary[] tdiary = new ShareDiary[counts];
-            for(int t = 0; t < counts; t++){
-                tdiary[t] = diary[t];
-            }
-            return tdiary;
+            return diary;
         }
-        else
+    } catch (JSONException e) {
+            //异常处理
+            if(maIMainAview != null){
+                maIMainAview.exception();
+            }else if(mIFriendAView != null){
+                mIFriendAView.exception();
+            }else if(iAnonymousAView != null){
+                iAnonymousAView.exception();
+            }else{
+                e.printStackTrace();
+            }
+         }
             return new ShareDiary[0];
     }
 
@@ -173,7 +178,7 @@ import org.json.JSONObject;
        int i = 0;
        int t = 0;
 
-        if((mdiary.length+fdiary.length) != 0)
+       if((mdiary.length+fdiary.length) != 0)
         {
             ShareDiary[] diary = new ShareDiary[(mdiary.length+fdiary.length)];
             for(i = 0; i < mdiary.length; i++)
@@ -186,7 +191,7 @@ import org.json.JSONObject;
             }
             return diary;
         }
-            return new ShareDiary[0];
+        return new ShareDiary[0];
     }
 
     //取消分享的日记
@@ -212,8 +217,16 @@ import org.json.JSONObject;
                             return miShareDiaryModel.disableShareDiary(djso);
                     }
                 } catch (JSONException e) {
-                    e.printStackTrace();
-                    //分享异常处理
+                    //异常处理
+                    if(maIMainAview != null){
+                        maIMainAview.exception();
+                    }else if(mIFriendAView != null){
+                        mIFriendAView.exception();
+                    }else if(iAnonymousAView != null){
+                        iAnonymousAView.exception();
+                    }else{
+                        e.printStackTrace();
+                    }
                 }
             }
         }

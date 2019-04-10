@@ -24,7 +24,7 @@ public interface IFriendAPresenter {
     /*
         获得所有好友信息
 
-        输入  无
+        输入 ： 好友 uuid
 
         输出 ： 有好友信息  User[]
                 无好友信息  null
