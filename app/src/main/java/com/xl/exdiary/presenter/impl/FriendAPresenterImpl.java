@@ -140,7 +140,7 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
         JSONArray jsa = mIUserModel.getAllFriend();
         User[] friendonServer = getFriends();
         JSONObject jso = null;
-        User user[] = new User[jsa.length()];
+        User user[] = new User[friendonServer.length];
         int counts = 0;//记录好友数目
         try {
             if (friendonServer.length != 0) {
@@ -253,6 +253,7 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
         JSONObject jso = mIUserModel.getUserInfo();
         JSONArray jsa = null;
         JSONObject tjso ;
+        int counts = 0;
         try {
         jsa = mIUserModel.getAllFriendOnServer(jso.getString("uuid"));
         User user[] = new User[jsa.length()];
@@ -261,13 +262,19 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
             for(int i = 0; i < jsa.length(); i++)
             {
                 tjso = jsa.getJSONObject(i);
-                if(tjso.getInt("requested") == 0)
+                if(tjso.getInt("requested") == 0) {
                     user[i] = new User(tjso.getString("username"),
                             tjso.getString("friendID"),
                             tjso.getString("motto"),
                             tjso.getString("mail"));
+                        counts+=1;
+                }
             }
-            return user;
+            User[] tuser = new User[counts];
+            for(int t = 0; t < counts; t++){
+                tuser[t] = user[t];
+            }
+            return tuser;
         }
         } catch (Exception e) {
             //异常处理
