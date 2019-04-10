@@ -157,7 +157,7 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
                            jst.put("uuid",uuid);
                            jst.put("mail",mail);
                            jst.put("signature",signature);
-                           return mIUserModel.saveUserInfoInLocal(jst);
+                           return mIUserModel.saveFriendInLocal(jst);
                     }
                 } catch (JSONException e) {
                     //异常处理
@@ -181,14 +181,13 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
                 fjso.put("mail",mail);
                 fjso.put("signature",signature);
                 //接口未定义
-               return  mIUserModel.saveFriendInLocal(fjso);//return mIUserModel.saveUserInfoInLocal(fjso);//服务器更新好友信息
+               if( mIUserModel.saveFriendInLocal(fjso))
+               return mIUserModel.acceptFriendRequest(mjso.getString("uuid"), uuid);//服务器更新好友信息
             } catch (JSONException e) {
                 e.printStackTrace();
                 //异常处理
             }
         }
-        else
-            return false;
         return false;
     }
 
