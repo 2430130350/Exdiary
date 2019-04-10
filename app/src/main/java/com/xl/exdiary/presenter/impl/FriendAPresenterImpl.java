@@ -211,7 +211,7 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
             {
                 try {
                     jso = jsa.getJSONObject(i);
-                    if(jso.getString("requested").equals('0'))//状态待定
+                    if(jso.getInt("requested") == 0 && jso.getString("friendID").equals(jso.getString("uuid")))//状态待定
                         user[i] = new User(jso.getString("username"), jso.getString("friendID"),
                                 jso.getString("motto"), jso.getString("mail"));
                 } catch (JSONException e) {

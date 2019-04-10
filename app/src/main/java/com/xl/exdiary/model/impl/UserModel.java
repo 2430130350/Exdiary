@@ -207,7 +207,7 @@ public class UserModel implements IUserModel {
             os.flush();
             BufferedReader br=new BufferedReader(new InputStreamReader(socket.getInputStream()));
             StringBuilder string= new StringBuilder();
-            String read=new String();
+            String read = new String();
             while (true){
                 read=br.readLine();
                 if(read==null)
