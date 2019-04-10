@@ -10,7 +10,6 @@ import com.xl.exdiary.view.inter.IAnonymousAView;
 import com.xl.exdiary.view.inter.IFriendAView;
 import com.xl.exdiary.view.inter.IMainAView;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Date;
@@ -51,7 +50,7 @@ public class IEditUserPresenterImpl implements IEditUserPresenter {
                 jsoUser.put("mail",mail);
                 if(mIUserModel.saveUserInfoInLocal(jsoUser))//本地保存
                     return mIUserModel.saveUserInfoOnServer(jsoUser);//服务器保存
-            } catch (JSONException e) {
+            } catch (Exception e) {
                 maIMainAview.exception();
                 return false;
             }
@@ -69,7 +68,7 @@ public class IEditUserPresenterImpl implements IEditUserPresenter {
             try {
                 user = new User(jsa.getString("name"), jsa.getString("uuid")
                         ,jsa.getString("signature"), jsa.getString("mail"));
-            } catch (JSONException e) {
+            } catch (Exception e) {
                 if(maIMainAview != null )
                     maIMainAview.exception();
                 else if(mIFriendAView != null)
@@ -113,7 +112,7 @@ public class IEditUserPresenterImpl implements IEditUserPresenter {
                 }
                 else
                     return false;
-            } catch (JSONException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 if(maIMainAview != null)
                     maIMainAview.exception();

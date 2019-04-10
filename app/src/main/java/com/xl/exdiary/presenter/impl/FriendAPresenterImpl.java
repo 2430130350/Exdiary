@@ -7,8 +7,6 @@ import com.xl.exdiary.presenter.inter.IFriendAPresenter;
 import com.xl.exdiary.view.activity.AnonymousActivity;
 import com.xl.exdiary.view.inter.IFriendAView;
 import com.xl.exdiary.view.inter.IMainAView;
-
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONArray;
 
@@ -46,7 +44,7 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
             try {
                 mIUserModel.addFriendOnServer(jso.getString("uuid"),uuid);
                 return true;
-            } catch (JSONException e) {
+            } catch (Exception e) {
                 //异常管理
                 if(maIMainAview != null)
                 {
@@ -90,7 +88,7 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
                     else
                         return false;
                 }
-                } catch (JSONException e) {
+                } catch (Exception e) {
                     //异常处理
                     if(maIMainAview != null){
                         maIMainAview.exception();
@@ -123,7 +121,7 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
                         return new User(jso.getString("name"), jso.getString("uuid"),
                                 jso.getString("signature"), jso.getString("mail"));
                     }
-                } catch (JSONException e) {
+                } catch (Exception e) {
                     //异常处理
                     if(maIMainAview != null){
                         maIMainAview.exception();
@@ -170,7 +168,7 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
                         user[counts] = new User(null,u.getDeviceNumber(),null,null);
                         counts += 1;
                     }
-                    } catch (JSONException e) {
+                    } catch (Exception e) {
                     //异常处理
                     if(maIMainAview != null){
                         maIMainAview.exception();
@@ -210,7 +208,7 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
                            jst.put("signature",signature);
                            return mIUserModel.saveFriendInLocal(jst);
                     }
-                } catch (JSONException e) {
+                } catch (Exception e) {
                     //异常处理
                     if(maIMainAview != null){
                         maIMainAview.exception();
@@ -241,7 +239,7 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
                 fjso.put("signature",signature);
                 //接口未定义
                return  mIUserModel.saveFriendInLocal(fjso);
-            } catch (JSONException e) {
+            } catch (Exception e) {
                 //异常处理
                 if(maIMainAview != null){
                     maIMainAview.exception();
@@ -280,7 +278,7 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
             }
             return user;
         }
-        } catch (JSONException e) {
+        } catch (Exception e) {
             //异常处理
             if(maIMainAview != null){
                 maIMainAview.exception();
@@ -302,11 +300,11 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
         JSONArray jsa = null;
         JSONObject tjso ;
         try {
+        if(jso != null && jsa.length() != 0)
+        {  
             jsa = mIUserModel.getAllFriendOnServer(jso.getString("uuid"));
 
-        User user[] = new User[jsa.length()];
-        if(jsa.length() != 0)
-        {
+            User user[] = new User[jsa.length()];
             for(int i = 0; i < jsa.length(); i++)
             {
                 tjso = jsa.getJSONObject(i);
@@ -318,7 +316,7 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
             }
             return user;
         }
-        } catch (JSONException e) {
+        } catch (Exception e) {
             //异常处理
             if(maIMainAview != null){
                 maIMainAview.exception();
@@ -344,7 +342,7 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
                 try {
                     mIUserModel.acceptFriendRequest(mjso.getString("uuid"), fuuid);//云端接受请求
                     return true;
-                } catch (JSONException e) {
+                } catch (Exception e) {
                     //异常处理
                     if(maIMainAview != null){
                         maIMainAview.exception();
@@ -372,7 +370,7 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
             try {
                 mIUserModel.rejectFriendRequest(mjso.getString("uuid"), fuuid);
                 return true;
-            } catch (JSONException e) {
+            } catch (Exception e) {
                 //异常处理
                 if(maIMainAview != null){
                     maIMainAview.exception();

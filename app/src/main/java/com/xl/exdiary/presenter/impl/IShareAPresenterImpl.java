@@ -15,7 +15,6 @@ import com.xl.exdiary.view.inter.IFriendAView;
 import com.xl.exdiary.view.inter.IMainAView;
 import com.xl.exdiary.model.impl.ShareDiary;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
  public class IShareAPresenterImpl implements IShareAPresenter {
@@ -73,7 +72,7 @@ import org.json.JSONObject;
                         sjso.put("shareDiary",djso);
                         return miShareDiaryModel.shareDiary(sjso);
                     }
-                } catch (JSONException e) {
+                } catch (Exception e) {
                     //异常处理
                     if(maIMainAview != null){
                         maIMainAview.exception();
@@ -114,7 +113,7 @@ import org.json.JSONObject;
             }
             return diary;
         }
-    } catch (JSONException e) {
+    } catch (Exception e) {
             //异常处理
             if(maIMainAview != null){
                 maIMainAview.exception();
@@ -152,7 +151,7 @@ import org.json.JSONObject;
             }
             return diary;
         }
-    } catch (JSONException e) {
+    } catch (Exception e) {
             //异常处理
             if(maIMainAview != null){
                 maIMainAview.exception();
@@ -216,7 +215,7 @@ import org.json.JSONObject;
                             djso.put("friendID",uuid);
                             return miShareDiaryModel.disableShareDiary(djso);
                     }
-                } catch (JSONException e) {
+                } catch (Exception e) {
                     //异常处理
                     if(maIMainAview != null){
                         maIMainAview.exception();
