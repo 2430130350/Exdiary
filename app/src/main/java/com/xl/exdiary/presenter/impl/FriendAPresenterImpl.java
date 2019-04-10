@@ -118,7 +118,7 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
     @Override
     public User[] getAllFriend() {
         JSONArray jsa = mIUserModel.getAllFriend();
-        User[] friendonServer = getFriendToSure();
+        User[] friendonServer = getFriends();
         JSONObject jso = null;
         User user[] = new User[jsa.length()];
         int counts = 0;//记录好友数目
@@ -237,6 +237,39 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
         }
         else
         return new User[0];
+    }
+
+    //返回所有好友信息
+    @Override
+    public User[] getFriends() {
+        JSONObject jso = mIUserModel.getUserInfo();
+        JSONArray jsa = null;
+        JSONObject tjso ;
+        try {
+            jsa = mIUserModel.getAllFriendOnServer(jso.getString("uuid"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+            //异常处理
+        }
+        User user[] = new User[jsa.length()];
+        if(jsa.length() != 0)
+        {
+            for(int i = 0; i < jsa.length(); i++)
+            {
+                try {
+                    tjso = jsa.getJSONObject(i);
+                    if(tjso.getInt("requested") == 1)
+                        user[i] = new User(tjso.getString("username"), tjso.getString("friendID"),
+                                tjso.getString("motto"), tjso.getString("mail"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    //异常处理
+                }
+            }
+            return user;
+        }
+        else
+            return new User[0];
     }
 
     //同意添加好友，并且本地保存好友信息，和更新云端好友申请信息
