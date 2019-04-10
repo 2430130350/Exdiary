@@ -98,9 +98,7 @@ public class ShareDiaryModel implements IShareDiaryModel {
             jsonObject.put("operation",7);
             jsonObject.put("deviceID",shareDiary.getString("myUuid"));
             jsonObject.put("friendID",shareDiary.getString("friendUuid"));
-            Date date = new Date(System.currentTimeMillis());
-            @SuppressLint("SimpleDateFormat") SimpleDateFormat simpleDateFormat = new  SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss");
-            jsonObject.put("time",simpleDateFormat.format(date));
+            jsonObject.put("time",shareDiary.getString("date"));
             jsonObject.put("articleID",ID);
             OutputStream os=socket.getOutputStream();
             os.write(jsonObject.toString().getBytes());
