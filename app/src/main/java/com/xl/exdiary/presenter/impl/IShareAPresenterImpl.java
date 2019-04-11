@@ -58,7 +58,7 @@ import org.json.JSONObject;
         JSONObject djso;//临时变量
         JSONObject sjso = new JSONObject();//分享的日记
         JSONArray jsa = miDiaryModel.getAllDiaryList();
-        if(name.length() != 0 && uuid.length() != 0 /// 保证数据完整
+        if(uuid.length() != 0 /// 保证数据完整
                 && date.length() != 0 && jso != null)
         {
             for(int i = 0; i < jsa.length(); i++)
@@ -136,22 +136,22 @@ import org.json.JSONObject;
         JSONArray jsa = null;
         try {
             jsa = miShareDiaryModel.getAllShareFromDiary(ujso.getString("uuid"));
-        ShareDiary[] diary = new ShareDiary[jsa.length()];
-        if(jsa.length() != 0)
-        {
-            for(int i = 0; i < jsa.length(); i++)
+            ShareDiary[] diary = new ShareDiary[jsa.length()];
+            if(jsa.length() != 0)
             {
-                jso = jsa.getJSONObject(i);
-                User user = miFriendAPresenter.getFriend("",jso.getString("friendID"));
-                diary[i] = new ShareDiary(jso.getString("shareTitle"),
-                        jso.getString("shareBody"),
-                        jso.getString("shareDate"),
-                       user.getName(),ujso.getString("name"),
-                        jso.getString("friendID"));
-            }
-            return diary;
-        }
-    } catch (Exception e) {
+                for(int i = 0; i < jsa.length(); i++)
+                {
+                    jso = jsa.getJSONObject(i);
+                    User user = miFriendAPresenter.getFriend("",jso.getString("friendID"));
+                    diary[i] = new ShareDiary(jso.getString("shareTitle"),
+                            jso.getString("shareBody"),
+                            jso.getString("shareDate"),
+                           user.getName(),ujso.getString("name"),
+                            jso.getString("friendID"));
+                }
+                return diary;
+             }
+        } catch (Exception e) {
             //异常处理
             if(maIMainAview != null){
                 maIMainAview.exception();

@@ -335,6 +335,7 @@ public class AnonymousActivity extends AppCompatActivity
                                 Toast.makeText(AnonymousActivity.this, "已发起好友申请、", Toast.LENGTH_SHORT).show();
                                 final String friendUUID = friendUUIDEdit.getText().toString();
 
+
                                 new Thread(new Runnable() {
                                     @Override
                                     public void run() {

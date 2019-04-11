@@ -51,12 +51,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.xl.exdiary.R;
+import com.xl.exdiary.model.impl.Diary;
+import com.xl.exdiary.model.impl.ShareDiary;
 import com.xl.exdiary.model.impl.User;
 import com.xl.exdiary.presenter.impl.FriendAPresenterImpl;
 import com.xl.exdiary.presenter.impl.IEditUserPresenterImpl;
+import com.xl.exdiary.presenter.impl.IShareAPresenterImpl;
 import com.xl.exdiary.presenter.inter.IEditUserPresenter;
 import com.xl.exdiary.presenter.inter.IFriendAPresenter;
+import com.xl.exdiary.presenter.inter.IShareAPresenter;
 import com.xl.exdiary.view.inter.IFriendAView;
+import com.xl.exdiary.view.specialView.LinedEditView;
 import com.xl.exdiary.view.specialView.LocalSetting;
 import com.xl.exdiary.view.specialView.LocalSettingFileHandler;
 
@@ -75,11 +80,14 @@ public class FriendActivity extends AppCompatActivity
 
     private LocalSetting localSetting = null;
 
-    int data_list_count = 25;
+    private ShareDiary[] diaries = null;
     BaseAdapter text_adapter = new BaseAdapter() {
         @Override
         public int getCount() {   //getCount-------用来指定到底有多少个条目
-            return FriendActivity.this.data_list_count;
+            if(diaries == null){
+                return 0;
+            }
+            return diaries.length;
         }
 
         @SuppressLint("SetTextI18n")
@@ -91,9 +99,13 @@ public class FriendActivity extends AppCompatActivity
                 view = View.inflate(FriendActivity.this, R.layout.listview_item, null);
             else
                 view = convertView;
-            TextView tv = view.findViewById(R.id.TextItem_data);
-            String str = "卢本伟牛逼、";
-            tv.setText("\n        " + str + "\n");
+            TextView time = view.findViewById(R.id.TextItem_time);
+            TextView title = view.findViewById(R.id.TextItem_data);
+            String timeStr = diaries[diaries.length - 1 - position].getStartTime();
+            String titleStr = diaries[diaries.length - 1 - position].getTitle();
+
+            time.setText(timeStr);
+            title.setText(titleStr);
             return view;
         }
 
@@ -148,7 +160,10 @@ public class FriendActivity extends AppCompatActivity
     PagerAdapter read_card_adapter = new PagerAdapter() {
         @Override
         public int getCount() {
-            return FriendActivity.this.data_list_count;
+            if(diaries == null){
+                return 0;
+            }
+            return diaries.length;
         }
 
         @Override
@@ -158,6 +173,14 @@ public class FriendActivity extends AppCompatActivity
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
             View view = View.inflate(FriendActivity.this, R.layout.read_card_view,null);
+
+            LinedEditView timeEdit = view.findViewById(R.id.TextItem_time);
+            LinedEditView dataEdit = view.findViewById(R.id.TextItem_data);
+
+            ShareDiary tmpDiary = diaries[position];
+
+            timeEdit.setText(tmpDiary.getFriendName() + ":\t\t\t" + tmpDiary.getTitle());//名字 +   标题
+            dataEdit.setText(tmpDiary.getBody());
 
             container.addView(view);
             return view;
@@ -180,8 +203,6 @@ public class FriendActivity extends AppCompatActivity
                     break;
                 case 1://更新数据、
                     final ListView listView = FriendActivity.this.findViewById(R.id.Listview);
-                    FriendActivity.this.getFriendDiaryList();
-
                     FriendActivity.this.text_adapter.notifyDataSetChanged();
                     listView.setVisibility(View.GONE);
 
@@ -296,13 +317,21 @@ public class FriendActivity extends AppCompatActivity
     }
 
     private void getFriendDiaryList(){
-
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                diaries = mIShareAPresenter.getFriendDiary();
+                diaries = (diaries == null) ? new ShareDiary[0] : diaries;
+                mHandler.sendEmptyMessage(1);
+            }
+        }).start();
     }
 
     //以上为自定义属性、
 
     private IFriendAPresenter mIFriendAPresenter;
     private IEditUserPresenter mIEditUserPresenter;
+    private IShareAPresenter mIShareAPresenter;
 
     @SuppressLint("RestrictedApi")
     @Override
@@ -311,6 +340,7 @@ public class FriendActivity extends AppCompatActivity
 
         mIFriendAPresenter = new FriendAPresenterImpl(this);
         mIEditUserPresenter = new IEditUserPresenterImpl(this);
+        mIShareAPresenter = new IShareAPresenterImpl(this);
 
 
         setContentView(R.layout.activity_friend);
@@ -343,6 +373,7 @@ public class FriendActivity extends AppCompatActivity
         appearAnimation.setDuration(500);
         deleteAnimation.setDuration(500);
 
+        this.getFriendDiaryList();
         this.initOther();
         this.setListener();
 

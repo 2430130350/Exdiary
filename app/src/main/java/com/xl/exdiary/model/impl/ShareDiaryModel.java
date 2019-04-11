@@ -72,7 +72,7 @@ public class ShareDiaryModel implements IShareDiaryModel {
             os.close();
             br.close();
             socket.close();
-            if(result.get("result").equals("1"))
+            if(result.getString("result").equals("日记上传成功"))
                 return true;
         }catch (Exception e){
             e.printStackTrace();
@@ -97,8 +97,9 @@ public class ShareDiaryModel implements IShareDiaryModel {
             JSONObject jsonObject=new JSONObject();
             jsonObject.put("operation",7);
             jsonObject.put("deviceID",shareDiary.getString("myUuid"));
-            jsonObject.put("friendID",shareDiary.getString("friendUuid"));
-            jsonObject.put("time",shareDiary.getString("date"));
+            jsonObject.put("receiver",shareDiary.getString("friendUuid"));
+            Date date = new Date(System.currentTimeMillis());
+            jsonObject.put("time",shareDiary.getJSONObject("shareDiary").getString("date"));
             jsonObject.put("articleID",ID);
             OutputStream os=socket.getOutputStream();
             os.write(jsonObject.toString().getBytes());

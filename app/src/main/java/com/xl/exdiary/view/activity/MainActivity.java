@@ -571,7 +571,14 @@ public class MainActivity extends AppCompatActivity
                             public void onClick(DialogInterface dialog, int which) {
                                 Toast.makeText(MainActivity.this, "分享日记、", Toast.LENGTH_SHORT).show();
 
-                                //弹出 好友侧滑栏   设置新的点击函数  并在分享后重设点击函数\
+                                dialog.dismiss();
+
+                                //弹出 好友侧滑栏   设置新的点击函数  并在分享后重设点击函数
+
+                                final DrawerLayout drawer = findViewById(R.id.drawer_layout);
+                                drawer.openDrawer(GravityCompat.END);
+
+
                                 NavigationView rightNav = findViewById(R.id.right_nav_view);
                                 View headView = rightNav.getHeaderView(0);
                                 final ListView friendList = headView.findViewById(R.id.friendList);
@@ -585,25 +592,29 @@ public class MainActivity extends AppCompatActivity
                                         oneFriend.setMail(tmpFriend.getMail());
                                         oneFriend.setName(tmpFriend.getName());
                                         oneFriend.setSignature(tmpFriend.getSignature());
+
+                                        drawer.closeDrawer(GravityCompat.END);
+                                        //重置监听
+                                        MainActivity.this.setListener();
+
+                                        //分享操作
+                                        new Thread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                Diary tmpDiary = diaries[diaries.length - 1 - toDelPosition];
+                                                mIShareAPresenter.shareDiary(
+                                                        "",
+                                                        oneFriend.getDeviceNumber(),
+                                                        tmpDiary.getStartTime()
+                                                );
+                                            }
+                                        }).start();
+
                                     }
                                 });
 
-                                //重置监听
-                                MainActivity.this.setListener();
 
-                                //分享操作
-                                new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Diary tmpDiary = diaries[diaries.length - 1 - toDelPosition];
-                                        mIShareAPresenter.shareDiary(
-                                                "",
-                                                oneFriend.getDeviceNumber(),
-                                                tmpDiary.getStartTime()
-                                        );
-                                    }
-                                }).start();
-                                dialog.dismiss();
+
 
                             }
                         }).create().show();
