@@ -65,6 +65,7 @@ import com.xl.exdiary.view.specialView.LinedEditView;
 import com.xl.exdiary.view.specialView.LocalSetting;
 import com.xl.exdiary.view.specialView.LocalSettingFileHandler;
 
+import java.io.File;
 import java.lang.reflect.Method;
 
 public class FriendActivity extends AppCompatActivity
@@ -138,9 +139,12 @@ public class FriendActivity extends AppCompatActivity
                 view = View.inflate(FriendActivity.this, R.layout.listview_item, null);
             else
                 view = convertView;
+            TextView timeText = view.findViewById(R.id.TextItem_time);
+            timeText.setText("好友等级:  VIP9");
             TextView tv = view.findViewById(R.id.TextItem_data);
-            String str = friends[position].getDeviceNumber();
-            tv.setText("\n        " + str + "\n");
+            String name = friends[position].getName();
+
+            tv.setText("\t" + name);
             return view;
         }
 
@@ -177,7 +181,7 @@ public class FriendActivity extends AppCompatActivity
             LinedEditView timeEdit = view.findViewById(R.id.TextItem_time);
             LinedEditView dataEdit = view.findViewById(R.id.TextItem_data);
 
-            ShareDiary tmpDiary = diaries[position];
+            ShareDiary tmpDiary = diaries[diaries.length - 1 - position];
 
             timeEdit.setText(tmpDiary.getFriendName() + ":\t\t\t" + tmpDiary.getTitle());//名字 +   标题
             dataEdit.setText(tmpDiary.getBody());
@@ -229,6 +233,10 @@ public class FriendActivity extends AppCompatActivity
                     });
                     listView.startAnimation(animation);
                     listView.invalidate();
+
+                    read_card_adapter.notifyDataSetChanged();
+                    FriendActivity.this.findViewById(R.id.read_viewpager).invalidate();
+
 
                     /**
                      *
@@ -365,6 +373,7 @@ public class FriendActivity extends AppCompatActivity
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
 
+        navigationView.setItemIconTintList(null);
 
 
         //以下为自定义代码、
@@ -400,6 +409,11 @@ public class FriendActivity extends AppCompatActivity
                 FriendActivity.this.blurV2(bitmap, imageView);
                 imageView.setVisibility(View.VISIBLE);
                 FriendActivity.this.findViewById(R.id.read_viewpager).setVisibility(View.VISIBLE);
+                FriendActivity.this.findViewById(R.id.read_viewpager).startAnimation(appearAnimation);
+                ViewPager mViewPager1 = FriendActivity.this.findViewById(R.id.read_viewpager);
+                mViewPager1.setCurrentItem(position);
+
+
             }
         });
 
@@ -408,8 +422,7 @@ public class FriendActivity extends AppCompatActivity
             @SuppressLint("RestrictedApi")
             @Override
             public void onClick(View v) {
-                FloatingActionButton fab = findViewById(R.id.fab);
-                fab.setVisibility(View.VISIBLE);
+
 
                 if(findViewById(R.id.userinfoCardview).getVisibility() == View.VISIBLE) {
                     View view = findViewById(R.id.userinfoCardview);
@@ -422,6 +435,8 @@ public class FriendActivity extends AppCompatActivity
 
                 FriendActivity.this.findViewById(R.id.blur).setVisibility(View.INVISIBLE);
                 FriendActivity.this.findViewById(R.id.read_viewpager).setVisibility(View.INVISIBLE);
+                FriendActivity.this.findViewById(R.id.read_viewpager).startAnimation(deleteAnimation);
+
 
             }
         });

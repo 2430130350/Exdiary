@@ -150,16 +150,18 @@ public class FriendAPresenterImpl implements IFriendAPresenter {
                         for (int i = 0; i < jsa.length(); i++) {
                             jso = jsa.getJSONObject(i);
                             if (u.getDeviceNumber().equals(jso.getString("uuid"))) {
-                                user[counts] = new User(jso.getString("name"), jso.getString("uuid"),
-                                        jso.getString("signature"), jso.getString("mail"));
+                                user[counts] = new User(u.getName(), u.getDeviceNumber(),
+                                        u.getSignature(), u.getMail());
                                 counts += 1;
                             } else {//本地无好友信息
-                                user[counts] = new User(null, u.getDeviceNumber(), null, null);
+                                user[counts] = new User(u.getName(), u.getDeviceNumber(),
+                                        u.getSignature(), u.getMail());
                                 counts += 1;
                             }
                         }
                     } else {
-                        user[counts] = new User(null, u.getDeviceNumber(), null, null);
+                        user[counts] = new User(u.getName(), u.getDeviceNumber(),
+                                u.getSignature(), u.getMail());
                         counts += 1;
                     }
                 }

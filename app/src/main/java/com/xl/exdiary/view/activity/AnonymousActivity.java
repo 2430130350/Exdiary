@@ -169,9 +169,12 @@ public class AnonymousActivity extends AppCompatActivity
                 view = View.inflate(AnonymousActivity.this, R.layout.listview_item, null);
             else
                 view = convertView;
+            TextView timeText = view.findViewById(R.id.TextItem_time);
+            timeText.setText("好友等级:  VIP9");
             TextView tv = view.findViewById(R.id.TextItem_data);
-            String str = friends[position].getDeviceNumber();
-            tv.setText("\n        " + str + "\n");
+            String name = friends[position].getName();
+
+            tv.setText("\t" + name);
             return view;
         }
 
@@ -223,6 +226,8 @@ public class AnonymousActivity extends AppCompatActivity
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
 
+        navigationView.setItemIconTintList(null);
+
         //以下为自定义、
         recyclerView = (RecyclerView) findViewById(R.id.nonameList);
         //使用瀑布流布局,第一个参数 spanCount 列数,第二个参数 orentation 排列方向
@@ -254,9 +259,9 @@ public class AnonymousActivity extends AppCompatActivity
             List<Diary> list = new ArrayList(Arrays.asList(data));
             String str = "";
             for(int j = 0; j<i%6; j++){
-                str += "卢本伟牛逼、卢本伟牛逼、卢本伟牛逼、卢本伟牛逼、卢本伟牛逼、";
+                str += "该页面还在开发中哦,这边建议您先逛逛其他页面的呢,亲亲.";
             }
-            list.add(new Diary("卢本伟牛逼", str, "今天" + i + "点"));
+            list.add(new Diary("开发中", str, "今天" + i + "点"));
             Diary[] newdata = new Diary[list.size()];
             list.toArray(newdata);
             this.data = newdata;

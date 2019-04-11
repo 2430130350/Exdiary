@@ -142,7 +142,15 @@ import org.json.JSONObject;
                 for(int i = 0; i < jsa.length(); i++)
                 {
                     jso = jsa.getJSONObject(i);
-                    User user = miFriendAPresenter.getFriend("",jso.getString("sender"));
+                    String senderuuid = jso.getString("sender");
+                    User[] users = miFriendAPresenter.getAllFriend();
+                    User user = null;
+                    for(int tmp = 0; tmp <users.length; tmp++){
+                        if(users[tmp].getDeviceNumber().equals(senderuuid)){
+                            user = users[tmp];
+                            break;
+                        }
+                    }
                     diary[i] = new ShareDiary(jso.getString("title"),
                             jso.getString("content"),
                             jso.getString("writetime"),

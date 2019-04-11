@@ -165,9 +165,12 @@ public class MainActivity extends AppCompatActivity
                 view = View.inflate(MainActivity.this, R.layout.listview_item, null);
             else
                 view = convertView;
+            TextView timeText = view.findViewById(R.id.TextItem_time);
+            timeText.setText("好友等级:  VIP9");
             TextView tv = view.findViewById(R.id.TextItem_data);
-            String str = friends[position].getDeviceNumber();
-            tv.setText("\n        " + str + "\n");
+            String name = friends[position].getName();
+
+            tv.setText("\t" + name);
             return view;
         }
 
@@ -409,6 +412,8 @@ public class MainActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
+
+        navigationView.setItemIconTintList(null);
 
         //以下为自定义方法、
         /**
