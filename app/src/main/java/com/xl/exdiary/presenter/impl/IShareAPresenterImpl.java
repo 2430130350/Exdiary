@@ -142,12 +142,13 @@ import org.json.JSONObject;
                 for(int i = 0; i < jsa.length(); i++)
                 {
                     jso = jsa.getJSONObject(i);
-                    User user = miFriendAPresenter.getFriend("",jso.getString("friendID"));
-                    diary[i] = new ShareDiary(jso.getString("shareTitle"),
-                            jso.getString("shareBody"),
-                            jso.getString("shareDate"),
-                           user.getName(),ujso.getString("name"),
-                            jso.getString("friendID"));
+                    User user = miFriendAPresenter.getFriend("",jso.getString("sender"));
+                    diary[i] = new ShareDiary(jso.getString("title"),
+                            jso.getString("content"),
+                            jso.getString("writetime"),
+                            user.getName(),
+                            ujso.getString("name"),
+                            jso.getString("sender"));
                 }
                 return diary;
              }
